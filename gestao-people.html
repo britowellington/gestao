@@ -1286,15 +1286,19 @@ function toggleMic(fieldId, btn) {
     if (status) { status.classList.add('show'); }
   };
 
+  let textoFinal = textoBase;
+
   recognition.onresult = (e) => {
-    let interino = '';
-    let final = textoBase;
-    for (let i = 0; i < e.results.length; i++) {
-      if (e.results[i].isFinal) final += (final ? ' ' : '') + e.results[i][0].transcript;
-      else interino = e.results[i][0].transcript;
+    // Acumula apenas resultados finais novos a partir de resultIndex
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        textoFinal += (textoFinal ? ' ' : '') + e.results[i][0].transcript.trim();
+      }
     }
-    textarea.value = final + (interino ? ' ' + interino : '');
-    // Dispara input event para atualizar botoes de salvar
+    // Pega o interino do ultimo resultado (se houver)
+    const ultimo = e.results[e.results.length - 1];
+    const interino = !ultimo.isFinal ? ultimo[0].transcript : '';
+    textarea.value = textoFinal + (interino ? ' ' + interino : '');
     textarea.dispatchEvent(new Event('input'));
   };
 
