@@ -1288,28 +1288,42 @@ function toggleMic(fieldId, btn) {
 
   let textoFinal = textoBase;
 
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  const reiniciar = () => {
+    if (micAtivo === fieldId) {
+      try { recognition.start(); } catch(e) {}
+    }
+  };
+
   recognition.onresult = (e) => {
-    // Acumula apenas resultados finais novos a partir de resultIndex
-    for (let i = e.resultIndex; i < e.results.length; i++) {
+    let interino = '';
+    for (let i = 0; i < e.results.length; i++) {
       if (e.results[i].isFinal) {
         textoFinal += (textoFinal ? ' ' : '') + e.results[i][0].transcript.trim();
+        interino = '';
+      } else {
+        interino = e.results[i][0].transcript;
       }
     }
-    // Pega o interino do ultimo resultado (se houver)
-    const ultimo = e.results[e.results.length - 1];
-    const interino = !ultimo.isFinal ? ultimo[0].transcript : '';
     textarea.value = textoFinal + (interino ? ' ' + interino : '');
     textarea.dispatchEvent(new Event('input'));
   };
 
-  recognition.onerror = (e) => {
-    if (e.error !== 'aborted') alert('Erro no microfone: ' + e.error);
-    stopMic();
+  recognition.onend = () => {
+    if (micAtivo === fieldId) {
+      // Limpa o interino antes de reiniciar
+      textarea.value = textoFinal;
+      reiniciar();
+    } else {
+      stopMicUI(fieldId, btn);
+    }
   };
 
-  recognition.onend = () => {
-    // Finaliza texto — remove parcial
-    stopMicUI(fieldId, btn);
+  recognition.onerror = (e) => {
+    if (e.error === 'not-allowed') { alert('Permissao de microfone negada. Habilite nas configuracoes do navegador.'); micAtivo = null; stopMicUI(fieldId, btn); return; }
+    if (e.error !== 'aborted' && e.error !== 'no-speech') { stopMicUI(fieldId, btn); }
   };
 
   recognition.start();
