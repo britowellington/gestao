@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>GestãoPeople</title>
+<title>Gestão</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gestão">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Inter',system-ui,sans-serif;background:#f8fafc;max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
@@ -2397,5 +2403,15 @@ syncFromSupabase().catch(e => console.error('Sync error:', e));
   <div style="font-size:15px;color:#64748b">Suas respostas foram registradas com sucesso.</div>
 </div>
 
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/gestao/service-worker.js')
+      .then(function(reg) { console.log('SW registrado:', reg.scope); })
+      .catch(function(err) { console.log('SW erro:', err); });
+  });
+}
+</script>
 </body>
 </html>
