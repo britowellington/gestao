@@ -716,31 +716,7 @@ textarea.inp{resize:vertical;min-height:80px}
   </div>
 </div>
 
-<!-- GestãoPeople v14 -->
 <script>
-// Detector de erros visual
-window.onerror = function(msg, src, line, col, err) {
-  var div = document.getElementById('erro-visual');
-  if (!div) { div = document.createElement('div'); div.id='erro-visual'; div.style.cssText='position:fixed;top:60px;left:0;right:0;z-index:9999;background:#ef4444;color:#fff;padding:12px 16px;font-size:13px;font-family:monospace;line-height:1.4'; document.body.appendChild(div); }
-  div.innerHTML = '<strong>ERRO JS:</strong><br>' + msg + '<br>Linha: ' + line + ', Col: ' + col;
-  return false;
-};
-
-// Diagnóstico Supabase
-window.addEventListener('load', function() {
-  setTimeout(function() {
-    var diag = document.createElement('div');
-    diag.id = 'diag-box';
-    diag.style.cssText = 'position:fixed;bottom:80px;left:12px;right:12px;z-index:9998;background:#0f172a;color:#fff;padding:14px;font-size:12px;font-family:monospace;border-radius:10px;line-height:1.6';
-    diag.innerHTML = 'Diagnostico:<br>'
-      + 'reunioes: ' + (window._reunioes_count||'?') + '<br>'
-      + 'colabs: ' + (window._colabs_count||'?') + '<br>'
-      + 'sync: ' + (window._sync_status||'nao iniciado') + '<br>'
-      + '<button onclick="this.parentElement.remove()" style="margin-top:8px;background:#ef4444;border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer">Fechar</button>';
-    document.body.appendChild(diag);
-  }, 4000);
-});
-
 // ── SUPABASE ──────────────────────────────────────────────────────────────────
 const SB_URL = 'https://uhzwywodwqinbwpjchtt.supabase.co';
 const SB_KEY = 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0';
@@ -795,7 +771,6 @@ let q12avaliacoes = load('gp_q12');
 
 // Carrega dados do Supabase e atualiza o app
 async function syncFromSupabase() {
-  window._sync_status = 'iniciando';
   mostrarSyncStatus('Sincronizando...');
   try {
     const [rc, cl, rp, sl, fb, q12] = await Promise.all([
@@ -817,16 +792,12 @@ async function syncFromSupabase() {
     save('gp_rapidos', rapidos);   save('gp_solicit', solicitacoes);
     save('gp_feedbacks', feedbacks); save('gp_q12', q12avaliacoes);
     mostrarSyncStatus('');
-    window._sync_status = 'OK - reunioes:'+reunioes.length+' colabs:'+colabs.length;
-    window._reunioes_count = reunioes.length;
-    window._colabs_count = colabs.length;
     renderDashboard();
     // Recarrega origens
     const og = await sbGet('origens', '&order=criado_em.asc');
     if (og.length) { origens = og.map(o=>({...o})); save('gp_origens', origens); }
   } catch(e) {
     mostrarSyncStatus('Offline — dados locais');
-    window._sync_status = 'ERRO: ' + e.message;
     console.error('Sync error:', e);
   }
 }
@@ -1238,71 +1209,1113 @@ function renderDashboard() {
 
 // ── RENDER CARDS ──────────────────────────────────────────────────────────────
 function renderRapCard(r) {
-  var ctx = {individual:'Individual',grupo:'Grupo',setor:'Setor'};
-  var ctxCor = {individual:'#6366f1',grupo:'#0ea5e9',setor:'#10b981'};
-  var cor = ctxCor[r.contexto]||'#64748b';
-  var svgPin = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="'+cor+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>';
-  var encHtml = r.encaminhamento ? '<div class="rap-enc">' + SVG.arr + ' ' + r.encaminhamento + '</div>' : '';
-  var assinHtml = '';
-  if (r.assinaturas && r.assinaturas.length) {
-    var svgS = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
-    assinHtml = '<div style="margin-top:8px"><button class="assin-badge" data-col="rapidos" data-id="' + r.id + '" onclick="verAssinaturas(this.dataset.col,this.dataset.id)">' + svgS + ' ' + r.assinaturas.length + ' assinatura' + (r.assinaturas.length>1?'s':'') + '</button></div>';
-  }
-  return '<div class="rap-card"><div class="rap-top"><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:8px;background:' + cor + '18;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + svgPin + '</div><div><div style="font-weight:700;color:#0f172a;font-size:13px">' + (ctx[r.contexto]||'') + (r.participantes?' · '+r.participantes:'') + '</div><div style="font-size:11px;color:#94a3b8">' + fmtDate(r.data) + '</div></div></div><button class="btn-delete" data-id="' + r.id + '" onclick="delRapido(this.dataset.id)">' + SVG.trash + '</button></div><div class="rap-body">' + r.assunto + '</div>' + encHtml + assinHtml + '</div>';
+  const ctx = {individual:'Individual',grupo:'Grupo',setor:'Setor'};
+  const ctxCor = {individual:'#6366f1',grupo:'#0ea5e9',setor:'#10b981'};
+  const cor = ctxCor[r.contexto]||'#64748b';
+  return `<div class="rap-card">
+    <div class="rap-top">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:32px;height:32px;border-radius:8px;background:${cor}18;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${cor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div><div style="font-weight:700;color:#0f172a;font-size:13px">${ctx[r.contexto]||''}${r.participantes?' · '+r.participantes:''}</div><div style="font-size:11px;color:#94a3b8">${fmtDate(r.data)}</div></div>
+      </div>
+      <button class="btn-delete" data-id="${r.id}" onclick="delRapido(this.dataset.id)">${SVG.trash}</button>
+    </div>
+    <div class="rap-body">${r.assunto}</div>
+    ${r.encaminhamento?`<div class="rap-enc">${SVG.arr} ${r.encaminhamento}</div>`:''}
+    ${r.assinaturas&&r.assinaturas.length?`<div style="margin-top:8px"><button class="assin-badge" data-col="rapidos" data-id="${r.id}" onclick="verAssinaturas(this.dataset.col,this.dataset.id)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ${r.assinaturas.length} assinatura${r.assinaturas.length>1?'s':''}</button></div>`:''}
+  </div>`;
 }
 
-
-function renderReuniaoCard(r, expanded) {
-  var s = SENTIMENTOS.find(function(x){return x.label===r.clima;})||{icon:'',cor:'#94a3b8'};
-  var bodyId = 'rb-' + String(r.id).replace(/-/g,'');
-  var temasTags = (r.temas&&r.temas.length) ? '<div class="tags" style="margin-bottom:14px">' + r.temas.map(function(t){return '<span class="tag tag-blue">'+t+'</span>';}).join('') + '</div>' : '';
-  var abordadoHtml = r.abordado ? '<div class="info-label">O que foi abordado</div><div class="info-text">'+r.abordado+'</div>' : '';
-  var acoesHtml = r.acoes ? '<div class="info-label">Acoes combinadas</div><div class="info-text">'+r.acoes+'</div>' : '';
-  var proximosHtml = r.proximos ? '<div class="info-label">Proximos passos</div><div class="info-text">'+r.proximos+'</div>' : '';
-  var assinHtml = '';
-  if (r.assinaturas && r.assinaturas.length) {
-    var svgS = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
-    assinHtml = '<div style="margin-top:12px"><button class="assin-badge" data-col="reunioes" data-id="' + r.id + '" onclick="verAssinaturas(this.dataset.col,this.dataset.id)">' + svgS + ' ' + r.assinaturas.length + ' assinatura' + (r.assinaturas.length>1?'s':'') + '</button></div>';
-  }
-  return '<div class="card"><div class="card-hdr" data-id="' + bodyId + '" onclick="toggleCard(this.dataset.id,this)"><div class="card-left">' + avatar(r.colaborador,40) + '<div><div class="card-name">' + r.colaborador + '</div><div class="card-meta">' + r.tipo + '</div><div class="card-meta" style="font-size:11px">' + fmtDate(r.data) + '</div></div></div><div style="display:flex;align-items:center;gap:8px"><div style="color:' + s.cor + '">' + s.icon + '</div><span id="chev-' + bodyId + '">' + SVG.chevD + '</span></div></div><div class="card-body' + (expanded?' open':'') + '" id="' + bodyId + '">' + temasTags + abordadoHtml + acoesHtml + proximosHtml + assinHtml + '<button class="btn-link" data-id="' + r.id + '" onclick="delReuniao(this.dataset.id)">' + SVG.trashRed + ' Excluir registro</button></div></div>';
+function renderReuniaoCard(r, expanded=false) {
+  const s = SENTIMENTOS.find(x=>x.label===r.clima)||{icon:'',cor:'#94a3b8'};
+  const bodyId = 'rb-'+r.id;
+  return `<div class="card">
+    <div class="card-hdr" data-id="${bodyId}" onclick="toggleCard(this.dataset.id,this)">
+      <div class="card-left">
+        ${avatar(r.colaborador,40)}
+        <div><div class="card-name">${r.colaborador}</div><div class="card-meta">${r.tipo}</div><div class="card-meta" style="font-size:11px">${fmtDate(r.data)}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px"><div style="color:${s.cor}">${s.icon}</div><span id="chev-${bodyId}">${SVG.chevD}</span></div>
+    </div>
+    <div class="card-body${expanded?' open':''}" id="${bodyId}">
+      ${r.temas&&r.temas.length?`<div class="tags" style="margin-bottom:14px">${r.temas.map(t=>`<span class="tag tag-blue">${t}</span>`).join('')}</div>`:''}
+      ${r.abordado?`<div class="info-label">O que foi abordado</div><div class="info-text">${r.abordado}</div>`:''}
+      ${r.acoes?`<div class="info-label">Acoes combinadas</div><div class="info-text">${r.acoes}</div>`:''}
+      ${r.proximos?`<div class="info-label">Proximos passos</div><div class="info-text">${r.proximos}</div>`:''}
+      ${r.assinaturas&&r.assinaturas.length?`<div style="margin-top:12px"><button class="assin-badge" data-col="reunioes" data-id="${r.id}" onclick="verAssinaturas(this.dataset.col,this.dataset.id)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ${r.assinaturas.length} assinatura${r.assinaturas.length>1?'s':''}</button></div>`:''}
+      <button class="btn-link" data-id="${r.id}" onclick="delReuniao(this.dataset.id)">${SVG.trashRed} Excluir registro</button>
+    </div>
+  </div>`;
 }
 
+function renderKanban() {
+  const wrap = document.getElementById('kanban-wrap');
+  const empty = document.getElementById('sol-empty');
+  if (!solicitacoes.length) { wrap.style.display='none'; empty.style.display=''; return; }
+  wrap.style.display=''; empty.style.display='none';
+  document.getElementById('kanban-title').textContent = 'Quadro de Solicitacoes (' + solicitacoes.length + ')';
 
-function renderQ12Perguntas() {
-  var cont = document.getElementById('q12-perguntas');
-  var html = '';
-  Q12_NIVEIS.forEach(function(nivel) {
-    html += '<div style="margin-bottom:24px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="width:10px;height:10px;border-radius:50%;background:' + nivel.cor + '"></div><div style="font-size:13px;font-weight:800;color:' + nivel.cor + ';text-transform:uppercase;letter-spacing:.5px">' + nivel.label + '</div></div><div style="font-size:12px;color:#64748b;margin-bottom:12px">' + nivel.desc + '</div>';
-    nivel.perguntas.forEach(function(p) {
-      html += '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px"><div style="font-size:13px;font-weight:600;color:#374151;line-height:1.5;margin-bottom:12px"><span style="color:' + nivel.cor + ';font-weight:800">' + p.id.toUpperCase() + '</span> &nbsp;' + p.texto + '</div><div style="display:flex;gap:6px;justify-content:space-between">';
-      ESCALA.forEach(function(e) {
-        html += '<button id="q12-' + p.id + '-' + e.val + '" data-qid="' + p.id + '" data-val="' + e.val + '" data-cor="' + nivel.cor + '" onclick="setQ12Resp(this.dataset.qid,+this.dataset.val,this.dataset.cor)" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer"><span style="font-size:15px;font-weight:800;color:#64748b">' + e.val + '</span><span style="font-size:9px;color:#94a3b8;text-align:center;line-height:1.2">' + e.sub + '</span></button>';
-      });
-      html += '</div></div>';
-    });
-    html += '</div>';
+  const board = document.getElementById('kanban-board');
+  board.innerHTML = STATUS_LIST.map(st => {
+    const cards = solicitacoes.filter(s => s.status === st.key);
+    const colCards = cards.map(s => renderKbCard(s, st)).join('');
+    return `<div class="kb-col">
+      <div class="kb-col-hdr">
+        <div class="kb-col-title" style="color:${st.cor}">${st.icon} ${st.label}</div>
+        <span class="kb-count">${cards.length}</span>
+      </div>
+      ${cards.length ? colCards : '<div class="kb-empty">Nenhuma</div>'}
+    </div>`;
+  }).join('');
+}
+
+function renderKbCard(s, st) {
+  const orig = origens.find(o => o.key === s.origem) || {label: s.origem||'', cor:'#64748b', icon:''};
+  const atr = isAtrasada(s);
+  const idx = STATUS_LIST.findIndex(x => x.key === s.status);
+  const hasFwd  = idx < STATUS_LIST.length - 1;
+  const hasBack = idx > 0;
+  const fwdSt   = hasFwd  ? STATUS_LIST[idx+1] : null;
+  const backSt  = hasBack ? STATUS_LIST[idx-1] : null;
+
+  return `<div class="kb-card${atr?' atrasada':''}">
+    <div class="kb-card-orig"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${orig.cor};margin-right:4px"></span><span style="color:${orig.cor};font-weight:700">${orig.label}</span>${s.quem?' · <span style="color:#64748b">'+s.quem+'</span>':''}</div>
+    <div class="kb-card-assunto">${s.assunto}</div>
+    <div class="kb-card-meta">
+      ${fmtDate(s.data)}${s.prazo ? ' · Prazo: '+fmtDate(s.prazo) : ''}
+      ${s.direcionado ? '<br>→ '+s.direcionado : ''}
+    </div>
+    ${atr ? '<div style="font-size:11px;color:#dc2626;font-weight:700;margin-bottom:8px">⚠ Prazo vencido</div>' : ''}
+    <div class="kb-card-actions">
+      ${hasBack ? `<button class="kb-btn kb-btn-back" data-id="${s.id}" data-st="${backSt.key}" onclick="moveCard(this.dataset.id,this.dataset.st)">← ${backSt.label}</button>` : ''}
+      ${hasFwd  ? `<button class="kb-btn kb-btn-fwd"  data-id="${s.id}" data-st="${fwdSt.key}" onclick="moveCard(this.dataset.id,this.dataset.st)">${fwdSt.label} →</button>` : ''}
+      <button class="kb-btn kb-btn-del" data-id="${s.id}" onclick="delSolicit(this.dataset.id)" style="margin-left:auto">✕</button>
+    </div>
+  </div>`;
+}
+
+async function moveCard(id, newStatus) {
+  await sbUpdate('solicitacoes', id, { status: newStatus });
+  const idx = solicitacoes.findIndex(s => s.id === id);
+  if (idx >= 0) { solicitacoes[idx].status = newStatus; save('gp_solicit', solicitacoes); renderKanban(); renderDashboard(); }
+}
+
+function renderSolCard(s) {
+  const orig = origens.find(o=>o.key===s.origem)||{label:s.origem||'',cor:'#64748b',icon:''};
+  const st = STATUS_LIST.find(x=>x.key===s.status)||STATUS_LIST[0];
+  const atr = isAtrasada(s);
+  const pickerId = 'sp-'+s.id;
+  return `<div class="sol-card${atr?' atrasada':''}">
+    <div class="sol-top">
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+        <div style="width:34px;height:34px;border-radius:8px;background:${orig.cor}18;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:${orig.cor}">${orig.icon}</div>
+        <div style="min-width:0">
+          <div style="font-weight:700;color:#0f172a;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${orig.label}${s.quem?' · '+s.quem:''}</div>
+          <div style="font-size:11px;color:#94a3b8">${fmtDate(s.data)}${s.prazo?' · Prazo: '+fmtDate(s.prazo):''}</div>
+        </div>
+      </div>
+      <button onclick="toggleStatus('${pickerId}')" style="display:flex;align-items:center;gap:4px;background:${st.bg};border:1.5px solid ${st.cor}30;border-radius:20px;padding:4px 10px;flex-shrink:0">
+        ${st.icon}<span style="font-size:11px;font-weight:700;color:${st.cor}">${st.label}</span>
+      </button>
+    </div>
+    <div style="font-size:14px;color:#374151;line-height:1.55;margin-bottom:6px">${s.assunto}</div>
+    ${s.direcionado?`<div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#64748b;margin-bottom:4px">${SVG.arr} ${s.direcionado}</div>`:''}
+    ${s.obs?`<div style="font-size:12px;color:#94a3b8;font-style:italic">${s.obs}</div>`:''}
+    ${atr?`<div class="vencida-badge">${SVG.clock} Prazo vencido</div>`:''}
+    <div class="status-picker" id="${pickerId}">
+      <div class="status-picker-title">Atualizar status:</div>
+      <div class="status-options">${STATUS_LIST.map(st=>`<button class="status-opt" style="color:${st.cor};border-color:${s.status===st.key?st.cor:'#e2e8f0'};background:${s.status===st.key?st.bg:'#f8fafc'}" data-id="${s.id}" data-st="${st.key}" onclick="setStatus(this.dataset.id,this.dataset.st)">${st.icon} ${st.label}</button>`).join('')}</div>
+      <button class="btn-link" data-id="${s.id}" onclick="delSolicit(this.dataset.id)">${SVG.trashRed} Excluir</button>
+    </div>
+  </div>`;
+}
+
+// ── RENDER PAGES ──────────────────────────────────────────────────────────────
+function renderHistorico() {
+  const q = document.getElementById('hist-busca').value.toLowerCase();
+  const filtered = reunioes.filter(r=>r.colaborador.toLowerCase().includes(q)||r.tipo.toLowerCase().includes(q));
+  document.getElementById('hist-sub').textContent = reunioes.length + ' reunioes registradas';
+  document.getElementById('hist-list').innerHTML = filtered.map(r=>renderReuniaoCard(r,true)).join('');
+  document.getElementById('hist-empty').style.display = filtered.length ? 'none' : '';
+}
+
+function renderColabs() {
+  document.getElementById('equipe-sub').textContent = colabs.length + ' colaboradores';
+  document.getElementById('colab-empty').style.display = colabs.length ? 'none' : '';
+  document.getElementById('colab-list').innerHTML = colabs.map(c=>{
+    const qtd = reunioes.filter(r=>r.colaborador===c).length;
+    return `<div class="colab-item">
+      ${avatar(c,40)}
+      <div style="flex:1"><div class="colab-name">${c}</div><div class="colab-meta">${qtd===1?'1 reuniao registrada':qtd+' reunioes registradas'}</div></div>
+      ${qtd===0?'<span class="tag tag-orange">Pendente</span>':`<span class="tag tag-green">${SVG.check}</span>`}
+      <button class="btn-delete" onclick="delColab('${c.replace(/'/g,"\\'")}'')">${SVG.trash}</button>
+    </div>`;
+  }).join('');
+}
+
+function renderRapidoHistorico() {
+  const sec = document.getElementById('rap-historico-sec');
+  if (rapidos.length) {
+    sec.style.display='';
+    document.getElementById('rap-historico-title').textContent = 'Registros (' + rapidos.length + ')';
+    document.getElementById('rap-historico-list').innerHTML = rapidos.map(renderRapCard).join('');
+  } else sec.style.display='none';
+}
+
+function renderSolList() { renderKanban(); }
+
+function renderRoteiros() {
+  document.getElementById('roteiros-list').innerHTML = ROTEIROS.map((r,i)=>`
+    <div class="roteiro-card">
+      <div class="card-hdr" onclick="toggleCard('rot-${i}',this)">
+        <div class="card-left">
+          <div style="width:40px;height:40px;border-radius:10px;background:${r.cor}18;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${r.cor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <div><div style="font-weight:700;color:#0f172a;font-size:14px">${r.tipo}</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">${r.perguntas.length} perguntas-guia</div></div>
+        </div>
+        <span id="chev-rot-${i}">${SVG.chevD}</span>
+      </div>
+      <div class="card-body" id="rot-${i}">
+        <div class="rot-objetivo" style="background:${r.cor}12">
+          <div style="font-size:11px;font-weight:700;color:${r.cor};text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Objetivo</div>
+          <div style="font-size:14px;color:#374151;line-height:1.55">${r.objetivo}</div>
+        </div>
+        <div class="info-label">Como abrir</div>
+        <div style="font-size:14px;color:#374151;line-height:1.55;margin-bottom:18px">${r.abertura}</div>
+        <div class="info-label">Perguntas-guia</div>
+        ${r.perguntas.map((p,j)=>`<div class="rot-q" style="border-left-color:${r.cor}"><div class="rot-q-text">${j+1}. ${p.p}</div><div class="rot-q-dica">${p.d}</div></div>`).join('')}
+        <div class="info-label">Como encerrar</div>
+        <div style="font-size:14px;color:#374151;line-height:1.55;padding-bottom:4px">${r.encerramento}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────────
+function toggleCard(id, hdr) {
+  const body = document.getElementById(id);
+  const chevId = 'chev-'+id;
+  const chev = document.getElementById(chevId);
+  body.classList.toggle('open');
+  if (chev) chev.innerHTML = body.classList.contains('open') ? SVG.chevU : SVG.chevD;
+}
+
+function toggleStatus(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+function setStatus(id, newStatus) {
+  const idx = solicitacoes.findIndex(s=>s.id===id);
+  if (idx>=0) { solicitacoes[idx].status = newStatus; save('gp_solicit', solicitacoes); renderKanban(); renderDashboard(); }
+}
+
+async function addColab() {
+  const inp = document.getElementById('novo-colab');
+  const nome = inp.value.trim();
+  if (!nome || colabs.includes(nome)) return;
+  await sbInsert('colaboradores', { nome });
+  colabs = [...colabs, nome].sort();
+  save('gp_colabs', colabs);
+  inp.value='';
+  renderColabs();
+}
+
+async function delColab(nome) {
+  const r = await fetch(`${SB_URL}/rest/v1/colaboradores?nome=eq.${encodeURIComponent(nome)}`, {
+    method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
   });
-  cont.innerHTML = html;
+  colabs = colabs.filter(c=>c!==nome);
+  save('gp_colabs', colabs);
+  renderColabs();
+}
+
+async function delReuniao(id) {
+  await sbDelete('reunioes', id);
+  reunioes = reunioes.filter(r=>r.id!==id);
+  save('gp_reunioes', reunioes);
+  renderHistorico(); renderDashboard();
+}
+
+async function delRapido(id) {
+  await sbDelete('rapidos', id);
+  rapidos = rapidos.filter(r=>r.id!==id);
+  save('gp_rapidos', rapidos);
+  renderRapidoHistorico(); renderDashboard();
+}
+
+async function delSolicit(id) {
+  await sbDelete('solicitacoes', id);
+  solicitacoes = solicitacoes.filter(s=>s.id!==id);
+  save('gp_solicit', solicitacoes);
+  renderKanban(); renderDashboard();
+}
+
+// ── EVENT LISTENERS ───────────────────────────────────────────────────────────
+document.getElementById('reun-colab').addEventListener('change', checkReunBtn);
+document.getElementById('rap-assunto').addEventListener('input', checkRapBtn);
+document.getElementById('sol-assunto').addEventListener('input', checkSolBtn);
+document.getElementById('fb-descricao').addEventListener('input', checkFbBtn);
+document.getElementById('q12-colab').addEventListener('change', checkQ12Btn);
+
+
+// ── MENU MAIS ─────────────────────────────────────────────────────────────────
+function toggleMais() {
+  const m = document.getElementById('menu-mais');
+  m.style.display = m.style.display === 'none' ? 'flex' : 'none';
+  document.getElementById('nav-mais').classList.toggle('active', m.style.display === 'flex');
+}
+
+function fecharMais() {
+  document.getElementById('menu-mais').style.display = 'none';
+  document.getElementById('nav-mais').classList.remove('active');
+}
+
+function navMais(id) {
+  fecharMais();
+  if (id === 'roteiros') {
+    roteirosVoltarPara = null;
+    document.getElementById('roteiros-back-btn').style.display = 'none';
+  }
+  nav(id);
+  // Mark mais-items active
+  document.querySelectorAll('.mais-item').forEach(b => b.classList.remove('active-mais'));
+  const btn = document.getElementById('nav-' + id);
+  if (btn) btn.classList.add('active-mais');
+}
+
+
+
+
+// ── ASSINATURA DIGITAL ────────────────────────────────────────────────────────
+let assinCtx = null;         // canvas context
+let assinDesenho = false;    // mouse/touch down
+let assinRegistroId = null;  // id do registro atual
+let assinColecao = null;     // 'reunioes' | 'rapidos'
+let assinParticipantes = []; // lista de nomes para assinar
+let assinIndiceAtual = 0;    // qual participante esta assinando
+let assinColetadas = [];     // assinaturas coletadas [{nome, dataUrl}]
+let assinCallback = null;    // funcao a chamar ao finalizar
+
+function abrirAssinatura(registroId, colecao, participantes, callback) {
+  assinRegistroId = registroId;
+  assinColecao = colecao;
+  assinParticipantes = participantes;
+  assinIndiceAtual = 0;
+  assinColetadas = [];
+  assinCallback = callback;
+
+  const modal = document.getElementById('modal-assinatura');
+  modal.style.display = 'flex';
+  iniciarCanvasAssinatura();
+  atualizarModalAssinatura();
+}
+
+function iniciarCanvasAssinatura() {
+  const canvas = document.getElementById('assin-canvas');
+  const wrap = canvas.parentElement;
+  canvas.width = wrap.clientWidth - 3;
+  canvas.height = 180;
+  assinCtx = canvas.getContext('2d');
+  assinCtx.strokeStyle = '#0f172a';
+  assinCtx.lineWidth = 2.5;
+  assinCtx.lineCap = 'round';
+  assinCtx.lineJoin = 'round';
+  limparAssinatura();
+
+  // Touch events
+  canvas.ontouchstart = (e) => { e.preventDefault(); assinDesenho = true; const t = e.touches[0]; const r = canvas.getBoundingClientRect(); assinCtx.beginPath(); assinCtx.moveTo(t.clientX-r.left, t.clientY-r.top); document.getElementById('assin-hint').style.display='none'; };
+  canvas.ontouchmove  = (e) => { e.preventDefault(); if (!assinDesenho) return; const t = e.touches[0]; const r = canvas.getBoundingClientRect(); assinCtx.lineTo(t.clientX-r.left, t.clientY-r.top); assinCtx.stroke(); };
+  canvas.ontouchend   = () => { assinDesenho = false; };
+  // Mouse events (desktop)
+  canvas.onmousedown = (e) => { assinDesenho = true; const r = canvas.getBoundingClientRect(); assinCtx.beginPath(); assinCtx.moveTo(e.clientX-r.left, e.clientY-r.top); document.getElementById('assin-hint').style.display='none'; };
+  canvas.onmousemove = (e) => { if (!assinDesenho) return; const r = canvas.getBoundingClientRect(); assinCtx.lineTo(e.clientX-r.left, e.clientY-r.top); assinCtx.stroke(); };
+  canvas.onmouseup   = () => { assinDesenho = false; };
+}
+
+function atualizarModalAssinatura() {
+  const total = assinParticipantes.length;
+  const atual = assinParticipantes[assinIndiceAtual] || '';
+  const nomeEl = document.getElementById('assin-nome');
+  if (total > 1) {
+    nomeEl.innerHTML = `<strong>${atual}</strong> &nbsp;<span style="color:#cbd5e1">${assinIndiceAtual+1} de ${total}</span>`;
+  } else {
+    nomeEl.innerHTML = `<strong>${atual}</strong>`;
+  }
+  // Lista de ja assinaram
+  const col = document.getElementById('assin-coletadas');
+  const colList = document.getElementById('assin-coletadas-list');
+  if (assinColetadas.length) {
+    col.style.display = '';
+    colList.innerHTML = assinColetadas.map(a => `
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span style="font-size:13px;font-weight:600;color:#374151">${a.nome}</span>
+        <img src="${a.dataUrl}" style="height:28px;border:1px solid #e2e8f0;border-radius:6px;margin-left:auto">
+      </div>`).join('');
+  } else {
+    col.style.display = 'none';
+  }
+  // Botao finalizar
+  document.getElementById('assin-finalizar-btn').style.display = assinColetadas.length ? '' : 'none';
+  limparAssinatura();
+}
+
+function limparAssinatura() {
+  const canvas = document.getElementById('assin-canvas');
+  if (!assinCtx) return;
+  assinCtx.clearRect(0, 0, canvas.width, canvas.height);
+  document.getElementById('assin-hint').style.display = 'flex';
+}
+
+function confirmarAssinatura() {
+  const canvas = document.getElementById('assin-canvas');
+  // Verifica se canvas tem algo desenhado
+  const pixels = assinCtx.getImageData(0, 0, canvas.width, canvas.height).data;
+  const temDesenho = pixels.some(p => p !== 0);
+  if (!temDesenho) { alert('Por favor, assine antes de confirmar.'); return; }
+
+  const dataUrl = canvas.toDataURL('image/png');
+  const nome = assinParticipantes[assinIndiceAtual];
+  assinColetadas.push({ nome, dataUrl, timestamp: new Date().toISOString() });
+
+  assinIndiceAtual++;
+  if (assinIndiceAtual < assinParticipantes.length) {
+    // Proximo participante
+    atualizarModalAssinatura();
+  } else {
+    // Todos assinaram — mostra botao finalizar
+    atualizarModalAssinatura();
+    document.getElementById('assin-nome').innerHTML = '<span style="color:#22c55e;font-weight:700">Todos assinaram!</span>';
+    document.getElementById('assin-confirm-btn').style.display = 'none';
+  }
+}
+
+async function finalizarAssinaturas() {
+  // Salva assinaturas no registro
+  const colecao = assinColecao === 'reunioes' ? reunioes : rapidos;
+  const idx = colecao.findIndex(r => r.id === assinRegistroId);
+  if (idx >= 0) {
+    colecao[idx].assinaturas = [...assinColetadas];
+    const tbl = assinColecao === 'reunioes' ? 'reunioes' : 'rapidos';
+    await sbUpdate(tbl, assinRegistroId, { assinaturas: [...assinColetadas] });
+    save(assinColecao === 'reunioes' ? 'gp_reunioes' : 'gp_rapidos', colecao);
+  }
+  fecharAssinatura();
+  if (assinCallback) assinCallback();
+}
+
+function fecharAssinatura() {
+  document.getElementById('modal-assinatura').style.display = 'none';
+  document.getElementById('assin-confirm-btn').style.display = '';
+  assinCtx = null;
+  if (assinCallback && assinColecao) {
+    // Se fechou sem assinar, navega mesmo assim
+    if (assinColecao === 'reunioes') nav('historico');
+  }
+}
+
+function verAssinaturas(colecao, id) {
+  const lista = colecao === 'reunioes' ? reunioes : rapidos;
+  const reg = lista.find(r => r.id === id);
+  if (!reg || !reg.assinaturas || !reg.assinaturas.length) return;
+  const modal = document.getElementById('modal-assinatura');
+  modal.style.display = 'flex';
+  document.getElementById('assin-nome').innerHTML = '<strong>Assinaturas coletadas</strong>';
+  document.getElementById('assin-canvas').style.display = 'none';
+  document.querySelector('#modal-assinatura canvas').parentElement.style.display = 'none';
+  document.getElementById('assin-confirm-btn').style.display = 'none';
+  document.getElementById('assin-finalizar-btn').style.display = 'none';
+  const col = document.getElementById('assin-coletadas');
+  const colList = document.getElementById('assin-coletadas-list');
+  col.style.display = '';
+  colList.innerHTML = reg.assinaturas.map(a => `
+    <div style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+      <div style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:6px">${a.nome}</div>
+      <img src="${a.dataUrl}" style="max-width:100%;border:1px solid #e2e8f0;border-radius:8px">
+    </div>`).join('');
+}
+
+function fecharAssinaturaVisualizacao() {
+  const canvas = document.getElementById('assin-canvas');
+  canvas.style.display = '';
+  canvas.parentElement.style.display = '';
+  document.getElementById('assin-confirm-btn').style.display = '';
+  document.getElementById('modal-assinatura').style.display = 'none';
+}
+
+
+// ── NAVEGACAO ROTEIROS ────────────────────────────────────────────────────────
+let roteirosVoltarPara = null; // view de origem
+
+function abrirRoteirosDeReuniao() {
+  roteirosVoltarPara = 'nova';
+  nav('roteiros');
+  document.getElementById('roteiros-back-btn').style.display = '';
+  // Scroll para o roteiro do tipo selecionado
+  if (reunTipo) {
+    const idx = ROTEIROS.findIndex(r => r.tipo === reunTipo);
+    if (idx >= 0) {
+      setTimeout(() => {
+        const el = document.getElementById('rot-' + idx);
+        if (el) {
+          // Abre o card automaticamente
+          if (!el.classList.contains('open')) {
+            el.classList.add('open');
+            const chev = document.getElementById('chev-rot-' + idx);
+            if (chev) chev.innerHTML = SVG.chevU;
+          }
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }
+}
+
+function voltarParaReuniao() {
+  roteirosVoltarPara = null;
+  document.getElementById('roteiros-back-btn').style.display = 'none';
+  nav('nova');
+}
+
+// ── MICROFONE / VOZ ───────────────────────────────────────────────────────────
+let recognition = null;
+let micAtivo = null; // id do campo ativo
+
+function toggleMic(fieldId, btn) {
+  // Se ja esta gravando nesse campo, para
+  if (micAtivo === fieldId) {
+    stopMic();
+    return;
+  }
+  // Se estava gravando em outro campo, para primeiro
+  if (micAtivo) stopMic();
+
+  // Verifica suporte
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    alert('Seu navegador nao suporta gravacao de voz. Use o Chrome no Android.');
+    return;
+  }
+
+  recognition = new SR();
+  recognition.lang = 'pt-BR';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  const textarea = document.getElementById(fieldId);
+  const status = document.getElementById('mic-status-' + fieldId);
+  const textoBase = textarea.value;
+
+  recognition.onstart = () => {
+    micAtivo = fieldId;
+    btn.classList.add('recording');
+    btn.querySelector('svg').style.stroke = '#fff';
+    if (status) { status.classList.add('show'); }
+  };
+
+  let textoFinal = textoBase;
+
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  const reiniciar = () => {
+    if (micAtivo === fieldId) {
+      try { recognition.start(); } catch(e) {}
+    }
+  };
+
+  recognition.onresult = (e) => {
+    let interino = '';
+    for (let i = 0; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        textoFinal += (textoFinal ? ' ' : '') + e.results[i][0].transcript.trim();
+        interino = '';
+      } else {
+        interino = e.results[i][0].transcript;
+      }
+    }
+    textarea.value = textoFinal + (interino ? ' ' + interino : '');
+    textarea.dispatchEvent(new Event('input'));
+  };
+
+  recognition.onend = () => {
+    if (micAtivo === fieldId) {
+      // Limpa o interino antes de reiniciar
+      textarea.value = textoFinal;
+      reiniciar();
+    } else {
+      stopMicUI(fieldId, btn);
+    }
+  };
+
+  recognition.onerror = (e) => {
+    if (e.error === 'not-allowed') { alert('Permissao de microfone negada. Habilite nas configuracoes do navegador.'); micAtivo = null; stopMicUI(fieldId, btn); return; }
+    if (e.error !== 'aborted' && e.error !== 'no-speech') { stopMicUI(fieldId, btn); }
+  };
+
+  recognition.start();
+}
+
+function stopMic() {
+  if (recognition) {
+    try { recognition.stop(); } catch(e) {}
+    recognition = null;
+  }
+  // UI cleanup feita no onend
+}
+
+function stopMicUI(fieldId, btn) {
+  micAtivo = null;
+  if (btn) {
+    btn.classList.remove('recording');
+    btn.querySelector('svg').style.stroke = '#64748b';
+  }
+  const status = document.getElementById('mic-status-' + fieldId);
+  if (status) status.classList.remove('show');
+}
+
+// Para mic ao trocar de aba
+const _navOrig = nav;
+
+
+
+// ── Q12 LINK PUBLICO ──────────────────────────────────────────────────────────
+let q12PubToken = null;
+let q12PubRespostas = {};
+
+async function gerarLinkQ12(colab) {
+  const r = await fetch(`https://uhzwywodwqinbwpjchtt.supabase.co/rest/v1/q12_links`, {
+    method: 'POST',
+    headers: { 'apikey': 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Authorization': 'Bearer sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+    body: JSON.stringify({ colaborador: colab })
+  });
+  if (!r.ok) { alert('Erro ao gerar link.'); return; }
+  const [link] = await r.json();
+  const base = window.location.href.split('?')[0];
+  const url = `${base}?q12token=${link.token}`;
+  const msg = encodeURIComponent(`Ola ${colab}! Seu gestor Wellington gostaria que voce respondesse uma pesquisa rapida de engajamento (12 perguntas). Acesse: ${url}`);
+  window.open(`https://wa.me/?text=${msg}`, '_blank');
+}
+
+async function abrirQ12Publico(token) {
+  q12PubToken = token;
+  q12PubRespostas = {};
+  // Verifica token
+  const r = await fetch(`https://uhzwywodwqinbwpjchtt.supabase.co/rest/v1/q12_links?token=eq.${token}&select=*`, {
+    headers: { 'apikey': 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Authorization': 'Bearer sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0' }
+  });
+  const [link] = await r.json();
+  if (!link) { alert('Link invalido ou expirado.'); return; }
+  if (link.respondido) {
+    document.getElementById('modal-q12-obrigado').style.display = 'flex';
+    return;
+  }
+  document.getElementById('q12pub-nome').textContent = `Ola, ${link.colaborador}!`;
+  document.getElementById('modal-q12-publico').style.display = 'block';
+  renderQ12PubPerguntas();
 }
 
 function renderQ12PubPerguntas() {
-  var cont = document.getElementById('q12pub-perguntas');
-  var html = '';
-  Q12_NIVEIS.forEach(function(nivel) {
-    html += '<div style="margin-bottom:20px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:10px"><div style="width:10px;height:10px;border-radius:50%;background:' + nivel.cor + '"></div><div style="font-size:12px;font-weight:800;color:' + nivel.cor + ';text-transform:uppercase">' + nivel.label + '</div></div>';
-    nivel.perguntas.forEach(function(p) {
-      html += '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px"><div style="font-size:13px;font-weight:600;color:#374151;line-height:1.5;margin-bottom:12px"><span style="color:' + nivel.cor + ';font-weight:800">' + p.id.toUpperCase() + '</span> &nbsp;' + p.texto + '</div><div style="display:flex;gap:6px;justify-content:space-between">';
-      ESCALA.forEach(function(e) {
-        html += '<button id="qpub-' + p.id + '-' + e.val + '" data-qid="' + p.id + '" data-val="' + e.val + '" data-cor="' + nivel.cor + '" onclick="setQ12PubResp(this.dataset.qid,+this.dataset.val,this.dataset.cor)" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer"><span style="font-size:15px;font-weight:800;color:#64748b">' + e.val + '</span><span style="font-size:9px;color:#94a3b8;text-align:center;line-height:1.2">' + e.sub + '</span></button>';
-      });
-      html += '</div></div>';
-    });
-    html += '</div>';
-  });
-  cont.innerHTML = html;
+  const cont = document.getElementById('q12pub-perguntas');
+  cont.innerHTML = Q12_NIVEIS.map(nivel => `
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${nivel.cor}"></div>
+        <div style="font-size:12px;font-weight:800;color:${nivel.cor};text-transform:uppercase">${nivel.label}</div>
+      </div>
+      ${nivel.perguntas.map(p => `
+        <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:600;color:#374151;line-height:1.5;margin-bottom:12px">
+            <span style="color:${nivel.cor};font-weight:800">${p.id.toUpperCase()}</span> &nbsp;${p.texto}
+          </div>
+          <div style="display:flex;gap:6px;justify-content:space-between">
+            ${ESCALA.map(e => `
+              <button id="qpub-${p.id}-${e.val}" data-qid="${p.id}" data-val="${e.val}" data-cor="${nivel.cor}" onclick="setQ12PubResp(this.dataset.qid,+this.dataset.val,this.dataset.cor)"
+                style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer">
+                <span style="font-size:15px;font-weight:800;color:#64748b">${e.val}</span>
+                <span style="font-size:9px;color:#94a3b8;text-align:center;line-height:1.2">${e.sub}</span>
+              </button>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
 }
 
+function setQ12PubResp(qid, val, cor) {
+  q12PubRespostas[qid] = val;
+  for (let v = 1; v <= 5; v++) {
+    const btn = document.getElementById('qpub-'+qid+'-'+v);
+    if (!btn) continue;
+    if (v === val) { btn.style.borderColor=cor; btn.style.background=cor+'18'; btn.querySelector('span').style.color=cor; }
+    else { btn.style.borderColor='#e2e8f0'; btn.style.background='#f8fafc'; btn.querySelector('span').style.color='#64748b'; }
+  }
+  const total = Q12_NIVEIS.reduce((s,n)=>s+n.perguntas.length,0);
+  document.getElementById('q12pub-btn').disabled = Object.keys(q12PubRespostas).length < total;
+}
 
+async function enviarQ12Publico() {
+  // Busca link para saber o colaborador
+  const r = await fetch(`https://uhzwywodwqinbwpjchtt.supabase.co/rest/v1/q12_links?token=eq.${q12PubToken}&select=*`, {
+    headers: { 'apikey': 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Authorization': 'Bearer sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0' }
+  });
+  const [link] = await r.json();
+  // Calcula scores
+  const scores = {};
+  Q12_NIVEIS.forEach(n => {
+    const vals = n.perguntas.map(p => q12PubRespostas[p.id]||0);
+    scores[n.key] = +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2);
+  });
+  const total = +(Object.values(scores).reduce((a,b)=>a+b,0)/Q12_NIVEIS.length).toFixed(2);
+  // Salva avaliacao
+  await fetch(`https://uhzwywodwqinbwpjchtt.supabase.co/rest/v1/q12_avaliacoes`, {
+    method: 'POST',
+    headers: { 'apikey': 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Authorization': 'Bearer sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ colaborador: link.colaborador, data: new Date().toISOString().split('T')[0], respostas: {...q12PubRespostas}, scores, total, origem: 'colaborador' })
+  });
+  // Marca link como respondido
+  await fetch(`https://uhzwywodwqinbwpjchtt.supabase.co/rest/v1/q12_links?token=eq.${q12PubToken}`, {
+    method: 'PATCH',
+    headers: { 'apikey': 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Authorization': 'Bearer sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ respondido: true, respondido_em: new Date().toISOString() })
+  });
+  document.getElementById('modal-q12-publico').style.display = 'none';
+  const obg = document.getElementById('modal-q12-obrigado');
+  obg.style.display = 'flex';
+}
+
+// ── Q12 GALLUP ────────────────────────────────────────────────────────────────
+const Q12_NIVEIS = [
+  {
+    key: 'basicas', label: 'Basicas', cor: '#3b82f6', bg: '#eff6ff',
+    desc: 'O colaborador sabe o que e esperado e tem os recursos necessarios.',
+    perguntas: [
+      { id: 'q01', texto: 'Eu sei o que e esperado de mim no trabalho.' },
+      { id: 'q02', texto: 'Eu tenho o que preciso para fazer bem o meu trabalho.' },
+    ]
+  },
+  {
+    key: 'individuais', label: 'Individuais', cor: '#22c55e', bg: '#f0fdf4',
+    desc: 'O colaborador se sente valorizado, reconhecido e apoiado.',
+    perguntas: [
+      { id: 'q03', texto: 'No trabalho, tenho a oportunidade de fazer o que faco bem todos os dias.' },
+      { id: 'q04', texto: 'Nos ultimos 7 dias, recebi reconhecimento ou elogio por fazer um bom trabalho.' },
+      { id: 'q05', texto: 'Meu supervisor parece se importar comigo como pessoa.' },
+      { id: 'q06', texto: 'Ha alguem no trabalho que encoraja o meu desenvolvimento.' },
+    ]
+  },
+  {
+    key: 'coletivas', label: 'Coletivas', cor: '#f59e0b', bg: '#fefce8',
+    desc: 'O colaborador sente que pertence e que sua opiniao importa.',
+    perguntas: [
+      { id: 'q07', texto: 'No trabalho, minha opiniao parece contar.' },
+      { id: 'q08', texto: 'A missao da empresa faz com que eu sinta que meu trabalho e importante.' },
+      { id: 'q09', texto: 'Meus colegas estao comprometidos em fazer um bom trabalho.' },
+      { id: 'q10', texto: 'Eu tenho um melhor amigo no trabalho.' },
+    ]
+  },
+  {
+    key: 'crescimento', label: 'Crescimento', cor: '#ef4444', bg: '#fef2f2',
+    desc: 'O colaborador vê progressão e aprendizado na empresa.',
+    perguntas: [
+      { id: 'q11', texto: 'Nos ultimos 6 meses, alguem conversou comigo sobre meu progresso.' },
+      { id: 'q12', texto: 'Neste ultimo ano, tive oportunidades para aprender e crescer.' },
+    ]
+  },
+];
+
+const ESCALA = [
+  { val: 1, label: '1', sub: 'Discordo totalmente' },
+  { val: 2, label: '2', sub: 'Discordo' },
+  { val: 3, label: '3', sub: 'Neutro' },
+  { val: 4, label: '4', sub: 'Concordo' },
+  { val: 5, label: '5', sub: 'Concordo totalmente' },
+];
+
+let q12Respostas = {};
+let q12TabAtual = 'nova';
+
+function initQ12() {
+  // Colaboradores
+  const sel = document.getElementById('q12-colab');
+  sel.innerHTML = '<option value="">Selecione...</option>' + colabs.map(c=>`<option>${c}</option>`).join('');
+  document.getElementById('q12-data').value = today();
+  // Hist select
+  const hsel = document.getElementById('q12-hist-colab');
+  hsel.innerHTML = '<option value="">Todos</option>' + colabs.map(c=>`<option>${c}</option>`).join('');
+  // Render perguntas
+  q12Respostas = {};
+  renderQ12Perguntas();
+  checkQ12Btn();
+  setQ12Tab(q12TabAtual);
+}
+
+function setQ12Tab(tab) {
+  q12TabAtual = tab;
+  document.getElementById('q12-nova-sec').style.display = tab === 'nova' ? '' : 'none';
+  document.getElementById('q12-hist-sec').style.display = tab === 'hist' ? '' : 'none';
+  document.getElementById('q12-tab-nova').style.color = tab === 'nova' ? '#0f172a' : '#94a3b8';
+  document.getElementById('q12-tab-nova').style.borderBottom = tab === 'nova' ? '2px solid #0f172a' : '2px solid transparent';
+  document.getElementById('q12-tab-hist').style.color = tab === 'hist' ? '#0f172a' : '#94a3b8';
+  document.getElementById('q12-tab-hist').style.borderBottom = tab === 'hist' ? '2px solid #0f172a' : '2px solid transparent';
+  if (tab === 'hist') renderQ12Hist();
+}
+
+function renderQ12Perguntas() {
+  const cont = document.getElementById('q12-perguntas');
+  cont.innerHTML = Q12_NIVEIS.map(nivel => `
+    <div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${nivel.cor}"></div>
+        <div style="font-size:13px;font-weight:800;color:${nivel.cor};text-transform:uppercase;letter-spacing:.5px">${nivel.label}</div>
+      </div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:12px">${nivel.desc}</div>
+      ${nivel.perguntas.map((p,pi) => `
+        <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:600;color:#374151;line-height:1.5;margin-bottom:12px">
+            <span style="color:${nivel.cor};font-weight:800">${p.id.toUpperCase()}</span> &nbsp;${p.texto}
+          </div>
+          <div style="display:flex;gap:6px;justify-content:space-between">
+            ${ESCALA.map(e => `
+              <button id="q12-${p.id}-${e.val}" data-qid="${p.id}" data-val="${e.val}" data-cor="${nivel.cor}" onclick="setQ12Resp(this.dataset.qid,+this.dataset.val,this.dataset.cor)"
+                style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer">
+                <span style="font-size:15px;font-weight:800;color:#64748b">${e.val}</span>
+                <span style="font-size:9px;color:#94a3b8;text-align:center;line-height:1.2">${e.sub}</span>
+              </button>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function setQ12Resp(qid, val, cor) {
+  q12Respostas[qid] = val;
+  // Highlight botao selecionado
+  for (let v = 1; v <= 5; v++) {
+    const btn = document.getElementById('q12-'+qid+'-'+v);
+    if (!btn) continue;
+    if (v === val) {
+      btn.style.borderColor = cor;
+      btn.style.background = cor + '18';
+      btn.querySelector('span').style.color = cor;
+    } else {
+      btn.style.borderColor = '#e2e8f0';
+      btn.style.background = '#f8fafc';
+      btn.querySelector('span').style.color = '#64748b';
+    }
+  }
+  checkQ12Btn();
+}
+
+function checkQ12Btn() {
+  const colab = document.getElementById('q12-colab') ? document.getElementById('q12-colab').value : '';
+  const totalPergs = Q12_NIVEIS.reduce((s,n)=>s+n.perguntas.length,0);
+  const respondidas = Object.keys(q12Respostas).length;
+  document.getElementById('q12-save-btn').disabled = !(colab && respondidas === totalPergs);
+  const wbtn = document.getElementById('q12-whats-btn-wrap');
+  if (wbtn) wbtn.style.display = colab ? '' : 'none';
+}
+
+async function salvarQ12() {
+  const colab = document.getElementById('q12-colab').value;
+  const data = document.getElementById('q12-data').value;
+  if (!colab) return;
+  // Calcula scores por nivel
+  const scores = {};
+  Q12_NIVEIS.forEach(n => {
+    const vals = n.perguntas.map(p => q12Respostas[p.id] || 0);
+    scores[n.key] = +(vals.reduce((a,b)=>a+b,0) / vals.length).toFixed(2);
+  });
+  const total = +(Object.values(scores).reduce((a,b)=>a+b,0) / Q12_NIVEIS.length).toFixed(2);
+  const avalData = { colaborador: colab, data, respostas: {...q12Respostas}, scores, total, origem: 'gestor' };
+  const avalSaved = await sbInsert('q12_avaliacoes', avalData);
+  const aval = avalSaved ? {...avalData, id: avalSaved.id} : {...avalData, id: 'local_'+Date.now()};
+  q12avaliacoes.unshift(aval);
+  save('gp_q12', q12avaliacoes);
+  // Reset
+  q12Respostas = {};
+  document.getElementById('q12-colab').value = '';
+  renderQ12Perguntas();
+  checkQ12Btn();
+  const s = document.getElementById('q12-success');
+  s.style.display = 'flex'; setTimeout(()=>{ s.style.display='none'; setQ12Tab('hist'); }, 1500);
+  renderDashboard();
+}
+
+function nivelEngajamento(score) {
+  if (score >= 4.5) return { label: 'Alto', cor: '#22c55e', bg: '#f0fdf4' };
+  if (score >= 3.5) return { label: 'Moderado', cor: '#f59e0b', bg: '#fefce8' };
+  if (score >= 2.5) return { label: 'Baixo', cor: '#f97316', bg: '#fff7ed' };
+  return { label: 'Critico', cor: '#ef4444', bg: '#fef2f2' };
+}
+
+function renderQ12Hist() {
+  const filtroColab = document.getElementById('q12-hist-colab') ? document.getElementById('q12-hist-colab').value : '';
+  const lista = filtroColab ? q12avaliacoes.filter(a=>a.colaborador===filtroColab) : q12avaliacoes;
+  const el = document.getElementById('q12-hist-list');
+  const empty = document.getElementById('q12-hist-empty');
+  if (!lista.length) { el.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+  el.innerHTML = lista.map(a => {
+    const nv = nivelEngajamento(a.total);
+    return `<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:14px 16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-weight:700;color:#0f172a;font-size:15px">${a.colaborador}</div>
+          <div style="font-size:12px;color:#94a3b8">${fmtDate(a.data)}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:24px;font-weight:800;color:${nv.cor}">${a.total}</div>
+          <div style="font-size:11px;font-weight:700;color:${nv.cor};background:${nv.bg};border-radius:20px;padding:2px 8px">${nv.label}</div>
+        </div>
+      </div>
+      <!-- Barras por nivel -->
+      ${Q12_NIVEIS.map(n => {
+        const sc = a.scores[n.key] || 0;
+        const pct = (sc/5)*100;
+        return `<div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:11px;font-weight:700;color:${n.cor}">${n.label}</span>
+            <span style="font-size:11px;font-weight:700;color:#374151">${sc}/5</span>
+          </div>
+          <div style="background:#f1f5f9;border-radius:20px;height:8px">
+            <div style="background:${n.cor};border-radius:20px;height:8px;width:${pct}%;transition:width .4s"></div>
+          </div>
+        </div>`;
+      }).join('')}
+      <!-- Perguntas mais baixas -->
+      ${(() => {
+        // Todas as perguntas ordenadas da mais baixa para mais alta
+        const todasPergs = Q12_NIVEIS.flatMap(n=>n.perguntas.map(p=>({...p, val: a.respostas[p.id]||0, cor:n.cor, nivel:n.label})));
+        const criticas  = todasPergs.filter(p=>p.val<=2).sort((x,y)=>x.val-y.val);
+        const atencao   = todasPergs.filter(p=>p.val===3).sort((x,y)=>x.val-y.val);
+        const positivas = todasPergs.filter(p=>p.val>=4).sort((x,y)=>y.val-x.val);
+
+        const blocoExpand = `
+          <div id="q12-detail-${a.id}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9">
+            ${criticas.length ? `
+              <div style="font-size:11px;font-weight:800;color:#ef4444;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">
+                Criticas (nota 1-2)
+              </div>
+              ${criticas.map(p=>`
+                <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;background:#fef2f2;border-radius:8px;padding:8px 10px">
+                  <div style="width:24px;height:24px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">${p.val}</div>
+                  <div>
+                    <div style="font-size:10px;font-weight:700;color:${p.cor};text-transform:uppercase;margin-bottom:2px">${p.nivel} · ${p.id.toUpperCase()}</div>
+                    <div style="font-size:13px;color:#374151;line-height:1.4">${p.texto}</div>
+                  </div>
+                </div>`).join('')}` : ''}
+
+            ${atencao.length ? `
+              <div style="font-size:11px;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:${criticas.length?'12px':'0'}">
+                Atencao (nota 3)
+              </div>
+              ${atencao.map(p=>`
+                <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;background:#fefce8;border-radius:8px;padding:8px 10px">
+                  <div style="width:24px;height:24px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">${p.val}</div>
+                  <div>
+                    <div style="font-size:10px;font-weight:700;color:${p.cor};text-transform:uppercase;margin-bottom:2px">${p.nivel} · ${p.id.toUpperCase()}</div>
+                    <div style="font-size:13px;color:#374151;line-height:1.4">${p.texto}</div>
+                  </div>
+                </div>`).join('')}` : ''}
+
+            ${positivas.length ? `
+              <div style="font-size:11px;font-weight:800;color:#22c55e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:${(criticas.length||atencao.length)?'12px':'0'}">
+                Pontos fortes (nota 4-5)
+              </div>
+              ${positivas.map(p=>`
+                <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;background:#f0fdf4;border-radius:8px;padding:8px 10px">
+                  <div style="width:24px;height:24px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">${p.val}</div>
+                  <div>
+                    <div style="font-size:10px;font-weight:700;color:${p.cor};text-transform:uppercase;margin-bottom:2px">${p.nivel} · ${p.id.toUpperCase()}</div>
+                    <div style="font-size:13px;color:#374151;line-height:1.4">${p.texto}</div>
+                  </div>
+                </div>`).join('')}` : ''}
+          </div>`;
+
+        const resumoBadges = [
+          criticas.length  ? `<span style="background:#fef2f2;color:#ef4444;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700">${criticas.length} critica${criticas.length>1?'s':''}</span>` : '',
+          atencao.length   ? `<span style="background:#fefce8;color:#d97706;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700">${atencao.length} atencao</span>` : '',
+          positivas.length ? `<span style="background:#f0fdf4;color:#16a34a;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700">${positivas.length} forte${positivas.length>1?'s':''}</span>` : '',
+        ].filter(Boolean).join(' ');
+
+        return `
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="display:flex;gap:6px;flex-wrap:wrap">${resumoBadges}</div>
+              <button onclick="toggleQ12Detail('${a.id}')" id="q12-toggle-${a.id}"
+                style="background:none;border:1.5px solid #e2e8f0;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;white-space:nowrap">
+                Ver detalhes
+              </button>
+            </div>
+            ${blocoExpand}
+          </div>`;
+      })()}
+      <button data-id="${a.id}" onclick="delQ12(this.dataset.id)" style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;margin-top:8px;display:flex;align-items:center;gap:4px">${SVG.trashRed} Excluir avaliacao</button>
+    </div>`;
+  }).join('');
+}
+
+async function delQ12(id) {
+  await sbDelete('q12_avaliacoes', id);
+  q12avaliacoes = q12avaliacoes.filter(a=>a.id!==id);
+  save('gp_q12', q12avaliacoes);
+  renderQ12Hist();
+  renderDashboard();
+}
+
+function toggleQ12Detail(id) {
+  const detail = document.getElementById('q12-detail-'+id);
+  const btn = document.getElementById('q12-toggle-'+id);
+  if (!detail) return;
+  const open = detail.style.display === 'none';
+  detail.style.display = open ? '' : 'none';
+  btn.textContent = open ? 'Ocultar' : 'Ver detalhes';
+  btn.style.color = open ? '#0f172a' : '#64748b';
+  btn.style.borderColor = open ? '#0f172a' : '#e2e8f0';
+}
+
+// ── FEEDBACKS ─────────────────────────────────────────────────────────────────
+let fbFiltro = 'todos';
+
+function setFbTipo(tipo) {
+  fbTipo = tipo;
+  ['positivo','negativo','sugestao'].forEach(t => {
+    const btn = document.getElementById('fbt-'+t);
+    btn.className = 'fb-tipo-btn' + (t === tipo ? ' on-'+t : '');
+  });
+  checkFbBtn();
+}
+
+function setFbOrigem(origem) {
+  fbOrigem = origem;
+  document.querySelectorAll('#fb-origem-chips .chip-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('fbo-'+origem).classList.add('on');
+  document.getElementById('fb-nome-field').style.display = origem === 'anonimo' ? 'none' : '';
+  checkFbBtn();
+}
+
+function toggleFbArea(btn, area) {
+  btn.classList.toggle('on');
+  if (fbAreas.includes(area)) fbAreas = fbAreas.filter(a => a !== area);
+  else fbAreas.push(area);
+}
+
+function checkFbBtn() {
+  const desc = document.getElementById('fb-descricao') ? document.getElementById('fb-descricao').value.trim() : '';
+  document.getElementById('fb-save-btn').disabled = !(fbTipo && fbOrigem && desc);
+}
+
+async function salvarFeedback() {
+  const desc = document.getElementById('fb-descricao').value.trim();
+  if (!fbTipo || !fbOrigem || !desc) return;
+  const fbData = {
+    data: today(), tipo: fbTipo, origem: fbOrigem,
+    nome: fbOrigem !== 'anonimo' ? document.getElementById('fb-nome').value.trim() : '',
+    descricao: desc, areas: [...fbAreas], acao: document.getElementById('fb-acao').value.trim(),
+  };
+  const fbSaved = await sbInsert('feedbacks', fbData);
+  feedbacks.unshift(fbSaved ? {...fbData, id: fbSaved.id} : {...fbData, id: 'local_'+Date.now()});
+  save('gp_feedbacks', feedbacks);
+  // reset
+  fbTipo = ''; fbOrigem = ''; fbAreas = [];
+  ['positivo','negativo','sugestao'].forEach(t => document.getElementById('fbt-'+t).className = 'fb-tipo-btn');
+  document.querySelectorAll('#fb-origem-chips .chip-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#fb-area-chips .chip-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('fb-descricao').value = '';
+  document.getElementById('fb-nome').value = '';
+  document.getElementById('fb-acao').value = '';
+  document.getElementById('fb-nome-field').style.display = '';
+  checkFbBtn();
+  const s = document.getElementById('fb-success');
+  s.style.display = 'flex'; setTimeout(() => s.style.display = 'none', 1800);
+  renderFeedbacks();
+}
+
+function setFbFiltro(f) {
+  fbFiltro = f;
+  document.querySelectorAll('#fb-filtro-chips .chip-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('fbf-'+f).classList.add('on');
+  renderFeedbacks();
+}
+
+function renderFeedbacks() {
+  const filtered = fbFiltro === 'todos' ? feedbacks : feedbacks.filter(f => f.tipo === fbFiltro);
+  const sec = document.getElementById('fb-list-sec');
+  const empty = document.getElementById('fb-empty');
+  if (!feedbacks.length) { sec.style.display = 'none'; empty.style.display = ''; return; }
+  sec.style.display = ''; empty.style.display = 'none';
+
+  const total = feedbacks.length;
+  const pos = feedbacks.filter(f=>f.tipo==='positivo').length;
+  const neg = feedbacks.filter(f=>f.tipo==='negativo').length;
+  const sug = feedbacks.filter(f=>f.tipo==='sugestao').length;
+
+  document.getElementById('fb-list-title').innerHTML =
+    `<span style="color:#16a34a;font-weight:800">${pos} positivos</span> &nbsp;
+     <span style="color:#dc2626;font-weight:800">${neg} negativos</span> &nbsp;
+     <span style="color:#d97706;font-weight:800">${sug} sugestoes</span>`;
+
+  const TIPO_CFG = {
+    positivo: { cor:'#22c55e', bg:'#f0fdf4', label:'Positivo',
+      icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>' },
+    negativo: { cor:'#ef4444', bg:'#fef2f2', label:'Negativo',
+      icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>' },
+    sugestao: { cor:'#f59e0b', bg:'#fefce8', label:'Sugestao',
+      icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' },
+  };
+  const ORIG_LABEL = { aluno:'Aluno', colaborador:'Colaborador', anonimo:'Anonimo', outro:'Outro' };
+
+  document.getElementById('fb-list').innerHTML = filtered.map(f => {
+    const cfg = TIPO_CFG[f.tipo] || TIPO_CFG.sugestao;
+    return `<div class="fb-card ${f.tipo}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="display:flex;align-items:center;gap:4px;background:${cfg.bg};border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:${cfg.cor}">
+            ${cfg.icon} ${cfg.label}
+          </div>
+          <span style="font-size:12px;color:#94a3b8">${ORIG_LABEL[f.origem]||f.origem}${f.nome?' · '+f.nome:''}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px;color:#94a3b8">${fmtDate(f.data)}</span>
+          <button data-id="${f.id}" onclick="delFeedback(this.dataset.id)" style="background:none;border:none;cursor:pointer;padding:2px">${SVG.trash}</button>
+        </div>
+      </div>
+      <div style="font-size:14px;color:#374151;line-height:1.55;margin-bottom:${f.areas&&f.areas.length||f.acao?'8px':'0'}">${f.descricao}</div>
+      ${f.areas&&f.areas.length ? '<div class="tags" style="margin-bottom:8px">'+f.areas.map(a=>'<span class="tag tag-blue">'+a+'</span>').join('')+'</div>' : ''}
+      ${f.acao ? '<div style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:4px">'+SVG.arr+' '+f.acao+'</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+async function delFeedback(id) {
+  await sbDelete('feedbacks', id);
+  feedbacks = feedbacks.filter(f => f.id !== id);
+  save('gp_feedbacks', feedbacks);
+  renderFeedbacks();
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+try {
+  initRapidoForm();
+  initSolicitForm();
+  renderRoteiros();
+  renderDashboard();
+} catch(e) {
+  console.error('Boot error:', e);
+}
+
+// Sync com Supabase em background
+syncFromSupabase().catch(e => console.error('Sync error:', e));
+
+// Q12 link publico
+(function() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('q12token');
+    if (token) abrirQ12Publico(token);
+  } catch(e) { console.error('Q12 token error:', e); }
+})();
 </script>
 
 <!-- MODAL ORIGENS -->
