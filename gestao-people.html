@@ -1344,14 +1344,17 @@ function renderHistorico() {
 function renderColabs() {
   document.getElementById('equipe-sub').textContent = colabs.length + ' colaboradores';
   document.getElementById('colab-empty').style.display = colabs.length ? 'none' : '';
-  document.getElementById('colab-list').innerHTML = colabs.map(c=>{
+  document.getElementById('colab-list').innerHTML = colabs.map(function(c) {
     const qtd = reunioes.filter(r=>r.colaborador===c).length;
-    return `<div class="colab-item">
-      ${avatar(c,40)}
-      <div style="flex:1"><div class="colab-name">${c}</div><div class="colab-meta">${qtd===1?'1 reuniao registrada':qtd+' reunioes registradas'}</div></div>
-      ${qtd===0?'<span class="tag tag-orange">Pendente</span>':`<span class="tag tag-green">${SVG.check}</span>`}
-      <button class="btn-delete" onclick="delColab('${c.replace(/'/g,"\\'")}'')">${SVG.trash}</button>
-    </div>`;
+    const badge = qtd===0
+      ? '<span class="tag tag-orange">Pendente</span>'
+      : '<span class="tag tag-green">'+SVG.check+'</span>';
+    return '<div class="colab-item">'
+      + avatar(c,40)
+      + '<div style="flex:1"><div class="colab-name">'+c+'</div><div class="colab-meta">'+(qtd===1?'1 reuniao registrada':qtd+' reunioes registradas')+'</div></div>'
+      + badge
+      + '<button class="btn-delete" data-nome="'+c.replace(/"/g,'&quot;')+'" onclick="delColab(this.dataset.nome)">'+SVG.trash+'</button>'
+      + '</div>';
   }).join('');
 }
 
