@@ -200,6 +200,10 @@ textarea.inp{resize:vertical;min-height:80px}
 
 
 
+
+/* Q12 */
+.q12-tab-btn{flex:1;padding:10px;border:none;background:none;font-size:14px;cursor:pointer}
+
 /* Assinatura */
 .assin-badge{display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700;color:#16a34a;cursor:pointer}
 
@@ -225,7 +229,7 @@ textarea.inp{resize:vertical;min-height:80px}
 <!-- HEADER -->
 <header class="hdr">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5a6 6 0 0 1 8.49 0l2.5 2.5-1.41 1.41-2.5-2.5a4 4 0 0 0-5.66 0L6.5 8.83 5.09 7.41z"/><path d="M17.5 17.5a6 6 0 0 1-8.49 0l-2.5-2.5 1.41-1.41 2.5 2.5a4 4 0 0 0 5.66 0l1.41-1.41 1.42 1.41z"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
-  <span class="hdr-title">GestãoPeople</span>
+  <span class="hdr-title">GestãoPeople</span><span id="sync-status" style="display:none;font-size:11px;color:#94a3b8;margin-left:auto"></span>
 </header>
 
 <!-- MAIN -->
@@ -252,6 +256,12 @@ textarea.inp{resize:vertical;min-height:80px}
       <div class="sec-title">Clima nas reunioes</div>
       <div class="clima-row" id="d-clima-row"></div>
     </div>
+    <!-- Q12 Alerta engajamento baixo -->
+    <div id="d-q12-sec" style="display:none">
+      <div class="sec-title">Engajamento Q12</div>
+      <div id="d-q12-list"></div>
+    </div>
+
     <div id="d-rapidos-sec" style="display:none">
       <div class="sec-title">Ultimos registros rapidos</div>
       <div id="d-rapidos-list"></div>
@@ -522,6 +532,68 @@ textarea.inp{resize:vertical;min-height:80px}
     </div>
   </div>
 
+  <!-- Q12 -->
+  <div id="v-q12" class="view">
+    <div class="page-title">Q12 Gallup</div>
+    <div class="page-sub">Avaliacao de engajamento por colaborador</div>
+
+    <!-- Tabs: Nova avaliacao / Historico -->
+    <div style="display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid #e2e8f0">
+      <button id="q12-tab-nova" onclick="setQ12Tab('nova')" style="flex:1;padding:10px;border:none;background:none;font-size:14px;font-weight:700;color:#0f172a;border-bottom:2px solid #0f172a;margin-bottom:-2px;cursor:pointer">Nova avaliacao</button>
+      <button id="q12-tab-hist" onclick="setQ12Tab('hist')" style="flex:1;padding:10px;border:none;background:none;font-size:14px;font-weight:600;color:#94a3b8;cursor:pointer">Historico</button>
+    </div>
+
+    <!-- NOVA AVALIACAO -->
+    <div id="q12-nova-sec">
+      <div id="q12-success" class="success" style="display:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#166634" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Avaliacao salva!
+      </div>
+
+      <div class="field">
+        <label>Colaborador *</label>
+        <select class="inp" id="q12-colab"><option value="">Selecione...</option></select>
+      </div>
+      <!-- Enviar pelo WhatsApp -->
+      <div id="q12-whats-btn-wrap" style="display:none;margin-bottom:20px">
+        <button onclick="gerarLinkQ12(document.getElementById('q12-colab').value)" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:#25d366;color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Enviar Q12 pelo WhatsApp
+        </button>
+        <div style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">O colaborador recebe o link e responde no celular dele</div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:#94a3b8;margin-bottom:16px">— ou responda voce mesmo abaixo —</div>
+      <div class="field">
+        <label>Data *</label>
+        <input type="date" class="inp" id="q12-data">
+      </div>
+
+      <!-- Instrucao -->
+      <div style="background:#fefce8;border:1.5px solid #fde68a;border-radius:10px;padding:12px 14px;margin-bottom:20px;font-size:13px;color:#92400e;line-height:1.5">
+        <strong>Como aplicar:</strong> Leia cada afirmacao para o colaborador e registre a resposta de 1 a 5, onde 1 = discordo totalmente e 5 = concordo totalmente.
+      </div>
+
+      <!-- Perguntas por nivel -->
+      <div id="q12-perguntas"></div>
+
+      <button class="btn-primary" id="q12-save-btn" onclick="salvarQ12()" disabled style="margin-bottom:8px">Salvar avaliacao</button>
+      <div class="hint" style="margin-bottom:32px">* campos obrigatorios</div>
+    </div>
+
+    <!-- HISTORICO Q12 -->
+    <div id="q12-hist-sec" style="display:none">
+      <div class="field">
+        <label>Filtrar por colaborador</label>
+        <select class="inp" id="q12-hist-colab" onchange="renderQ12Hist()"><option value="">Todos</option></select>
+      </div>
+      <div id="q12-hist-list"></div>
+      <div id="q12-hist-empty" class="empty" style="display:none">
+        <div style="font-size:36px;margin-bottom:10px;opacity:.3">📊</div>
+        <div>Nenhuma avaliacao ainda.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- HISTORICO -->
   <div id="v-historico" class="view">
     <div class="page-title">Historico</div>
@@ -601,6 +673,16 @@ textarea.inp{resize:vertical;min-height:80px}
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
+    <button class="mais-item" id="nav-q12" onclick="navMais('q12')">
+      <div class="mais-icon" style="background:#fefce8">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div class="mais-label">
+        <div class="mais-title">Q12 Gallup</div>
+        <div class="mais-sub">Avaliacao de engajamento da equipe</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
     <button class="mais-item" id="nav-historico" onclick="navMais('historico')">
       <div class="mais-icon" style="background:#eff6ff">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
@@ -635,16 +717,97 @@ textarea.inp{resize:vertical;min-height:80px}
 </div>
 
 <script>
-// ── DATA ──────────────────────────────────────────────────────────────────────
-const KEYS = { reunioes:'gp_reunioes', colabs:'gp_colabs', rapidos:'gp_rapidos', solicitacoes:'gp_solicit', origens:'gp_origens', feedbacks:'gp_feedbacks' };
+// ── SUPABASE ──────────────────────────────────────────────────────────────────
+const SB_URL = 'https://uhzwywodwqinbwpjchtt.supabase.co';
+const SB_KEY = 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0';
+
+async function sbGet(table, extra='') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?order=criado_em.desc${extra}`, {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  });
+  if (!r.ok) return [];
+  return await r.json();
+}
+
+async function sbInsert(table, data) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) { console.error('sbInsert error', await r.text()); return null; }
+  const res = await r.json();
+  return Array.isArray(res) ? res[0] : res;
+}
+
+async function sbUpdate(table, id, data) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  return r.ok;
+}
+
+async function sbDelete(table, id) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  });
+  return r.ok;
+}
+
+// ── DATA (local cache + Supabase sync) ────────────────────────────────────────
+// localStorage como cache local para resposta imediata
 const load = k => { try { return JSON.parse(localStorage.getItem(k)) || [] } catch { return [] } };
 const save = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} };
 
-let reunioes = load(KEYS.reunioes);
-let colabs   = load(KEYS.colabs);
-let rapidos  = load(KEYS.rapidos);
-let solicitacoes = load(KEYS.solicitacoes);
-let feedbacks = load(KEYS.feedbacks);
+let reunioes      = load('gp_reunioes');
+let colabs        = load('gp_colabs');
+let rapidos       = load('gp_rapidos');
+let solicitacoes  = load('gp_solicit');
+let feedbacks     = load('gp_feedbacks');
+let q12avaliacoes = load('gp_q12');
+
+// Carrega dados do Supabase e atualiza o app
+async function syncFromSupabase() {
+  mostrarSyncStatus('Sincronizando...');
+  try {
+    const [rc, cl, rp, sl, fb, q12] = await Promise.all([
+      sbGet('reunioes'),
+      sbGet('colaboradores', '&select=nome&order=nome.asc'),
+      sbGet('rapidos'),
+      sbGet('solicitacoes'),
+      sbGet('feedbacks'),
+      sbGet('q12_avaliacoes'),
+    ]);
+    reunioes      = rc.map(r => ({...r, id: r.id, temas: r.temas||[], assinaturas: r.assinaturas||[]}));
+    colabs        = cl.map(c => c.nome);
+    rapidos       = rp.map(r => ({...r, assinaturas: r.assinaturas||[]}));
+    solicitacoes  = sl;
+    feedbacks     = fb.map(f => ({...f, areas: f.areas||[]}));
+    q12avaliacoes = q12.map(a => ({...a, respostas: a.respostas||{}, scores: a.scores||{}}));
+    // Atualiza cache local
+    save('gp_reunioes', reunioes); save('gp_colabs', colabs);
+    save('gp_rapidos', rapidos);   save('gp_solicit', solicitacoes);
+    save('gp_feedbacks', feedbacks); save('gp_q12', q12avaliacoes);
+    mostrarSyncStatus('');
+    renderDashboard();
+    // Recarrega origens
+    const og = await sbGet('origens', '&order=criado_em.asc');
+    if (og.length) { origens = og; save('gp_origens', origens); }
+  } catch(e) {
+    mostrarSyncStatus('Offline — dados locais');
+    console.error('Sync error:', e);
+  }
+}
+
+function mostrarSyncStatus(msg) {
+  let el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let rapCtx = '', rapSetor = '';
@@ -669,6 +832,7 @@ function nav(id) {
   if (id === 'rapido') renderRapidoHistorico();
   if (id === 'solicitacoes') { initSolicitForm(); renderKanban(); }
   if (id === 'feedbacks') renderFeedbacks();
+  if (id === 'q12') initQ12();
   if (id === 'nova') initReunForm();
   window.scrollTo(0,0);
 }
@@ -880,26 +1044,31 @@ function renderModalOrigens() {
     </div>`).join('');
 }
 
-function addOrigem() {
+async function addOrigem() {
   const inp = document.getElementById('nova-origem-nome');
   const nome = inp.value.trim();
   if (!nome) return;
   const key = 'custom_' + Date.now();
   const cor = CORES_DISPONIVEIS[origens.length % CORES_DISPONIVEIS.length];
-  origens.push({ key, label: nome, cor });
-  save(KEYS.origens, origens);
+  const ogData = { key, label: nome, cor };
+  await sbInsert('origens', ogData);
+  origens.push(ogData);
+  save('gp_origens', origens);
   inp.value = '';
   renderModalOrigens();
   renderOrigensGrid();
 }
 
-function delOrigem(i) {
+async function delOrigem(i) {
   const key = origens[i].key;
   // nao apaga se tiver solicitacoes com essa origem
   const emUso = solicitacoes.some(s => s.origem === key);
   if (emUso) { alert('Esta origem tem solicitacoes vinculadas. Conclua ou exclua-as primeiro.'); return; }
+  await fetch(`${SB_URL}/rest/v1/origens?key=eq.${encodeURIComponent(key)}`, {
+    method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  });
   origens.splice(i, 1);
-  save(KEYS.origens, origens);
+  save('gp_origens', origens);
   renderModalOrigens();
   renderOrigensGrid();
 }
@@ -909,28 +1078,31 @@ function checkSolBtn() {
 }
 
 // ── SAVE ACTIONS ──────────────────────────────────────────────────────────────
-function salvarReuniao() {
+async function salvarReuniao() {
   const colab = document.getElementById('reun-colab').value;
   const data = document.getElementById('reun-data').value;
   if (!colab || !reunTipo || !reunClima) return;
-  const registro = { id: Date.now(), colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, assinaturas: [] };
-  reunioes.unshift(registro);
-  save(KEYS.reunioes, reunioes);
+  const registro = { colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, assinaturas: [] };
+  const saved = await sbInsert('reunioes', registro);
+  const regFinal = saved ? {...registro, id: saved.id} : {...registro, id: 'local_'+Date.now()};
+  reunioes.unshift(regFinal);
+  save('gp_reunioes', reunioes);
   initReunForm();
-  // Abre modal de assinatura
-  abrirAssinatura(registro.id, 'reunioes', [colab], () => { nav('historico'); });
+  abrirAssinatura(regFinal.id, 'reunioes', [colab], () => { nav('historico'); });
 }
 
-function salvarRapido() {
+async function salvarRapido() {
   const assunto = document.getElementById('rap-assunto').value.trim();
   if (!rapCtx || !assunto) return;
   let participantes = '';
   if (rapCtx==='individual') participantes = document.getElementById('rap-colab').value;
   else if (rapCtx==='grupo') participantes = document.getElementById('rap-grupo-nomes').value;
   else if (rapCtx==='setor') participantes = rapSetor;
-  const regRap = { id: Date.now(), data: today(), contexto: rapCtx, participantes, assunto, encaminhamento: document.getElementById('rap-enc').value, assinaturas: [] };
+  const rapData = { data: today(), contexto: rapCtx, participantes, assunto, encaminhamento: document.getElementById('rap-enc').value, assinaturas: [] };
+  const rapSaved = await sbInsert('rapidos', rapData);
+  const regRap = rapSaved ? {...rapData, id: rapSaved.id} : {...rapData, id: 'local_'+Date.now()};
   rapidos.unshift(regRap);
-  save(KEYS.rapidos, rapidos);
+  save('gp_rapidos', rapidos);
   // reset
   const ctxSalvo = rapCtx;
   const partSalvo = participantes;
@@ -952,14 +1124,17 @@ function salvarRapido() {
   if (partsArr.length) abrirAssinatura(regRap.id, 'rapidos', partsArr, () => renderRapidoHistorico());
 }
 
-function salvarSolicitacao() {
+async function salvarSolicitacao() {
   const assunto = document.getElementById('sol-assunto').value.trim();
   if (!solOrigem || !assunto) return;
   let quem = '';
   if (solOrigem==='colaborador') quem = document.getElementById('sol-colab').value;
   else if (solOrigem==='prestador'||solOrigem==='superior') quem = document.getElementById('sol-quem').value;
-  solicitacoes.unshift({ id: Date.now(), data: today(), origem: solOrigem, quem, assunto, direcionado: document.getElementById('sol-dir').value, prazo: document.getElementById('sol-prazo').value, obs: document.getElementById('sol-obs').value, status: 'aberta' });
-  save(KEYS.solicitacoes, solicitacoes);
+  const solData = { data: today(), origem: solOrigem, quem, assunto, direcionado: document.getElementById('sol-dir').value, prazo: document.getElementById('sol-prazo').value || null, obs: document.getElementById('sol-obs').value, status: 'aberta' };
+  const solSaved = await sbInsert('solicitacoes', solData);
+  const solFinal = solSaved ? {...solData, id: solSaved.id} : {...solData, id: 'local_'+Date.now()};
+  solicitacoes.unshift(solFinal);
+  save('gp_solicit', solicitacoes);
   const s = document.getElementById('sol-success');
   s.style.display='flex'; setTimeout(()=>s.style.display='none', 1800);
   initSolicitForm();
@@ -996,6 +1171,32 @@ function renderDashboard() {
       return `<div class="clima-chip"><div style="color:${s.cor}">${s.icon}</div><span style="font-weight:800;color:${s.cor};font-size:18px">${c}</span><span>${s.label}</span></div>`;
     }).join('');
   } else climaSec.style.display='none';
+  // Q12 engajamento baixo
+  const q12sec = document.getElementById('d-q12-sec');
+  if (q12avaliacoes.length) {
+    q12sec.style.display = '';
+    // Pega a avaliacao mais recente por colaborador
+    const ultimas = {};
+    q12avaliacoes.forEach(a => { if (!ultimas[a.colaborador]) ultimas[a.colaborador] = a; });
+    const ordenados = Object.values(ultimas).sort((a,b)=>a.total-b.total);
+    document.getElementById('d-q12-list').innerHTML = ordenados.slice(0,4).map(a => {
+      const nv = nivelEngajamento(a.total);
+      return `<div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:8px">
+        <div>
+          <div style="font-weight:700;color:#0f172a;font-size:14px">${a.colaborador}</div>
+          <div style="font-size:11px;color:#94a3b8">${fmtDate(a.data)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="background:#f1f5f9;border-radius:20px;height:6px;width:80px">
+            <div style="background:${nv.cor};border-radius:20px;height:6px;width:${(a.total/5*100)}%"></div>
+          </div>
+          <div style="font-size:16px;font-weight:800;color:${nv.cor};min-width:28px;text-align:right">${a.total}</div>
+          <span style="font-size:11px;font-weight:700;color:${nv.cor};background:${nv.bg};border-radius:20px;padding:2px 8px">${nv.label}</span>
+        </div>
+      </div>`;
+    }).join('') + (ordenados.length > 4 ? `<div style="text-align:center;font-size:12px;color:#94a3b8;margin-top:4px">+${ordenados.length-4} colaboradores</div>` : '');
+  } else q12sec.style.display = 'none';
+
   // Rapidos recentes
   const rs = document.getElementById('d-rapidos-sec');
   if (rapidos.length) { rs.style.display=''; document.getElementById('d-rapidos-list').innerHTML = rapidos.slice(0,3).map(renderRapCard).join(''); }
@@ -1095,9 +1296,10 @@ function renderKbCard(s, st) {
   </div>`;
 }
 
-function moveCard(id, newStatus) {
+async function moveCard(id, newStatus) {
+  await sbUpdate('solicitacoes', id, { status: newStatus });
   const idx = solicitacoes.findIndex(s => s.id === id);
-  if (idx >= 0) { solicitacoes[idx].status = newStatus; save(KEYS.solicitacoes, solicitacoes); renderKanban(); renderDashboard(); }
+  if (idx >= 0) { solicitacoes[idx].status = newStatus; save('gp_solicit', solicitacoes); renderKanban(); renderDashboard(); }
 }
 
 function renderSolCard(s) {
@@ -1210,37 +1412,44 @@ function setStatus(id, newStatus) {
   if (idx>=0) { solicitacoes[idx].status = newStatus; save(KEYS.solicitacoes, solicitacoes); renderKanban(); renderDashboard(); }
 }
 
-function addColab() {
+async function addColab() {
   const inp = document.getElementById('novo-colab');
   const nome = inp.value.trim();
   if (!nome || colabs.includes(nome)) return;
+  await sbInsert('colaboradores', { nome });
   colabs = [...colabs, nome].sort();
-  save(KEYS.colabs, colabs);
+  save('gp_colabs', colabs);
   inp.value='';
   renderColabs();
 }
 
-function delColab(nome) {
+async function delColab(nome) {
+  const r = await fetch(`${SB_URL}/rest/v1/colaboradores?nome=eq.${encodeURIComponent(nome)}`, {
+    method: 'DELETE', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  });
   colabs = colabs.filter(c=>c!==nome);
-  save(KEYS.colabs, colabs);
+  save('gp_colabs', colabs);
   renderColabs();
 }
 
-function delReuniao(id) {
+async function delReuniao(id) {
+  await sbDelete('reunioes', id);
   reunioes = reunioes.filter(r=>r.id!==id);
-  save(KEYS.reunioes, reunioes);
+  save('gp_reunioes', reunioes);
   renderHistorico(); renderDashboard();
 }
 
-function delRapido(id) {
+async function delRapido(id) {
+  await sbDelete('rapidos', id);
   rapidos = rapidos.filter(r=>r.id!==id);
-  save(KEYS.rapidos, rapidos);
+  save('gp_rapidos', rapidos);
   renderRapidoHistorico(); renderDashboard();
 }
 
-function delSolicit(id) {
+async function delSolicit(id) {
+  await sbDelete('solicitacoes', id);
   solicitacoes = solicitacoes.filter(s=>s.id!==id);
-  save(KEYS.solicitacoes, solicitacoes);
+  save('gp_solicit', solicitacoes);
   renderKanban(); renderDashboard();
 }
 
@@ -1249,6 +1458,7 @@ document.getElementById('reun-colab').addEventListener('change', checkReunBtn);
 document.getElementById('rap-assunto').addEventListener('input', checkRapBtn);
 document.getElementById('sol-assunto').addEventListener('input', checkSolBtn);
 document.getElementById('fb-descricao').addEventListener('input', checkFbBtn);
+document.getElementById('q12-colab').addEventListener('change', checkQ12Btn);
 
 
 // ── MENU MAIS ─────────────────────────────────────────────────────────────────
@@ -1383,13 +1593,15 @@ function confirmarAssinatura() {
   }
 }
 
-function finalizarAssinaturas() {
+async function finalizarAssinaturas() {
   // Salva assinaturas no registro
   const colecao = assinColecao === 'reunioes' ? reunioes : rapidos;
   const idx = colecao.findIndex(r => r.id === assinRegistroId);
   if (idx >= 0) {
     colecao[idx].assinaturas = [...assinColetadas];
-    save(assinColecao === 'reunioes' ? KEYS.reunioes : KEYS.rapidos, colecao);
+    const tbl = assinColecao === 'reunioes' ? 'reunioes' : 'rapidos';
+    await sbUpdate(tbl, assinRegistroId, { assinaturas: [...assinColetadas] });
+    save(assinColecao === 'reunioes' ? 'gp_reunioes' : 'gp_rapidos', colecao);
   }
   fecharAssinatura();
   if (assinCallback) assinCallback();
@@ -1568,6 +1780,334 @@ function stopMicUI(fieldId, btn) {
 // Para mic ao trocar de aba
 const _navOrig = nav;
 
+
+
+// ── Q12 LINK PUBLICO ──────────────────────────────────────────────────────────
+let q12PubToken = null;
+let q12PubRespostas = {};
+
+async function gerarLinkQ12(colab) {
+  const r = await fetch(`https://uhzwywodwqinbwpjchtt.supabase.co/rest/v1/q12_links`, {
+    method: 'POST',
+    headers: { 'apikey': 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Authorization': 'Bearer sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+    body: JSON.stringify({ colaborador: colab })
+  });
+  if (!r.ok) { alert('Erro ao gerar link.'); return; }
+  const [link] = await r.json();
+  const base = window.location.href.split('?')[0];
+  const url = `${base}?q12token=${link.token}`;
+  const msg = encodeURIComponent(`Ola ${colab}! Seu gestor Wellington gostaria que voce respondesse uma pesquisa rapida de engajamento (12 perguntas). Acesse: ${url}`);
+  window.open(`https://wa.me/?text=${msg}`, '_blank');
+}
+
+async function abrirQ12Publico(token) {
+  q12PubToken = token;
+  q12PubRespostas = {};
+  // Verifica token
+  const r = await fetch(`https://uhzwywodwqinbwpjchtt.supabase.co/rest/v1/q12_links?token=eq.${token}&select=*`, {
+    headers: { 'apikey': 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Authorization': 'Bearer sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0' }
+  });
+  const [link] = await r.json();
+  if (!link) { alert('Link invalido ou expirado.'); return; }
+  if (link.respondido) {
+    document.getElementById('modal-q12-obrigado').style.display = 'flex';
+    return;
+  }
+  document.getElementById('q12pub-nome').textContent = `Ola, ${link.colaborador}!`;
+  document.getElementById('modal-q12-publico').style.display = 'block';
+  renderQ12PubPerguntas();
+}
+
+function renderQ12PubPerguntas() {
+  const cont = document.getElementById('q12pub-perguntas');
+  cont.innerHTML = Q12_NIVEIS.map(nivel => `
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${nivel.cor}"></div>
+        <div style="font-size:12px;font-weight:800;color:${nivel.cor};text-transform:uppercase">${nivel.label}</div>
+      </div>
+      ${nivel.perguntas.map(p => `
+        <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:600;color:#374151;line-height:1.5;margin-bottom:12px">
+            <span style="color:${nivel.cor};font-weight:800">${p.id.toUpperCase()}</span> &nbsp;${p.texto}
+          </div>
+          <div style="display:flex;gap:6px;justify-content:space-between">
+            ${ESCALA.map(e => `
+              <button id="qpub-${p.id}-${e.val}" onclick="setQ12PubResp('${p.id}',${e.val},'${nivel.cor}')"
+                style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer">
+                <span style="font-size:15px;font-weight:800;color:#64748b">${e.val}</span>
+                <span style="font-size:9px;color:#94a3b8;text-align:center;line-height:1.2">${e.sub}</span>
+              </button>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function setQ12PubResp(qid, val, cor) {
+  q12PubRespostas[qid] = val;
+  for (let v = 1; v <= 5; v++) {
+    const btn = document.getElementById('qpub-'+qid+'-'+v);
+    if (!btn) continue;
+    if (v === val) { btn.style.borderColor=cor; btn.style.background=cor+'18'; btn.querySelector('span').style.color=cor; }
+    else { btn.style.borderColor='#e2e8f0'; btn.style.background='#f8fafc'; btn.querySelector('span').style.color='#64748b'; }
+  }
+  const total = Q12_NIVEIS.reduce((s,n)=>s+n.perguntas.length,0);
+  document.getElementById('q12pub-btn').disabled = Object.keys(q12PubRespostas).length < total;
+}
+
+async function enviarQ12Publico() {
+  // Busca link para saber o colaborador
+  const r = await fetch(`https://uhzwywodwqinbwpjchtt.supabase.co/rest/v1/q12_links?token=eq.${q12PubToken}&select=*`, {
+    headers: { 'apikey': 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Authorization': 'Bearer sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0' }
+  });
+  const [link] = await r.json();
+  // Calcula scores
+  const scores = {};
+  Q12_NIVEIS.forEach(n => {
+    const vals = n.perguntas.map(p => q12PubRespostas[p.id]||0);
+    scores[n.key] = +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2);
+  });
+  const total = +(Object.values(scores).reduce((a,b)=>a+b,0)/Q12_NIVEIS.length).toFixed(2);
+  // Salva avaliacao
+  await fetch(`https://uhzwywodwqinbwpjchtt.supabase.co/rest/v1/q12_avaliacoes`, {
+    method: 'POST',
+    headers: { 'apikey': 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Authorization': 'Bearer sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ colaborador: link.colaborador, data: new Date().toISOString().split('T')[0], respostas: {...q12PubRespostas}, scores, total, origem: 'colaborador' })
+  });
+  // Marca link como respondido
+  await fetch(`https://uhzwywodwqinbwpjchtt.supabase.co/rest/v1/q12_links?token=eq.${q12PubToken}`, {
+    method: 'PATCH',
+    headers: { 'apikey': 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Authorization': 'Bearer sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ respondido: true, respondido_em: new Date().toISOString() })
+  });
+  document.getElementById('modal-q12-publico').style.display = 'none';
+  const obg = document.getElementById('modal-q12-obrigado');
+  obg.style.display = 'flex';
+}
+
+// ── Q12 GALLUP ────────────────────────────────────────────────────────────────
+const Q12_NIVEIS = [
+  {
+    key: 'basicas', label: 'Basicas', cor: '#3b82f6', bg: '#eff6ff',
+    desc: 'O colaborador sabe o que e esperado e tem os recursos necessarios.',
+    perguntas: [
+      { id: 'q01', texto: 'Eu sei o que e esperado de mim no trabalho.' },
+      { id: 'q02', texto: 'Eu tenho o que preciso para fazer bem o meu trabalho.' },
+    ]
+  },
+  {
+    key: 'individuais', label: 'Individuais', cor: '#22c55e', bg: '#f0fdf4',
+    desc: 'O colaborador se sente valorizado, reconhecido e apoiado.',
+    perguntas: [
+      { id: 'q03', texto: 'No trabalho, tenho a oportunidade de fazer o que faco bem todos os dias.' },
+      { id: 'q04', texto: 'Nos ultimos 7 dias, recebi reconhecimento ou elogio por fazer um bom trabalho.' },
+      { id: 'q05', texto: 'Meu supervisor parece se importar comigo como pessoa.' },
+      { id: 'q06', texto: 'Ha alguem no trabalho que encoraja o meu desenvolvimento.' },
+    ]
+  },
+  {
+    key: 'coletivas', label: 'Coletivas', cor: '#f59e0b', bg: '#fefce8',
+    desc: 'O colaborador sente que pertence e que sua opiniao importa.',
+    perguntas: [
+      { id: 'q07', texto: 'No trabalho, minha opiniao parece contar.' },
+      { id: 'q08', texto: 'A missao da empresa faz com que eu sinta que meu trabalho e importante.' },
+      { id: 'q09', texto: 'Meus colegas estao comprometidos em fazer um bom trabalho.' },
+      { id: 'q10', texto: 'Eu tenho um melhor amigo no trabalho.' },
+    ]
+  },
+  {
+    key: 'crescimento', label: 'Crescimento', cor: '#ef4444', bg: '#fef2f2',
+    desc: 'O colaborador vê progressão e aprendizado na empresa.',
+    perguntas: [
+      { id: 'q11', texto: 'Nos ultimos 6 meses, alguem conversou comigo sobre meu progresso.' },
+      { id: 'q12', texto: 'Neste ultimo ano, tive oportunidades para aprender e crescer.' },
+    ]
+  },
+];
+
+const ESCALA = [
+  { val: 1, label: '1', sub: 'Discordo totalmente' },
+  { val: 2, label: '2', sub: 'Discordo' },
+  { val: 3, label: '3', sub: 'Neutro' },
+  { val: 4, label: '4', sub: 'Concordo' },
+  { val: 5, label: '5', sub: 'Concordo totalmente' },
+];
+
+let q12Respostas = {};
+let q12TabAtual = 'nova';
+
+function initQ12() {
+  // Colaboradores
+  const sel = document.getElementById('q12-colab');
+  sel.innerHTML = '<option value="">Selecione...</option>' + colabs.map(c=>`<option>${c}</option>`).join('');
+  document.getElementById('q12-data').value = today();
+  // Hist select
+  const hsel = document.getElementById('q12-hist-colab');
+  hsel.innerHTML = '<option value="">Todos</option>' + colabs.map(c=>`<option>${c}</option>`).join('');
+  // Render perguntas
+  q12Respostas = {};
+  renderQ12Perguntas();
+  checkQ12Btn();
+  setQ12Tab(q12TabAtual);
+}
+
+function setQ12Tab(tab) {
+  q12TabAtual = tab;
+  document.getElementById('q12-nova-sec').style.display = tab === 'nova' ? '' : 'none';
+  document.getElementById('q12-hist-sec').style.display = tab === 'hist' ? '' : 'none';
+  document.getElementById('q12-tab-nova').style.color = tab === 'nova' ? '#0f172a' : '#94a3b8';
+  document.getElementById('q12-tab-nova').style.borderBottom = tab === 'nova' ? '2px solid #0f172a' : '2px solid transparent';
+  document.getElementById('q12-tab-hist').style.color = tab === 'hist' ? '#0f172a' : '#94a3b8';
+  document.getElementById('q12-tab-hist').style.borderBottom = tab === 'hist' ? '2px solid #0f172a' : '2px solid transparent';
+  if (tab === 'hist') renderQ12Hist();
+}
+
+function renderQ12Perguntas() {
+  const cont = document.getElementById('q12-perguntas');
+  cont.innerHTML = Q12_NIVEIS.map(nivel => `
+    <div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${nivel.cor}"></div>
+        <div style="font-size:13px;font-weight:800;color:${nivel.cor};text-transform:uppercase;letter-spacing:.5px">${nivel.label}</div>
+      </div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:12px">${nivel.desc}</div>
+      ${nivel.perguntas.map((p,pi) => `
+        <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:600;color:#374151;line-height:1.5;margin-bottom:12px">
+            <span style="color:${nivel.cor};font-weight:800">${p.id.toUpperCase()}</span> &nbsp;${p.texto}
+          </div>
+          <div style="display:flex;gap:6px;justify-content:space-between">
+            ${ESCALA.map(e => `
+              <button id="q12-${p.id}-${e.val}" onclick="setQ12Resp('${p.id}',${e.val},'${nivel.cor}')"
+                style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer">
+                <span style="font-size:15px;font-weight:800;color:#64748b">${e.val}</span>
+                <span style="font-size:9px;color:#94a3b8;text-align:center;line-height:1.2">${e.sub}</span>
+              </button>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function setQ12Resp(qid, val, cor) {
+  q12Respostas[qid] = val;
+  // Highlight botao selecionado
+  for (let v = 1; v <= 5; v++) {
+    const btn = document.getElementById('q12-'+qid+'-'+v);
+    if (!btn) continue;
+    if (v === val) {
+      btn.style.borderColor = cor;
+      btn.style.background = cor + '18';
+      btn.querySelector('span').style.color = cor;
+    } else {
+      btn.style.borderColor = '#e2e8f0';
+      btn.style.background = '#f8fafc';
+      btn.querySelector('span').style.color = '#64748b';
+    }
+  }
+  checkQ12Btn();
+}
+
+function checkQ12Btn() {
+  const colab = document.getElementById('q12-colab') ? document.getElementById('q12-colab').value : '';
+  const totalPergs = Q12_NIVEIS.reduce((s,n)=>s+n.perguntas.length,0);
+  const respondidas = Object.keys(q12Respostas).length;
+  document.getElementById('q12-save-btn').disabled = !(colab && respondidas === totalPergs);
+  const wbtn = document.getElementById('q12-whats-btn-wrap');
+  if (wbtn) wbtn.style.display = colab ? '' : 'none';
+}
+
+async function salvarQ12() {
+  const colab = document.getElementById('q12-colab').value;
+  const data = document.getElementById('q12-data').value;
+  if (!colab) return;
+  // Calcula scores por nivel
+  const scores = {};
+  Q12_NIVEIS.forEach(n => {
+    const vals = n.perguntas.map(p => q12Respostas[p.id] || 0);
+    scores[n.key] = +(vals.reduce((a,b)=>a+b,0) / vals.length).toFixed(2);
+  });
+  const total = +(Object.values(scores).reduce((a,b)=>a+b,0) / Q12_NIVEIS.length).toFixed(2);
+  const avalData = { colaborador: colab, data, respostas: {...q12Respostas}, scores, total, origem: 'gestor' };
+  const avalSaved = await sbInsert('q12_avaliacoes', avalData);
+  const aval = avalSaved ? {...avalData, id: avalSaved.id} : {...avalData, id: 'local_'+Date.now()};
+  q12avaliacoes.unshift(aval);
+  save('gp_q12', q12avaliacoes);
+  // Reset
+  q12Respostas = {};
+  document.getElementById('q12-colab').value = '';
+  renderQ12Perguntas();
+  checkQ12Btn();
+  const s = document.getElementById('q12-success');
+  s.style.display = 'flex'; setTimeout(()=>{ s.style.display='none'; setQ12Tab('hist'); }, 1500);
+  renderDashboard();
+}
+
+function nivelEngajamento(score) {
+  if (score >= 4.5) return { label: 'Alto', cor: '#22c55e', bg: '#f0fdf4' };
+  if (score >= 3.5) return { label: 'Moderado', cor: '#f59e0b', bg: '#fefce8' };
+  if (score >= 2.5) return { label: 'Baixo', cor: '#f97316', bg: '#fff7ed' };
+  return { label: 'Critico', cor: '#ef4444', bg: '#fef2f2' };
+}
+
+function renderQ12Hist() {
+  const filtroColab = document.getElementById('q12-hist-colab') ? document.getElementById('q12-hist-colab').value : '';
+  const lista = filtroColab ? q12avaliacoes.filter(a=>a.colaborador===filtroColab) : q12avaliacoes;
+  const el = document.getElementById('q12-hist-list');
+  const empty = document.getElementById('q12-hist-empty');
+  if (!lista.length) { el.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+  el.innerHTML = lista.map(a => {
+    const nv = nivelEngajamento(a.total);
+    return `<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:14px 16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-weight:700;color:#0f172a;font-size:15px">${a.colaborador}</div>
+          <div style="font-size:12px;color:#94a3b8">${fmtDate(a.data)}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:24px;font-weight:800;color:${nv.cor}">${a.total}</div>
+          <div style="font-size:11px;font-weight:700;color:${nv.cor};background:${nv.bg};border-radius:20px;padding:2px 8px">${nv.label}</div>
+        </div>
+      </div>
+      <!-- Barras por nivel -->
+      ${Q12_NIVEIS.map(n => {
+        const sc = a.scores[n.key] || 0;
+        const pct = (sc/5)*100;
+        return `<div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:11px;font-weight:700;color:${n.cor}">${n.label}</span>
+            <span style="font-size:11px;font-weight:700;color:#374151">${sc}/5</span>
+          </div>
+          <div style="background:#f1f5f9;border-radius:20px;height:8px">
+            <div style="background:${n.cor};border-radius:20px;height:8px;width:${pct}%;transition:width .4s"></div>
+          </div>
+        </div>`;
+      }).join('')}
+      <!-- Perguntas mais baixas -->
+      ${(() => {
+        const baixas = Q12_NIVEIS.flatMap(n=>n.perguntas.map(p=>({...p, val: a.respostas[p.id]||0, cor:n.cor}))).filter(p=>p.val<=2).sort((a,b)=>a.val-b.val).slice(0,3);
+        if (!baixas.length) return '';
+        return `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9">
+          <div style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:6px">PONTOS DE ATENCAO</div>
+          ${baixas.map(p=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <div style="width:20px;height:20px;border-radius:50%;background:#fef2f2;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#ef4444;flex-shrink:0">${p.val}</div>
+            <span style="font-size:12px;color:#374151;line-height:1.4">${p.texto}</span>
+          </div>`).join('')}
+        </div>`;
+      })()}
+      <button onclick="delQ12(${a.id})" style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;margin-top:8px;display:flex;align-items:center;gap:4px">${SVG.trashRed} Excluir avaliacao</button>
+    </div>`;
+  }).join('');
+}
+
+async function delQ12(id) {
+  await sbDelete('q12_avaliacoes', id);
+  q12avaliacoes = q12avaliacoes.filter(a=>a.id!==id);
+  save('gp_q12', q12avaliacoes);
+  renderQ12Hist();
+  renderDashboard();
+}
+
 // ── FEEDBACKS ─────────────────────────────────────────────────────────────────
 let fbFiltro = 'todos';
 
@@ -1599,20 +2139,17 @@ function checkFbBtn() {
   document.getElementById('fb-save-btn').disabled = !(fbTipo && fbOrigem && desc);
 }
 
-function salvarFeedback() {
+async function salvarFeedback() {
   const desc = document.getElementById('fb-descricao').value.trim();
   if (!fbTipo || !fbOrigem || !desc) return;
-  feedbacks.unshift({
-    id: Date.now(),
-    data: today(),
-    tipo: fbTipo,
-    origem: fbOrigem,
+  const fbData = {
+    data: today(), tipo: fbTipo, origem: fbOrigem,
     nome: fbOrigem !== 'anonimo' ? document.getElementById('fb-nome').value.trim() : '',
-    descricao: desc,
-    areas: [...fbAreas],
-    acao: document.getElementById('fb-acao').value.trim(),
-  });
-  save(KEYS.feedbacks, feedbacks);
+    descricao: desc, areas: [...fbAreas], acao: document.getElementById('fb-acao').value.trim(),
+  };
+  const fbSaved = await sbInsert('feedbacks', fbData);
+  feedbacks.unshift(fbSaved ? {...fbData, id: fbSaved.id} : {...fbData, id: 'local_'+Date.now()});
+  save('gp_feedbacks', feedbacks);
   // reset
   fbTipo = ''; fbOrigem = ''; fbAreas = [];
   ['positivo','negativo','sugestao'].forEach(t => document.getElementById('fbt-'+t).className = 'fb-tipo-btn');
@@ -1684,9 +2221,10 @@ function renderFeedbacks() {
   }).join('');
 }
 
-function delFeedback(id) {
+async function delFeedback(id) {
+  await sbDelete('feedbacks', id);
   feedbacks = feedbacks.filter(f => f.id !== id);
-  save(KEYS.feedbacks, feedbacks);
+  save('gp_feedbacks', feedbacks);
   renderFeedbacks();
 }
 
@@ -1695,6 +2233,15 @@ initRapidoForm();
 initSolicitForm();
 renderRoteiros();
 renderDashboard();
+// Sync com Supabase em background
+syncFromSupabase();
+
+// Q12 link publico — se URL tem ?q12token=xxx, abre formulario do colaborador
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('q12token');
+  if (token) abrirQ12Publico(token);
+})();
 </script>
 
 <!-- MODAL ORIGENS -->
@@ -1747,6 +2294,31 @@ renderDashboard();
       Finalizar e salvar
     </button>
   </div>
+</div>
+
+
+<!-- MODAL Q12 PUBLICO (colaborador responde) -->
+<div id="modal-q12-publico" style="display:none;position:fixed;inset:0;z-index:300;background:#f8fafc;overflow-y:auto">
+  <div style="max-width:480px;margin:0 auto;padding:24px 16px 80px">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:28px;font-weight:800;color:#0f172a">Q12 Gallup</div>
+      <div id="q12pub-nome" style="font-size:15px;color:#64748b;margin-top:4px"></div>
+      <div style="font-size:13px;color:#94a3b8;margin-top:8px">Responda com honestidade. Suas respostas ajudam a melhorar o ambiente de trabalho.</div>
+    </div>
+    <div style="background:#fefce8;border:1.5px solid #fde68a;border-radius:10px;padding:12px 14px;margin-bottom:20px;font-size:13px;color:#92400e">
+      <strong>Escala:</strong> 1 = Discordo totalmente &nbsp;·&nbsp; 5 = Concordo totalmente
+    </div>
+    <div id="q12pub-perguntas"></div>
+    <button onclick="enviarQ12Publico()" id="q12pub-btn" style="width:100%;background:#0f172a;color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px" disabled>
+      Enviar respostas
+    </button>
+  </div>
+</div>
+<!-- MODAL Q12 OBRIGADO -->
+<div id="modal-q12-obrigado" style="display:none;position:fixed;inset:0;z-index:301;background:#fff;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:32px">
+  <div style="font-size:56px;margin-bottom:16px">✅</div>
+  <div style="font-size:24px;font-weight:800;color:#0f172a;margin-bottom:8px">Obrigado!</div>
+  <div style="font-size:15px;color:#64748b">Suas respostas foram registradas com sucesso.</div>
 </div>
 
 </body>
