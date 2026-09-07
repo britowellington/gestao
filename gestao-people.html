@@ -199,6 +199,10 @@ textarea.inp{resize:vertical;min-height:80px}
 .modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center}
 
 
+
+/* Assinatura */
+.assin-badge{display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700;color:#16a34a;cursor:pointer}
+
 /* Mic button */
 .field-with-mic{position:relative}
 .mic-btn{position:absolute;right:10px;bottom:10px;width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#f1f5f9;transition:all .2s}
@@ -901,11 +905,12 @@ function salvarReuniao() {
   const colab = document.getElementById('reun-colab').value;
   const data = document.getElementById('reun-data').value;
   if (!colab || !reunTipo || !reunClima) return;
-  reunioes.unshift({ id: Date.now(), colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value });
+  const registro = { id: Date.now(), colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, assinaturas: [] };
+  reunioes.unshift(registro);
   save(KEYS.reunioes, reunioes);
-  const s = document.getElementById('reun-success');
-  s.style.display='flex'; setTimeout(()=>{ s.style.display='none'; nav('historico'); }, 1300);
   initReunForm();
+  // Abre modal de assinatura
+  abrirAssinatura(registro.id, 'reunioes', [colab], () => { nav('historico'); });
 }
 
 function salvarRapido() {
@@ -915,9 +920,12 @@ function salvarRapido() {
   if (rapCtx==='individual') participantes = document.getElementById('rap-colab').value;
   else if (rapCtx==='grupo') participantes = document.getElementById('rap-grupo-nomes').value;
   else if (rapCtx==='setor') participantes = rapSetor;
-  rapidos.unshift({ id: Date.now(), data: today(), contexto: rapCtx, participantes, assunto, encaminhamento: document.getElementById('rap-enc').value });
+  const regRap = { id: Date.now(), data: today(), contexto: rapCtx, participantes, assunto, encaminhamento: document.getElementById('rap-enc').value, assinaturas: [] };
+  rapidos.unshift(regRap);
   save(KEYS.rapidos, rapidos);
   // reset
+  const ctxSalvo = rapCtx;
+  const partSalvo = participantes;
   rapCtx=''; rapSetor='';
   ['individual','grupo','setor'].forEach(c=>{ document.getElementById('ctx-'+c).classList.remove('on'); document.getElementById('rap-'+c+'-field').style.display='none'; });
   document.getElementById('rap-assunto').value='';
@@ -925,9 +933,15 @@ function salvarRapido() {
   document.getElementById('rap-colab').value='';
   document.getElementById('rap-grupo-nomes').value='';
   checkRapBtn();
-  const s = document.getElementById('rap-success');
-  s.style.display='flex'; setTimeout(()=>s.style.display='none', 1800);
+  const sRap = document.getElementById('rap-success');
+  sRap.style.display='flex'; setTimeout(()=>sRap.style.display='none', 1800);
   renderRapidoHistorico();
+  // Abre assinatura — monta lista de participantes
+  let partsArr = [];
+  if (ctxSalvo === 'individual' && partSalvo) partsArr = [partSalvo];
+  else if (ctxSalvo === 'grupo' && partSalvo) partsArr = partSalvo.split(',').map(p=>p.trim()).filter(Boolean);
+  else if (ctxSalvo === 'setor') partsArr = [partSalvo || 'Setor'];
+  if (partsArr.length) abrirAssinatura(regRap.id, 'rapidos', partsArr, () => renderRapidoHistorico());
 }
 
 function salvarSolicitacao() {
@@ -1001,6 +1015,7 @@ function renderRapCard(r) {
     </div>
     <div class="rap-body">${r.assunto}</div>
     ${r.encaminhamento?`<div class="rap-enc">${SVG.arr} ${r.encaminhamento}</div>`:''}
+    ${r.assinaturas&&r.assinaturas.length?`<div style="margin-top:8px"><button class="assin-badge" onclick="verAssinaturas('rapidos',${r.id})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ${r.assinaturas.length} assinatura${r.assinaturas.length>1?'s':''}</button></div>`:''}
   </div>`;
 }
 
@@ -1020,6 +1035,7 @@ function renderReuniaoCard(r, expanded=false) {
       ${r.abordado?`<div class="info-label">O que foi abordado</div><div class="info-text">${r.abordado}</div>`:''}
       ${r.acoes?`<div class="info-label">Acoes combinadas</div><div class="info-text">${r.acoes}</div>`:''}
       ${r.proximos?`<div class="info-label">Proximos passos</div><div class="info-text">${r.proximos}</div>`:''}
+      ${r.assinaturas&&r.assinaturas.length?`<div style="margin-top:12px"><button class="assin-badge" onclick="verAssinaturas('reunioes',${r.id})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ${r.assinaturas.length} assinatura${r.assinaturas.length>1?'s':''}</button></div>`:''}
       <button class="btn-link" onclick="delReuniao(${r.id})">${SVG.trashRed} Excluir registro</button>
     </div>
   </div>`;
@@ -1249,6 +1265,162 @@ function navMais(id) {
 }
 
 
+
+
+// ── ASSINATURA DIGITAL ────────────────────────────────────────────────────────
+let assinCtx = null;         // canvas context
+let assinDesenho = false;    // mouse/touch down
+let assinRegistroId = null;  // id do registro atual
+let assinColecao = null;     // 'reunioes' | 'rapidos'
+let assinParticipantes = []; // lista de nomes para assinar
+let assinIndiceAtual = 0;    // qual participante esta assinando
+let assinColetadas = [];     // assinaturas coletadas [{nome, dataUrl}]
+let assinCallback = null;    // funcao a chamar ao finalizar
+
+function abrirAssinatura(registroId, colecao, participantes, callback) {
+  assinRegistroId = registroId;
+  assinColecao = colecao;
+  assinParticipantes = participantes;
+  assinIndiceAtual = 0;
+  assinColetadas = [];
+  assinCallback = callback;
+
+  const modal = document.getElementById('modal-assinatura');
+  modal.style.display = 'flex';
+  iniciarCanvasAssinatura();
+  atualizarModalAssinatura();
+}
+
+function iniciarCanvasAssinatura() {
+  const canvas = document.getElementById('assin-canvas');
+  const wrap = canvas.parentElement;
+  canvas.width = wrap.clientWidth - 3;
+  canvas.height = 180;
+  assinCtx = canvas.getContext('2d');
+  assinCtx.strokeStyle = '#0f172a';
+  assinCtx.lineWidth = 2.5;
+  assinCtx.lineCap = 'round';
+  assinCtx.lineJoin = 'round';
+  limparAssinatura();
+
+  // Touch events
+  canvas.ontouchstart = (e) => { e.preventDefault(); assinDesenho = true; const t = e.touches[0]; const r = canvas.getBoundingClientRect(); assinCtx.beginPath(); assinCtx.moveTo(t.clientX-r.left, t.clientY-r.top); document.getElementById('assin-hint').style.display='none'; };
+  canvas.ontouchmove  = (e) => { e.preventDefault(); if (!assinDesenho) return; const t = e.touches[0]; const r = canvas.getBoundingClientRect(); assinCtx.lineTo(t.clientX-r.left, t.clientY-r.top); assinCtx.stroke(); };
+  canvas.ontouchend   = () => { assinDesenho = false; };
+  // Mouse events (desktop)
+  canvas.onmousedown = (e) => { assinDesenho = true; const r = canvas.getBoundingClientRect(); assinCtx.beginPath(); assinCtx.moveTo(e.clientX-r.left, e.clientY-r.top); document.getElementById('assin-hint').style.display='none'; };
+  canvas.onmousemove = (e) => { if (!assinDesenho) return; const r = canvas.getBoundingClientRect(); assinCtx.lineTo(e.clientX-r.left, e.clientY-r.top); assinCtx.stroke(); };
+  canvas.onmouseup   = () => { assinDesenho = false; };
+}
+
+function atualizarModalAssinatura() {
+  const total = assinParticipantes.length;
+  const atual = assinParticipantes[assinIndiceAtual] || '';
+  const nomeEl = document.getElementById('assin-nome');
+  if (total > 1) {
+    nomeEl.innerHTML = `<strong>${atual}</strong> &nbsp;<span style="color:#cbd5e1">${assinIndiceAtual+1} de ${total}</span>`;
+  } else {
+    nomeEl.innerHTML = `<strong>${atual}</strong>`;
+  }
+  // Lista de ja assinaram
+  const col = document.getElementById('assin-coletadas');
+  const colList = document.getElementById('assin-coletadas-list');
+  if (assinColetadas.length) {
+    col.style.display = '';
+    colList.innerHTML = assinColetadas.map(a => `
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span style="font-size:13px;font-weight:600;color:#374151">${a.nome}</span>
+        <img src="${a.dataUrl}" style="height:28px;border:1px solid #e2e8f0;border-radius:6px;margin-left:auto">
+      </div>`).join('');
+  } else {
+    col.style.display = 'none';
+  }
+  // Botao finalizar
+  document.getElementById('assin-finalizar-btn').style.display = assinColetadas.length ? '' : 'none';
+  limparAssinatura();
+}
+
+function limparAssinatura() {
+  const canvas = document.getElementById('assin-canvas');
+  if (!assinCtx) return;
+  assinCtx.clearRect(0, 0, canvas.width, canvas.height);
+  document.getElementById('assin-hint').style.display = 'flex';
+}
+
+function confirmarAssinatura() {
+  const canvas = document.getElementById('assin-canvas');
+  // Verifica se canvas tem algo desenhado
+  const pixels = assinCtx.getImageData(0, 0, canvas.width, canvas.height).data;
+  const temDesenho = pixels.some(p => p !== 0);
+  if (!temDesenho) { alert('Por favor, assine antes de confirmar.'); return; }
+
+  const dataUrl = canvas.toDataURL('image/png');
+  const nome = assinParticipantes[assinIndiceAtual];
+  assinColetadas.push({ nome, dataUrl, timestamp: new Date().toISOString() });
+
+  assinIndiceAtual++;
+  if (assinIndiceAtual < assinParticipantes.length) {
+    // Proximo participante
+    atualizarModalAssinatura();
+  } else {
+    // Todos assinaram — mostra botao finalizar
+    atualizarModalAssinatura();
+    document.getElementById('assin-nome').innerHTML = '<span style="color:#22c55e;font-weight:700">Todos assinaram!</span>';
+    document.getElementById('assin-confirm-btn').style.display = 'none';
+  }
+}
+
+function finalizarAssinaturas() {
+  // Salva assinaturas no registro
+  const colecao = assinColecao === 'reunioes' ? reunioes : rapidos;
+  const idx = colecao.findIndex(r => r.id === assinRegistroId);
+  if (idx >= 0) {
+    colecao[idx].assinaturas = [...assinColetadas];
+    save(assinColecao === 'reunioes' ? KEYS.reunioes : KEYS.rapidos, colecao);
+  }
+  fecharAssinatura();
+  if (assinCallback) assinCallback();
+}
+
+function fecharAssinatura() {
+  document.getElementById('modal-assinatura').style.display = 'none';
+  document.getElementById('assin-confirm-btn').style.display = '';
+  assinCtx = null;
+  if (assinCallback && assinColecao) {
+    // Se fechou sem assinar, navega mesmo assim
+    if (assinColecao === 'reunioes') nav('historico');
+  }
+}
+
+function verAssinaturas(colecao, id) {
+  const lista = colecao === 'reunioes' ? reunioes : rapidos;
+  const reg = lista.find(r => r.id === id);
+  if (!reg || !reg.assinaturas || !reg.assinaturas.length) return;
+  const modal = document.getElementById('modal-assinatura');
+  modal.style.display = 'flex';
+  document.getElementById('assin-nome').innerHTML = '<strong>Assinaturas coletadas</strong>';
+  document.getElementById('assin-canvas').style.display = 'none';
+  document.querySelector('#modal-assinatura canvas').parentElement.style.display = 'none';
+  document.getElementById('assin-confirm-btn').style.display = 'none';
+  document.getElementById('assin-finalizar-btn').style.display = 'none';
+  const col = document.getElementById('assin-coletadas');
+  const colList = document.getElementById('assin-coletadas-list');
+  col.style.display = '';
+  colList.innerHTML = reg.assinaturas.map(a => `
+    <div style="padding:10px 0;border-bottom:1px solid #f1f5f9">
+      <div style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:6px">${a.nome}</div>
+      <img src="${a.dataUrl}" style="max-width:100%;border:1px solid #e2e8f0;border-radius:8px">
+    </div>`).join('');
+}
+
+function fecharAssinaturaVisualizacao() {
+  const canvas = document.getElementById('assin-canvas');
+  canvas.style.display = '';
+  canvas.parentElement.style.display = '';
+  document.getElementById('assin-confirm-btn').style.display = '';
+  document.getElementById('modal-assinatura').style.display = 'none';
+}
 
 // ── MICROFONE / VOZ ───────────────────────────────────────────────────────────
 let recognition = null;
@@ -1495,6 +1667,39 @@ renderDashboard();
       </div>
       <div style="font-size:11px;color:#94a3b8;margin-top:8px">A cor sera atribuida automaticamente</div>
     </div>
+  </div>
+</div>
+
+
+<!-- MODAL ASSINATURA -->
+<div id="modal-assinatura" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px 20px 32px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:17px;font-weight:800;color:#0f172a">Assinatura Digital</div>
+      <button onclick="fecharAssinaturaVisualizacao()" style="background:none;border:none;font-size:24px;color:#94a3b8;cursor:pointer;padding:0 4px">×</button>
+    </div>
+    <div id="assin-nome" style="font-size:13px;color:#64748b;margin-bottom:16px"></div>
+    <!-- Canvas -->
+    <div style="border:1.5px solid #e2e8f0;border-radius:12px;background:#f8fafc;position:relative;margin-bottom:12px">
+      <canvas id="assin-canvas" style="display:block;border-radius:12px;touch-action:none;cursor:crosshair"></canvas>
+      <div id="assin-hint" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#cbd5e1;font-size:13px">Assine aqui com o dedo</div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onclick="limparAssinatura()" style="flex:1;padding:12px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;font-size:14px;font-weight:600;color:#64748b">
+        Limpar
+      </button>
+      <button onclick="confirmarAssinatura()" id="assin-confirm-btn" style="flex:2;padding:12px;border:none;border-radius:10px;background:#0f172a;font-size:14px;font-weight:700;color:#fff">
+        Confirmar assinatura
+      </button>
+    </div>
+    <!-- Lista de assinaturas ja coletadas nessa sessao -->
+    <div id="assin-coletadas" style="margin-top:16px;display:none">
+      <div style="font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Ja assinaram</div>
+      <div id="assin-coletadas-list"></div>
+    </div>
+    <button id="assin-finalizar-btn" onclick="finalizarAssinaturas()" style="display:none;width:100%;margin-top:12px;padding:13px;border:none;border-radius:10px;background:#22c55e;font-size:15px;font-weight:700;color:#fff">
+      Finalizar e salvar
+    </button>
   </div>
 </div>
 
