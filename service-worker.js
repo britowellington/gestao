@@ -1,20 +1,20 @@
-const CACHE_NAME = 'gestao-people-v1';
+const CACHE_NAME = 'gestao-v2';
 const ASSETS = [
-  '/gestao/gestao-people.html',
-  '/gestao/manifest.json',
-  '/gestao/icon-192.png',
-  '/gestao/icon-512.png'
+  './gestao-people.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
-// Instala e faz cache dos arquivos principais
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(ASSETS);
+    }).catch(err => console.log('Cache install error:', err))
   );
   self.skipWaiting();
 });
 
-// Limpa caches antigos
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -24,15 +24,13 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Estratégia: Network first, cache como fallback
 self.addEventListener('fetch', event => {
-  // Requisições ao Supabase sempre vão para a rede
   if (event.request.url.includes('supabase.co')) return;
+  if (event.request.method !== 'GET') return;
 
   event.respondWith(
     fetch(event.request)
       .then(response => {
-        // Atualiza o cache com a resposta mais recente
         const clone = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         return response;
