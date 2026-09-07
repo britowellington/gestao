@@ -1209,46 +1209,26 @@ function renderDashboard() {
 
 // ── RENDER CARDS ──────────────────────────────────────────────────────────────
 function renderRapCard(r) {
-  const ctx = {individual:'Individual',grupo:'Grupo',setor:'Setor'};
-  const ctxCor = {individual:'#6366f1',grupo:'#0ea5e9',setor:'#10b981'};
-  const cor = ctxCor[r.contexto]||'#64748b';
-  return `<div class="rap-card">
-    <div class="rap-top">
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="width:32px;height:32px;border-radius:8px;background:${cor}18;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${cor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        </div>
-        <div><div style="font-weight:700;color:#0f172a;font-size:13px">${ctx[r.contexto]||''}${r.participantes?' · '+r.participantes:''}</div><div style="font-size:11px;color:#94a3b8">${fmtDate(r.data)}</div></div>
-      </div>
-      <button class="btn-delete" onclick="delRapido('${r.id}')">${SVG.trash}</button>
-    </div>
-    <div class="rap-body">${r.assunto}</div>
-    ${r.encaminhamento?`<div class="rap-enc">${SVG.arr} ${r.encaminhamento}</div>`:''}
-    ${r.assinaturas&&r.assinaturas.length?`<div style="margin-top:8px"><button class="assin-badge" onclick="verAssinaturas('rapidos','${r.id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ${r.assinaturas.length} assinatura${r.assinaturas.length>1?'s':''}</button></div>`:''}
-  </div>`;
+  var ctx = {individual:'Individual',grupo:'Grupo',setor:'Setor'};
+  var ctxCor = {individual:'#6366f1',grupo:'#0ea5e9',setor:'#10b981'};
+  var cor = ctxCor[r.contexto]||'#64748b';
+  var assinBadge = (r.assinaturas&&r.assinaturas.length) ? '<div style="margin-top:8px"><button class="assin-badge" onclick="verAssinaturas('rapidos','' + r.id + '')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ' + r.assinaturas.length + ' assinatura' + (r.assinaturas.length>1?'s':'') + '</button></div>' : '';
+  var encHtml = r.encaminhamento ? '<div class="rap-enc">' + SVG.arr + ' ' + r.encaminhamento + '</div>' : '';
+  return '<div class="rap-card"><div class="rap-top"><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:8px;background:' + cor + '18;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="' + cor + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div><div style="font-weight:700;color:#0f172a;font-size:13px">' + (ctx[r.contexto]||'') + (r.participantes?' · '+r.participantes:'') + '</div><div style="font-size:11px;color:#94a3b8">' + fmtDate(r.data) + '</div></div></div><button class="btn-delete" onclick="delRapido('' + r.id + '')">' + SVG.trash + '</button></div><div class="rap-body">' + r.assunto + '</div>' + encHtml + assinBadge + '</div>';
 }
 
-function renderReuniaoCard(r, expanded=false) {
-  const s = SENTIMENTOS.find(x=>x.label===r.clima)||{icon:'',cor:'#94a3b8'};
-  const bodyId = 'rb-'+r.id;
-  return `<div class="card">
-    <div class="card-hdr" onclick="toggleCard('${bodyId}',this)">
-      <div class="card-left">
-        ${avatar(r.colaborador,40)}
-        <div><div class="card-name">${r.colaborador}</div><div class="card-meta">${r.tipo}</div><div class="card-meta" style="font-size:11px">${fmtDate(r.data)}</div></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px"><div style="color:${s.cor}">${s.icon}</div><span id="chev-${bodyId}">${SVG.chevD}</span></div>
-    </div>
-    <div class="card-body${expanded?' open':''}" id="${bodyId}">
-      ${r.temas&&r.temas.length?`<div class="tags" style="margin-bottom:14px">${r.temas.map(t=>`<span class="tag tag-blue">${t}</span>`).join('')}</div>`:''}
-      ${r.abordado?`<div class="info-label">O que foi abordado</div><div class="info-text">${r.abordado}</div>`:''}
-      ${r.acoes?`<div class="info-label">Acoes combinadas</div><div class="info-text">${r.acoes}</div>`:''}
-      ${r.proximos?`<div class="info-label">Proximos passos</div><div class="info-text">${r.proximos}</div>`:''}
-      ${r.assinaturas&&r.assinaturas.length?`<div style="margin-top:12px"><button class="assin-badge" onclick="verAssinaturas('reunioes','${r.id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ${r.assinaturas.length} assinatura${r.assinaturas.length>1?'s':''}</button></div>`:''}
-      <button class="btn-link" onclick="delReuniao('${r.id}')">${SVG.trashRed} Excluir registro</button>
-    </div>
-  </div>`;
+
+function renderReuniaoCard(r, expanded) {
+  var s = SENTIMENTOS.find(function(x){return x.label===r.clima;})||{icon:'',cor:'#94a3b8'};
+  var bodyId = 'rb-' + String(r.id).replace(/-/g,'');
+  var temasTags = (r.temas&&r.temas.length) ? '<div class="tags" style="margin-bottom:14px">' + r.temas.map(function(t){return '<span class="tag tag-blue">'+t+'</span>';}).join('') + '</div>' : '';
+  var abordadoHtml = r.abordado ? '<div class="info-label">O que foi abordado</div><div class="info-text">'+r.abordado+'</div>' : '';
+  var acoesHtml = r.acoes ? '<div class="info-label">Acoes combinadas</div><div class="info-text">'+r.acoes+'</div>' : '';
+  var proximosHtml = r.proximos ? '<div class="info-label">Proximos passos</div><div class="info-text">'+r.proximos+'</div>' : '';
+  var assinBadge = (r.assinaturas&&r.assinaturas.length) ? '<div style="margin-top:12px"><button class="assin-badge" onclick="verAssinaturas('reunioes','' + r.id + '')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ' + r.assinaturas.length + ' assinatura' + (r.assinaturas.length>1?'s':'') + '</button></div>' : '';
+  return '<div class="card"><div class="card-hdr" onclick="toggleCard('' + bodyId + '',this)"><div class="card-left">' + avatar(r.colaborador,40) + '<div><div class="card-name">' + r.colaborador + '</div><div class="card-meta">' + r.tipo + '</div><div class="card-meta" style="font-size:11px">' + fmtDate(r.data) + '</div></div></div><div style="display:flex;align-items:center;gap:8px"><div style="color:' + s.cor + '">' + s.icon + '</div><span id="chev-' + bodyId + '">' + SVG.chevD + '</span></div></div><div class="card-body' + (expanded?' open':'') + '" id="' + bodyId + '">' + temasTags + abordadoHtml + acoesHtml + proximosHtml + assinBadge + '<button class="btn-link" onclick="delReuniao('' + r.id + '')">' + SVG.trashRed + ' Excluir registro</button></div></div>';
 }
+
 
 function renderKanban() {
   const wrap = document.getElementById('kanban-wrap');
@@ -1272,29 +1252,19 @@ function renderKanban() {
 }
 
 function renderKbCard(s, st) {
-  const orig = origens.find(o => o.key === s.origem) || {label: s.origem||'', cor:'#64748b', icon:''};
-  const atr = isAtrasada(s);
-  const idx = STATUS_LIST.findIndex(x => x.key === s.status);
-  const hasFwd  = idx < STATUS_LIST.length - 1;
-  const hasBack = idx > 0;
-  const fwdSt   = hasFwd  ? STATUS_LIST[idx+1] : null;
-  const backSt  = hasBack ? STATUS_LIST[idx-1] : null;
-
-  return `<div class="kb-card${atr?' atrasada':''}">
-    <div class="kb-card-orig"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${orig.cor};margin-right:4px"></span><span style="color:${orig.cor};font-weight:700">${orig.label}</span>${s.quem?' · <span style="color:#64748b">'+s.quem+'</span>':''}</div>
-    <div class="kb-card-assunto">${s.assunto}</div>
-    <div class="kb-card-meta">
-      ${fmtDate(s.data)}${s.prazo ? ' · Prazo: '+fmtDate(s.prazo) : ''}
-      ${s.direcionado ? '<br>→ '+s.direcionado : ''}
-    </div>
-    ${atr ? '<div style="font-size:11px;color:#dc2626;font-weight:700;margin-bottom:8px">⚠ Prazo vencido</div>' : ''}
-    <div class="kb-card-actions">
-      ${hasBack ? `<button class="kb-btn kb-btn-back" onclick="moveCard('${s.id}','${backSt.key}')">← ${backSt.label}</button>` : ''}
-      ${hasFwd  ? `<button class="kb-btn kb-btn-fwd"  onclick="moveCard('${s.id}','${fwdSt.key}')">${fwdSt.label} →</button>` : ''}
-      <button class="kb-btn kb-btn-del" onclick="delSolicit('${s.id}')" style="margin-left:auto">✕</button>
-    </div>
-  </div>`;
+  var orig = origens.find(function(o){return o.key===s.origem;})||{label:'',cor:'#64748b',icon:''};
+  var atr = isAtrasada(s);
+  var idx = STATUS_LIST.findIndex(function(x){return x.key===s.status;});
+  var hasFwd = idx < STATUS_LIST.length-1;
+  var hasBack = idx > 0;
+  var fwdSt = hasFwd ? STATUS_LIST[idx+1] : null;
+  var backSt = hasBack ? STATUS_LIST[idx-1] : null;
+  var backBtn = hasBack ? '<button class="kb-btn kb-btn-back" onclick="moveCard('' + s.id + '','' + backSt.key + '')">← ' + backSt.label + '</button>' : '';
+  var fwdBtn = hasFwd ? '<button class="kb-btn kb-btn-fwd" onclick="moveCard('' + s.id + '','' + fwdSt.key + '')">' + fwdSt.label + ' →</button>' : '';
+  var vencida = atr ? '<div style="font-size:11px;color:#dc2626;font-weight:700;margin-bottom:8px">⚠ Prazo vencido</div>' : '';
+  return '<div class="kb-card' + (atr?' atrasada':'') + '"><div class="kb-card-orig"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + orig.cor + ';margin-right:4px"></span><span style="color:' + orig.cor + ';font-weight:700">' + orig.label + '</span>' + (s.quem?' · <span style="color:#64748b">'+s.quem+'</span>':'') + '</div><div class="kb-card-assunto">' + s.assunto + '</div><div class="kb-card-meta">' + fmtDate(s.data) + (s.prazo?' · Prazo: '+fmtDate(s.prazo):'') + (s.direcionado?'<br>→ '+s.direcionado:'') + '</div>' + vencida + '<div class="kb-card-actions">' + backBtn + fwdBtn + '<button class="kb-btn kb-btn-del" onclick="delSolicit('' + s.id + '')" style="margin-left:auto">✕</button></div></div>';
 }
+
 
 async function moveCard(id, newStatus) {
   await sbUpdate('solicitacoes', id, { status: newStatus });
@@ -1303,36 +1273,21 @@ async function moveCard(id, newStatus) {
 }
 
 function renderSolCard(s) {
-  const orig = origens.find(o=>o.key===s.origem)||{label:s.origem||'',cor:'#64748b',icon:''};
-  const st = STATUS_LIST.find(x=>x.key===s.status)||STATUS_LIST[0];
-  const atr = isAtrasada(s);
-  const pickerId = 'sp-'+s.id;
-  return `<div class="sol-card${atr?' atrasada':''}">
-    <div class="sol-top">
-      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
-        <div style="width:34px;height:34px;border-radius:8px;background:${orig.cor}18;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:${orig.cor}">${orig.icon}</div>
-        <div style="min-width:0">
-          <div style="font-weight:700;color:#0f172a;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${orig.label}${s.quem?' · '+s.quem:''}</div>
-          <div style="font-size:11px;color:#94a3b8">${fmtDate(s.data)}${s.prazo?' · Prazo: '+fmtDate(s.prazo):''}</div>
-        </div>
-      </div>
-      <button onclick="toggleStatus('${pickerId}')" style="display:flex;align-items:center;gap:4px;background:${st.bg};border:1.5px solid ${st.cor}30;border-radius:20px;padding:4px 10px;flex-shrink:0">
-        ${st.icon}<span style="font-size:11px;font-weight:700;color:${st.cor}">${st.label}</span>
-      </button>
-    </div>
-    <div style="font-size:14px;color:#374151;line-height:1.55;margin-bottom:6px">${s.assunto}</div>
-    ${s.direcionado?`<div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#64748b;margin-bottom:4px">${SVG.arr} ${s.direcionado}</div>`:''}
-    ${s.obs?`<div style="font-size:12px;color:#94a3b8;font-style:italic">${s.obs}</div>`:''}
-    ${atr?`<div class="vencida-badge">${SVG.clock} Prazo vencido</div>`:''}
-    <div class="status-picker" id="${pickerId}">
-      <div class="status-picker-title">Atualizar status:</div>
-      <div class="status-options">${STATUS_LIST.map(st=>`<button class="status-opt" style="color:${st.cor};border-color:${s.status===st.key?st.cor:'#e2e8f0'};background:${s.status===st.key?st.bg:'#f8fafc'}" onclick="setStatus('${s.id}','${st.key}')">${st.icon} ${st.label}</button>`).join('')}</div>
-      <button class="btn-link" onclick="delSolicit('${s.id}')">${SVG.trashRed} Excluir</button>
-    </div>
-  </div>`;
+  var orig = origens.find(function(o){return o.key===s.origem;})||{label:'',cor:'#64748b',icon:''};
+  var st = STATUS_LIST.find(function(x){return x.key===s.status;})||STATUS_LIST[0];
+  var atr = isAtrasada(s);
+  var pickerId = 'sp-' + String(s.id).replace(/-/g,'');
+  var dirHtml = s.direcionado ? '<div style="display:flex;align-items:center;gap:5px;font-size:12px;color:#64748b;margin-bottom:4px">'+SVG.arr+' '+s.direcionado+'</div>' : '';
+  var obsHtml = s.obs ? '<div style="font-size:12px;color:#94a3b8;font-style:italic">'+s.obs+'</div>' : '';
+  var vencidaHtml = atr ? '<div class="vencida-badge">'+SVG.clock+' Prazo vencido</div>' : '';
+  var statusOpts = STATUS_LIST.map(function(sst){
+    var isCurrent = s.status===sst.key;
+    return '<button class="status-opt" style="color:'+sst.cor+';border-color:'+(isCurrent?sst.cor:'#e2e8f0')+';background:'+(isCurrent?sst.bg:'#f8fafc')+'" onclick="setStatus(''+s.id+'',''+sst.key+'')">'+sst.icon+' '+sst.label+'</button>';
+  }).join('');
+  return '<div class="sol-card'+(atr?' atrasada':'')+'"><div class="sol-top"><div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0"><div style="width:34px;height:34px;border-radius:8px;background:'+orig.cor+'18;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:'+orig.cor+'">'+orig.icon+'</div><div style="min-width:0"><div style="font-weight:700;color:#0f172a;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+orig.label+(s.quem?' · '+s.quem:'')+'</div><div style="font-size:11px;color:#94a3b8">'+fmtDate(s.data)+(s.prazo?' · Prazo: '+fmtDate(s.prazo):'')+'</div></div></div><button onclick="toggleStatus(''+pickerId+'')" style="display:flex;align-items:center;gap:4px;background:'+st.bg+';border:1.5px solid '+st.cor+'30;border-radius:20px;padding:4px 10px;flex-shrink:0;cursor:pointer">'+st.icon+'<span style="font-size:11px;font-weight:700;color:'+st.cor+'">'+st.label+'</span></button></div><div style="font-size:14px;color:#374151;line-height:1.55;margin-bottom:6px">'+s.assunto+'</div>'+dirHtml+obsHtml+vencidaHtml+'<div class="status-picker" id="'+pickerId+'"><div class="status-picker-title">Atualizar status:</div><div class="status-options">'+statusOpts+'</div><button class="btn-link" onclick="delSolicit(''+s.id+'')">'+SVG.trashRed+' Excluir</button></div></div>';
 }
 
-// ── RENDER PAGES ──────────────────────────────────────────────────────────────
+
 function renderHistorico() {
   const q = document.getElementById('hist-busca').value.toLowerCase();
   const filtered = reunioes.filter(r=>r.colaborador.toLowerCase().includes(q)||r.tipo.toLowerCase().includes(q));
@@ -1349,7 +1304,7 @@ function renderColabs() {
     return `<div class="colab-item">
       ${avatar(c,40)}
       <div style="flex:1"><div class="colab-name">${c}</div><div class="colab-meta">${qtd===1?'1 reuniao registrada':qtd+' reunioes registradas'}</div></div>
-      ${qtd===0?'<span class="tag tag-orange">Pendente</span>':`<span class="tag tag-green">${SVG.check}</span>`}
+      ${qtd===0?'<span class="tag tag-orange">Pendente</span>':'<span class="tag tag-green">'+SVG.check+'</span>'}
       <button class="btn-delete" onclick="delColab('${c.replace(/'/g,"\\'")}'')">${SVG.trash}</button>
     </div>`;
   }).join('');
@@ -1386,7 +1341,7 @@ function renderRoteiros() {
         <div class="info-label">Como abrir</div>
         <div style="font-size:14px;color:#374151;line-height:1.55;margin-bottom:18px">${r.abertura}</div>
         <div class="info-label">Perguntas-guia</div>
-        ${r.perguntas.map((p,j)=>`<div class="rot-q" style="border-left-color:${r.cor}"><div class="rot-q-text">${j+1}. ${p.p}</div><div class="rot-q-dica">${p.d}</div></div>`).join('')}
+        ${r.perguntas.map(function(p,j){return '<div class="rot-q" style="border-left-color:'+r.cor+'"><div class="rot-q-text">'+(j+1)+'. '+p.p+'</div><div class="rot-q-dica">'+p.d+'</div></div>';}).join('')}
         <div class="info-label">Como encerrar</div>
         <div style="font-size:14px;color:#374151;line-height:1.55;padding-bottom:4px">${r.encerramento}</div>
       </div>
@@ -1819,29 +1774,22 @@ async function abrirQ12Publico(token) {
 }
 
 function renderQ12PubPerguntas() {
-  const cont = document.getElementById('q12pub-perguntas');
-  cont.innerHTML = Q12_NIVEIS.map(nivel => `
-    <div style="margin-bottom:20px">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
-        <div style="width:10px;height:10px;border-radius:50%;background:${nivel.cor}"></div>
-        <div style="font-size:12px;font-weight:800;color:${nivel.cor};text-transform:uppercase">${nivel.label}</div>
-      </div>
-      ${nivel.perguntas.map(p => `
-        <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px">
-          <div style="font-size:13px;font-weight:600;color:#374151;line-height:1.5;margin-bottom:12px">
-            <span style="color:${nivel.cor};font-weight:800">${p.id.toUpperCase()}</span> &nbsp;${p.texto}
-          </div>
-          <div style="display:flex;gap:6px;justify-content:space-between">
-            ${ESCALA.map(e => `
-              <button id="qpub-${p.id}-${e.val}" onclick="setQ12PubResp('${p.id}',${e.val},'${nivel.cor}')"
-                style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer">
-                <span style="font-size:15px;font-weight:800;color:#64748b">${e.val}</span>
-                <span style="font-size:9px;color:#94a3b8;text-align:center;line-height:1.2">${e.sub}</span>
-              </button>`).join('')}
-          </div>
-        </div>`).join('')}
-    </div>`).join('');
+  var cont = document.getElementById('q12pub-perguntas');
+  var html = '';
+  Q12_NIVEIS.forEach(function(nivel) {
+    html += '<div style="margin-bottom:20px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:10px"><div style="width:10px;height:10px;border-radius:50%;background:' + nivel.cor + '"></div><div style="font-size:12px;font-weight:800;color:' + nivel.cor + ';text-transform:uppercase">' + nivel.label + '</div></div>';
+    nivel.perguntas.forEach(function(p) {
+      html += '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px"><div style="font-size:13px;font-weight:600;color:#374151;line-height:1.5;margin-bottom:12px"><span style="color:' + nivel.cor + ';font-weight:800">' + p.id.toUpperCase() + '</span> &nbsp;' + p.texto + '</div><div style="display:flex;gap:6px;justify-content:space-between">';
+      ESCALA.forEach(function(e) {
+        html += '<button id="qpub-' + p.id + '-' + e.val + '" onclick="setQ12PubResp('' + p.id + '',' + e.val + ','' + nivel.cor + '')" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer"><span style="font-size:15px;font-weight:800;color:#64748b">' + e.val + '</span><span style="font-size:9px;color:#94a3b8;text-align:center;line-height:1.2">' + e.sub + '</span></button>';
+      });
+      html += '</div></div>';
+    });
+    html += '</div>';
+  });
+  cont.innerHTML = html;
 }
+
 
 function setQ12PubResp(qid, val, cor) {
   q12PubRespostas[qid] = val;
@@ -1963,30 +1911,22 @@ function setQ12Tab(tab) {
 }
 
 function renderQ12Perguntas() {
-  const cont = document.getElementById('q12-perguntas');
-  cont.innerHTML = Q12_NIVEIS.map(nivel => `
-    <div style="margin-bottom:24px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <div style="width:10px;height:10px;border-radius:50%;background:${nivel.cor}"></div>
-        <div style="font-size:13px;font-weight:800;color:${nivel.cor};text-transform:uppercase;letter-spacing:.5px">${nivel.label}</div>
-      </div>
-      <div style="font-size:12px;color:#64748b;margin-bottom:12px">${nivel.desc}</div>
-      ${nivel.perguntas.map((p,pi) => `
-        <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px">
-          <div style="font-size:13px;font-weight:600;color:#374151;line-height:1.5;margin-bottom:12px">
-            <span style="color:${nivel.cor};font-weight:800">${p.id.toUpperCase()}</span> &nbsp;${p.texto}
-          </div>
-          <div style="display:flex;gap:6px;justify-content:space-between">
-            ${ESCALA.map(e => `
-              <button id="q12-${p.id}-${e.val}" onclick="setQ12Resp('${p.id}',${e.val},'${nivel.cor}')"
-                style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer">
-                <span style="font-size:15px;font-weight:800;color:#64748b">${e.val}</span>
-                <span style="font-size:9px;color:#94a3b8;text-align:center;line-height:1.2">${e.sub}</span>
-              </button>`).join('')}
-          </div>
-        </div>`).join('')}
-    </div>`).join('');
+  var cont = document.getElementById('q12-perguntas');
+  var html = '';
+  Q12_NIVEIS.forEach(function(nivel) {
+    html += '<div style="margin-bottom:24px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="width:10px;height:10px;border-radius:50%;background:' + nivel.cor + '"></div><div style="font-size:13px;font-weight:800;color:' + nivel.cor + ';text-transform:uppercase;letter-spacing:.5px">' + nivel.label + '</div></div><div style="font-size:12px;color:#64748b;margin-bottom:12px">' + nivel.desc + '</div>';
+    nivel.perguntas.forEach(function(p) {
+      html += '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px"><div style="font-size:13px;font-weight:600;color:#374151;line-height:1.5;margin-bottom:12px"><span style="color:' + nivel.cor + ';font-weight:800">' + p.id.toUpperCase() + '</span> &nbsp;' + p.texto + '</div><div style="display:flex;gap:6px;justify-content:space-between">';
+      ESCALA.forEach(function(e) {
+        html += '<button id="q12-' + p.id + '-' + e.val + '" onclick="setQ12Resp('' + p.id + '',' + e.val + ','' + nivel.cor + '')" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;cursor:pointer"><span style="font-size:15px;font-weight:800;color:#64748b">' + e.val + '</span><span style="font-size:9px;color:#94a3b8;text-align:center;line-height:1.2">' + e.sub + '</span></button>';
+      });
+      html += '</div></div>';
+    });
+    html += '</div>';
+  });
+  cont.innerHTML = html;
 }
+
 
 function setQ12Resp(qid, val, cor) {
   q12Respostas[qid] = val;
