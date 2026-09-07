@@ -718,6 +718,29 @@ textarea.inp{resize:vertical;min-height:80px}
 
 <!-- GestãoPeople v14 -->
 <script>
+// Detector de erros visual
+window.onerror = function(msg, src, line, col, err) {
+  var div = document.getElementById('erro-visual');
+  if (!div) { div = document.createElement('div'); div.id='erro-visual'; div.style.cssText='position:fixed;top:60px;left:0;right:0;z-index:9999;background:#ef4444;color:#fff;padding:12px 16px;font-size:13px;font-family:monospace;line-height:1.4'; document.body.appendChild(div); }
+  div.innerHTML = '<strong>ERRO JS:</strong><br>' + msg + '<br>Linha: ' + line + ', Col: ' + col;
+  return false;
+};
+
+// Diagnóstico Supabase
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    var diag = document.createElement('div');
+    diag.id = 'diag-box';
+    diag.style.cssText = 'position:fixed;bottom:80px;left:12px;right:12px;z-index:9998;background:#0f172a;color:#fff;padding:14px;font-size:12px;font-family:monospace;border-radius:10px;line-height:1.6';
+    diag.innerHTML = 'Diagnostico:<br>'
+      + 'reunioes: ' + (window._reunioes_count||'?') + '<br>'
+      + 'colabs: ' + (window._colabs_count||'?') + '<br>'
+      + 'sync: ' + (window._sync_status||'nao iniciado') + '<br>'
+      + '<button onclick="this.parentElement.remove()" style="margin-top:8px;background:#ef4444;border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer">Fechar</button>';
+    document.body.appendChild(diag);
+  }, 4000);
+});
+
 // ── SUPABASE ──────────────────────────────────────────────────────────────────
 const SB_URL = 'https://uhzwywodwqinbwpjchtt.supabase.co';
 const SB_KEY = 'sb_publishable_yuluc2uFQw2OHI4uCxS3_Q_J2uBPmW0';
@@ -772,6 +795,7 @@ let q12avaliacoes = load('gp_q12');
 
 // Carrega dados do Supabase e atualiza o app
 async function syncFromSupabase() {
+  window._sync_status = 'iniciando';
   mostrarSyncStatus('Sincronizando...');
   try {
     const [rc, cl, rp, sl, fb, q12] = await Promise.all([
@@ -793,12 +817,16 @@ async function syncFromSupabase() {
     save('gp_rapidos', rapidos);   save('gp_solicit', solicitacoes);
     save('gp_feedbacks', feedbacks); save('gp_q12', q12avaliacoes);
     mostrarSyncStatus('');
+    window._sync_status = 'OK - reunioes:'+reunioes.length+' colabs:'+colabs.length;
+    window._reunioes_count = reunioes.length;
+    window._colabs_count = colabs.length;
     renderDashboard();
     // Recarrega origens
     const og = await sbGet('origens', '&order=criado_em.asc');
     if (og.length) { origens = og.map(o=>({...o})); save('gp_origens', origens); }
   } catch(e) {
     mostrarSyncStatus('Offline — dados locais');
+    window._sync_status = 'ERRO: ' + e.message;
     console.error('Sync error:', e);
   }
 }
