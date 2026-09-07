@@ -795,7 +795,7 @@ async function syncFromSupabase() {
     renderDashboard();
     // Recarrega origens
     const og = await sbGet('origens', '&order=criado_em.asc');
-    if (og.length) { origens = og; save('gp_origens', origens); }
+    if (og.length) { origens = og.map(o=>({...o})); save('gp_origens', origens); }
   } catch(e) {
     mostrarSyncStatus('Offline — dados locais');
     console.error('Sync error:', e);
@@ -866,7 +866,7 @@ const ORIGENS_PADRAO = [
   {key:'eu',          label:'Eu mesmo',    cor:'#10b981'},
 ];
 // Origens dinamicas — carregadas do localStorage, editaveis pelo usuario
-let origens = load(KEYS.origens) || ORIGENS_PADRAO.map(o => ({...o}));
+let origens = load('gp_origens') || ORIGENS_PADRAO.map(o => ({...o}));
 // Garante que campos obrigatorios existam
 if (!origens.length) origens = ORIGENS_PADRAO.map(o => ({...o}));
 
@@ -1156,7 +1156,7 @@ function renderDashboard() {
     document.getElementById('d-atrasadas-tags').innerHTML = atrasadas.map(s=>`<span class="tag tag-red">${s.assunto.slice(0,30)}${s.assunto.length>30?'...':''}</span>`).join('');
   } else ab.style.display='none';
   // Sem reuniao
-  const semR = colabs.filter(c=>!reunioes.find(r=>r.colaborador===c));
+  const semR = (colabs||[]).filter(c=>!(reunioes||[]).find(r=>r.colaborador===c));
   const srb = document.getElementById('d-sem-reuniao-box');
   if (semR.length) { srb.style.display=''; document.getElementById('d-sem-reuniao-tags').innerHTML = semR.map(c=>`<span class="tag tag-orange">${c}</span>`).join(''); }
   else srb.style.display='none';
@@ -1409,7 +1409,7 @@ function toggleStatus(id) {
 
 function setStatus(id, newStatus) {
   const idx = solicitacoes.findIndex(s=>s.id===id);
-  if (idx>=0) { solicitacoes[idx].status = newStatus; save(KEYS.solicitacoes, solicitacoes); renderKanban(); renderDashboard(); }
+  if (idx>=0) { solicitacoes[idx].status = newStatus; save('gp_solicit', solicitacoes); renderKanban(); renderDashboard(); }
 }
 
 async function addColab() {
@@ -2229,18 +2229,25 @@ async function delFeedback(id) {
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
-initRapidoForm();
-initSolicitForm();
-renderRoteiros();
-renderDashboard();
-// Sync com Supabase em background
-syncFromSupabase();
+try {
+  initRapidoForm();
+  initSolicitForm();
+  renderRoteiros();
+  renderDashboard();
+} catch(e) {
+  console.error('Boot error:', e);
+}
 
-// Q12 link publico — se URL tem ?q12token=xxx, abre formulario do colaborador
+// Sync com Supabase em background
+syncFromSupabase().catch(e => console.error('Sync error:', e));
+
+// Q12 link publico
 (function() {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get('q12token');
-  if (token) abrirQ12Publico(token);
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('q12token');
+    if (token) abrirQ12Publico(token);
+  } catch(e) { console.error('Q12 token error:', e); }
 })();
 </script>
 
