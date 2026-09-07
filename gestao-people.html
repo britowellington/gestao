@@ -344,7 +344,7 @@ textarea.inp{resize:vertical;min-height:80px}
       <label>Tipo de reuniao *</label>
       <div class="tags" id="reun-tipo-chips"></div>
       <div id="reun-guide-hint" style="display:none">
-        <button class="btn-guide" onclick="nav('roteiros')">
+        <button class="btn-guide" onclick="abrirRoteirosDeReuniao()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
           Ver roteiro para este tipo
         </button>
@@ -536,6 +536,12 @@ textarea.inp{resize:vertical;min-height:80px}
 
   <!-- ROTEIROS -->
   <div id="v-roteiros" class="view">
+    <div id="roteiros-back-btn" style="display:none;margin-bottom:16px">
+      <button onclick="voltarParaReuniao()" style="display:flex;align-items:center;gap:6px;background:#f1f5f9;border:none;border-radius:10px;padding:10px 14px;font-size:14px;font-weight:600;color:#0f172a;cursor:pointer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Voltar para a reuniao
+      </button>
+    </div>
     <div class="page-title">Roteiros</div>
     <div class="page-sub">Guias para cada tipo de conversa</div>
     <div id="roteiros-list"></div>
@@ -1259,6 +1265,10 @@ function fecharMais() {
 
 function navMais(id) {
   fecharMais();
+  if (id === 'roteiros') {
+    roteirosVoltarPara = null;
+    document.getElementById('roteiros-back-btn').style.display = 'none';
+  }
   nav(id);
   // Mark mais-items active
   document.querySelectorAll('.mais-item').forEach(b => b.classList.remove('active-mais'));
@@ -1422,6 +1432,40 @@ function fecharAssinaturaVisualizacao() {
   canvas.parentElement.style.display = '';
   document.getElementById('assin-confirm-btn').style.display = '';
   document.getElementById('modal-assinatura').style.display = 'none';
+}
+
+
+// ── NAVEGACAO ROTEIROS ────────────────────────────────────────────────────────
+let roteirosVoltarPara = null; // view de origem
+
+function abrirRoteirosDeReuniao() {
+  roteirosVoltarPara = 'nova';
+  nav('roteiros');
+  document.getElementById('roteiros-back-btn').style.display = '';
+  // Scroll para o roteiro do tipo selecionado
+  if (reunTipo) {
+    const idx = ROTEIROS.findIndex(r => r.tipo === reunTipo);
+    if (idx >= 0) {
+      setTimeout(() => {
+        const el = document.getElementById('rot-' + idx);
+        if (el) {
+          // Abre o card automaticamente
+          if (!el.classList.contains('open')) {
+            el.classList.add('open');
+            const chev = document.getElementById('chev-rot-' + idx);
+            if (chev) chev.innerHTML = SVG.chevU;
+          }
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }
+}
+
+function voltarParaReuniao() {
+  roteirosVoltarPara = null;
+  document.getElementById('roteiros-back-btn').style.display = 'none';
+  nav('nova');
 }
 
 // ── MICROFONE / VOZ ───────────────────────────────────────────────────────────
