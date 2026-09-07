@@ -1220,11 +1220,11 @@ function renderRapCard(r) {
         </div>
         <div><div style="font-weight:700;color:#0f172a;font-size:13px">${ctx[r.contexto]||''}${r.participantes?' · '+r.participantes:''}</div><div style="font-size:11px;color:#94a3b8">${fmtDate(r.data)}</div></div>
       </div>
-      <button class="btn-delete" onclick="delRapido(${r.id})">${SVG.trash}</button>
+      <button class="btn-delete" onclick="delRapido('${r.id}')">${SVG.trash}</button>
     </div>
     <div class="rap-body">${r.assunto}</div>
     ${r.encaminhamento?`<div class="rap-enc">${SVG.arr} ${r.encaminhamento}</div>`:''}
-    ${r.assinaturas&&r.assinaturas.length?`<div style="margin-top:8px"><button class="assin-badge" onclick="verAssinaturas('rapidos',${r.id})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ${r.assinaturas.length} assinatura${r.assinaturas.length>1?'s':''}</button></div>`:''}
+    ${r.assinaturas&&r.assinaturas.length?`<div style="margin-top:8px"><button class="assin-badge" onclick="verAssinaturas('rapidos','${r.id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ${r.assinaturas.length} assinatura${r.assinaturas.length>1?'s':''}</button></div>`:''}
   </div>`;
 }
 
@@ -1244,8 +1244,8 @@ function renderReuniaoCard(r, expanded=false) {
       ${r.abordado?`<div class="info-label">O que foi abordado</div><div class="info-text">${r.abordado}</div>`:''}
       ${r.acoes?`<div class="info-label">Acoes combinadas</div><div class="info-text">${r.acoes}</div>`:''}
       ${r.proximos?`<div class="info-label">Proximos passos</div><div class="info-text">${r.proximos}</div>`:''}
-      ${r.assinaturas&&r.assinaturas.length?`<div style="margin-top:12px"><button class="assin-badge" onclick="verAssinaturas('reunioes',${r.id})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ${r.assinaturas.length} assinatura${r.assinaturas.length>1?'s':''}</button></div>`:''}
-      <button class="btn-link" onclick="delReuniao(${r.id})">${SVG.trashRed} Excluir registro</button>
+      ${r.assinaturas&&r.assinaturas.length?`<div style="margin-top:12px"><button class="assin-badge" onclick="verAssinaturas('reunioes','${r.id}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ${r.assinaturas.length} assinatura${r.assinaturas.length>1?'s':''}</button></div>`:''}
+      <button class="btn-link" onclick="delReuniao('${r.id}')">${SVG.trashRed} Excluir registro</button>
     </div>
   </div>`;
 }
@@ -1289,9 +1289,9 @@ function renderKbCard(s, st) {
     </div>
     ${atr ? '<div style="font-size:11px;color:#dc2626;font-weight:700;margin-bottom:8px">⚠ Prazo vencido</div>' : ''}
     <div class="kb-card-actions">
-      ${hasBack ? `<button class="kb-btn kb-btn-back" onclick="moveCard(${s.id},'${backSt.key}')">← ${backSt.label}</button>` : ''}
-      ${hasFwd  ? `<button class="kb-btn kb-btn-fwd"  onclick="moveCard(${s.id},'${fwdSt.key}')">${fwdSt.label} →</button>` : ''}
-      <button class="kb-btn kb-btn-del" onclick="delSolicit(${s.id})" style="margin-left:auto">✕</button>
+      ${hasBack ? `<button class="kb-btn kb-btn-back" onclick="moveCard('${s.id}','${backSt.key}')">← ${backSt.label}</button>` : ''}
+      ${hasFwd  ? `<button class="kb-btn kb-btn-fwd"  onclick="moveCard('${s.id}','${fwdSt.key}')">${fwdSt.label} →</button>` : ''}
+      <button class="kb-btn kb-btn-del" onclick="delSolicit('${s.id}')" style="margin-left:auto">✕</button>
     </div>
   </div>`;
 }
@@ -1326,8 +1326,8 @@ function renderSolCard(s) {
     ${atr?`<div class="vencida-badge">${SVG.clock} Prazo vencido</div>`:''}
     <div class="status-picker" id="${pickerId}">
       <div class="status-picker-title">Atualizar status:</div>
-      <div class="status-options">${STATUS_LIST.map(st=>`<button class="status-opt" style="color:${st.cor};border-color:${s.status===st.key?st.cor:'#e2e8f0'};background:${s.status===st.key?st.bg:'#f8fafc'}" onclick="setStatus(${s.id},'${st.key}')">${st.icon} ${st.label}</button>`).join('')}</div>
-      <button class="btn-link" onclick="delSolicit(${s.id})">${SVG.trashRed} Excluir</button>
+      <div class="status-options">${STATUS_LIST.map(st=>`<button class="status-opt" style="color:${st.cor};border-color:${s.status===st.key?st.cor:'#e2e8f0'};background:${s.status===st.key?st.bg:'#f8fafc'}" onclick="setStatus('${s.id}','${st.key}')">${st.icon} ${st.label}</button>`).join('')}</div>
+      <button class="btn-link" onclick="delSolicit('${s.id}')">${SVG.trashRed} Excluir</button>
     </div>
   </div>`;
 }
@@ -2056,47 +2056,128 @@ function renderQ12Hist() {
   const empty = document.getElementById('q12-hist-empty');
   if (!lista.length) { el.innerHTML=''; empty.style.display=''; return; }
   empty.style.display='none';
-  el.innerHTML = lista.map(a => {
+
+  // Agrupa por colaborador para comparativo
+  const porColab = {};
+  lista.forEach(a => {
+    if (!porColab[a.colaborador]) porColab[a.colaborador] = [];
+    porColab[a.colaborador].push(a);
+  });
+  // Ordena cada grupo por data
+  Object.values(porColab).forEach(arr => arr.sort((a,b) => new Date(a.data) - new Date(b.data)));
+
+  // Monta lista final — mais recente primeiro mas com contexto de anterior
+  const listaOrdenada = [...lista].sort((a,b) => new Date(b.data) - new Date(a.data));
+
+  el.innerHTML = listaOrdenada.map((a, idx) => {
     const nv = nivelEngajamento(a.total);
+    const historColab = porColab[a.colaborador];
+    const posNaHistoria = historColab.findIndex(x => x.id === a.id);
+    const anterior = posNaHistoria > 0 ? historColab[posNaHistoria - 1] : null;
+
+    // Calcula variacao total
+    const varTotal = anterior ? +(a.total - anterior.total).toFixed(2) : null;
+    const varSinal = varTotal === null ? '' : varTotal > 0 ? '▲' : varTotal < 0 ? '▼' : '→';
+    const varCor   = varTotal === null ? '' : varTotal > 0 ? '#22c55e' : varTotal < 0 ? '#ef4444' : '#94a3b8';
+
+    // Badge de evolucao
+    const evolBadge = varTotal !== null ? `
+      <div style="display:flex;align-items:center;gap:4px;background:${varCor}18;border-radius:20px;padding:3px 10px;margin-top:4px">
+        <span style="font-size:13px;font-weight:800;color:${varCor}">${varSinal} ${Math.abs(varTotal)}</span>
+        <span style="font-size:11px;color:${varCor}">vs anterior</span>
+      </div>` : `<div style="font-size:11px;color:#94a3b8;margin-top:4px">1ª avaliacao</div>`;
+
     return `<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:14px 16px;margin-bottom:12px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <!-- Header -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
         <div>
           <div style="font-weight:700;color:#0f172a;font-size:15px">${a.colaborador}</div>
-          <div style="font-size:12px;color:#94a3b8">${fmtDate(a.data)}</div>
+          <div style="font-size:12px;color:#94a3b8">${fmtDate(a.data)}${a.origem==='colaborador'?' · respondido pelo colaborador':''}</div>
+          ${evolBadge}
         </div>
-        <div style="text-align:right">
+        <div style="text-align:right;flex-shrink:0">
           <div style="font-size:24px;font-weight:800;color:${nv.cor}">${a.total}</div>
           <div style="font-size:11px;font-weight:700;color:${nv.cor};background:${nv.bg};border-radius:20px;padding:2px 8px">${nv.label}</div>
         </div>
       </div>
-      <!-- Barras por nivel -->
+
+      <!-- Barras por nivel com comparativo -->
       ${Q12_NIVEIS.map(n => {
         const sc = a.scores[n.key] || 0;
+        const scAnt = anterior ? (anterior.scores[n.key] || 0) : null;
         const pct = (sc/5)*100;
-        return `<div style="margin-bottom:8px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        const varNivel = scAnt !== null ? +(sc - scAnt).toFixed(2) : null;
+        const varNivelSinal = varNivel === null ? '' : varNivel > 0 ? '▲' : varNivel < 0 ? '▼' : '→';
+        const varNivelCor   = varNivel === null ? '' : varNivel > 0 ? '#22c55e' : varNivel < 0 ? '#ef4444' : '#94a3b8';
+        return `<div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
             <span style="font-size:11px;font-weight:700;color:${n.cor}">${n.label}</span>
-            <span style="font-size:11px;font-weight:700;color:#374151">${sc}/5</span>
+            <div style="display:flex;align-items:center;gap:6px">
+              ${varNivel !== null ? `<span style="font-size:11px;font-weight:700;color:${varNivelCor}">${varNivelSinal}${Math.abs(varNivel)}</span>` : ''}
+              <span style="font-size:11px;font-weight:700;color:#374151">${sc}/5</span>
+            </div>
           </div>
-          <div style="background:#f1f5f9;border-radius:20px;height:8px">
-            <div style="background:${n.cor};border-radius:20px;height:8px;width:${pct}%;transition:width .4s"></div>
+          <div style="position:relative;background:#f1f5f9;border-radius:20px;height:10px">
+            <div style="background:${n.cor};border-radius:20px;height:10px;width:${pct}%"></div>
+            ${scAnt !== null ? `<div style="position:absolute;top:0;left:${(scAnt/5)*100}%;width:2px;height:10px;background:#0f172a;border-radius:2px" title="Anterior: ${scAnt}"></div>` : ''}
           </div>
+          ${scAnt !== null ? `<div style="font-size:10px;color:#94a3b8;margin-top:2px">Anterior: ${scAnt}/5</div>` : ''}
         </div>`;
       }).join('')}
-      <!-- Perguntas mais baixas -->
+
+      <!-- Badges resumo -->
       ${(() => {
-        // Todas as perguntas ordenadas da mais baixa para mais alta
         const todasPergs = Q12_NIVEIS.flatMap(n=>n.perguntas.map(p=>({...p, val: a.respostas[p.id]||0, cor:n.cor, nivel:n.label})));
         const criticas  = todasPergs.filter(p=>p.val<=2).sort((x,y)=>x.val-y.val);
-        const atencao   = todasPergs.filter(p=>p.val===3).sort((x,y)=>x.val-y.val);
-        const positivas = todasPergs.filter(p=>p.val>=4).sort((x,y)=>y.val-x.val);
+        const atencao   = todasPergs.filter(p=>p.val===3);
+        const positivas = todasPergs.filter(p=>p.val>=4);
+
+        // Perguntas que melhoraram e pioraram vs anterior
+        let melhoraram = [], pioraram = [];
+        if (anterior) {
+          todasPergs.forEach(p => {
+            const vAnt = anterior.respostas[p.id] || 0;
+            if (p.val > vAnt) melhoraram.push({...p, vAnt});
+            if (p.val < vAnt) pioraram.push({...p, vAnt});
+          });
+        }
 
         const blocoExpand = `
           <div id="q12-detail-${a.id}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9">
+
+            ${anterior && (melhoraram.length || pioraram.length) ? `
+              <div style="margin-bottom:16px">
+                <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:8px">VARIACAO VS AVALIACAO ANTERIOR</div>
+                ${pioraram.length ? `
+                  <div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:6px">Pioraram</div>
+                  ${pioraram.sort((x,y)=>(x.val-x.vAnt)-(y.val-y.vAnt)).map(p=>`
+                    <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;background:#fef2f2;border-radius:8px;padding:8px 10px">
+                      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+                        <span style="font-size:10px;color:#94a3b8;text-decoration:line-through">${p.vAnt}</span>
+                        <span style="font-size:14px;font-weight:800;color:#ef4444">${p.val}</span>
+                      </div>
+                      <div>
+                        <div style="font-size:10px;font-weight:700;color:${p.cor};text-transform:uppercase;margin-bottom:2px">${p.nivel} · ${p.id.toUpperCase()}</div>
+                        <div style="font-size:12px;color:#374151;line-height:1.4">${p.texto}</div>
+                      </div>
+                    </div>`).join('')}` : ''}
+                ${melhoraram.length ? `
+                  <div style="font-size:11px;font-weight:700;color:#22c55e;margin-bottom:6px;margin-top:${pioraram.length?'10px':'0'}">Melhoraram</div>
+                  ${melhoraram.sort((x,y)=>(y.val-y.vAnt)-(x.val-x.vAnt)).map(p=>`
+                    <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;background:#f0fdf4;border-radius:8px;padding:8px 10px">
+                      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+                        <span style="font-size:10px;color:#94a3b8;text-decoration:line-through">${p.vAnt}</span>
+                        <span style="font-size:14px;font-weight:800;color:#22c55e">${p.val}</span>
+                      </div>
+                      <div>
+                        <div style="font-size:10px;font-weight:700;color:${p.cor};text-transform:uppercase;margin-bottom:2px">${p.nivel} · ${p.id.toUpperCase()}</div>
+                        <div style="font-size:12px;color:#374151;line-height:1.4">${p.texto}</div>
+                      </div>
+                    </div>`).join('')}` : ''}
+              </div>` : ''}
+
             ${criticas.length ? `
-              <div style="font-size:11px;font-weight:800;color:#ef4444;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">
-                Criticas (nota 1-2)
-              </div>
+              <div style="font-size:11px;font-weight:800;color:#ef4444;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Criticas (nota 1-2)</div>
               ${criticas.map(p=>`
                 <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;background:#fef2f2;border-radius:8px;padding:8px 10px">
                   <div style="width:24px;height:24px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">${p.val}</div>
@@ -2107,9 +2188,7 @@ function renderQ12Hist() {
                 </div>`).join('')}` : ''}
 
             ${atencao.length ? `
-              <div style="font-size:11px;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:${criticas.length?'12px':'0'}">
-                Atencao (nota 3)
-              </div>
+              <div style="font-size:11px;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:${criticas.length?'12px':'0'}">Atencao (nota 3)</div>
               ${atencao.map(p=>`
                 <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;background:#fefce8;border-radius:8px;padding:8px 10px">
                   <div style="width:24px;height:24px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">${p.val}</div>
@@ -2120,9 +2199,7 @@ function renderQ12Hist() {
                 </div>`).join('')}` : ''}
 
             ${positivas.length ? `
-              <div style="font-size:11px;font-weight:800;color:#22c55e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:${(criticas.length||atencao.length)?'12px':'0'}">
-                Pontos fortes (nota 4-5)
-              </div>
+              <div style="font-size:11px;font-weight:800;color:#22c55e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:${(criticas.length||atencao.length)?'12px':'0'}">Pontos fortes (nota 4-5)</div>
               ${positivas.map(p=>`
                 <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;background:#f0fdf4;border-radius:8px;padding:8px 10px">
                   <div style="width:24px;height:24px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">${p.val}</div>
@@ -2151,7 +2228,13 @@ function renderQ12Hist() {
             ${blocoExpand}
           </div>`;
       })()}
-      <button onclick="delQ12(${a.id})" style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;margin-top:8px;display:flex;align-items:center;gap:4px">${SVG.trashRed} Excluir avaliacao</button>
+      <button onclick="delQ12('${a.id}')" style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;margin-top:12px;display:flex;align-items:center;gap:4px">${SVG.trashRed} Excluir avaliacao</button>
+    </div>`;
+  }).join('');
+}
+
+
+      <button onclick="delQ12('${a.id}')" style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;margin-top:8px;display:flex;align-items:center;gap:4px">${SVG.trashRed} Excluir avaliacao</button>
     </div>`;
   }).join('');
 }
@@ -2278,7 +2361,7 @@ function renderFeedbacks() {
         </div>
         <div style="display:flex;align-items:center;gap:6px">
           <span style="font-size:11px;color:#94a3b8">${fmtDate(f.data)}</span>
-          <button onclick="delFeedback(${f.id})" style="background:none;border:none;cursor:pointer;padding:2px">${SVG.trash}</button>
+          <button onclick="delFeedback('${f.id}')" style="background:none;border:none;cursor:pointer;padding:2px">${SVG.trash}</button>
         </div>
       </div>
       <div style="font-size:14px;color:#374151;line-height:1.55;margin-bottom:${f.areas&&f.areas.length||f.acao?'8px':'0'}">${f.descricao}</div>
