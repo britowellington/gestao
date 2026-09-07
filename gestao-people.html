@@ -2050,194 +2050,158 @@ function nivelEngajamento(score) {
 }
 
 function renderQ12Hist() {
-  const filtroColab = document.getElementById('q12-hist-colab') ? document.getElementById('q12-hist-colab').value : '';
-  const lista = filtroColab ? q12avaliacoes.filter(a=>a.colaborador===filtroColab) : q12avaliacoes;
-  const el = document.getElementById('q12-hist-list');
-  const empty = document.getElementById('q12-hist-empty');
+  var filtroColab = document.getElementById('q12-hist-colab') ? document.getElementById('q12-hist-colab').value : '';
+  var lista = filtroColab ? q12avaliacoes.filter(function(a){return a.colaborador===filtroColab;}) : q12avaliacoes;
+  var el = document.getElementById('q12-hist-list');
+  var empty = document.getElementById('q12-hist-empty');
   if (!lista.length) { el.innerHTML=''; empty.style.display=''; return; }
   empty.style.display='none';
 
-  // Agrupa por colaborador para comparativo
-  const porColab = {};
-  lista.forEach(a => {
+  // Agrupa por colaborador e ordena por data
+  var porColab = {};
+  q12avaliacoes.forEach(function(a) {
     if (!porColab[a.colaborador]) porColab[a.colaborador] = [];
     porColab[a.colaborador].push(a);
   });
-  // Ordena cada grupo por data
-  Object.values(porColab).forEach(arr => arr.sort((a,b) => new Date(a.data) - new Date(b.data)));
+  Object.values(porColab).forEach(function(arr) {
+    arr.sort(function(a,b){ return new Date(a.data) - new Date(b.data); });
+  });
 
-  // Monta lista final — mais recente primeiro mas com contexto de anterior
-  const listaOrdenada = [...lista].sort((a,b) => new Date(b.data) - new Date(a.data));
+  var listaOrdenada = lista.slice().sort(function(a,b){ return new Date(b.data) - new Date(a.data); });
 
-  el.innerHTML = listaOrdenada.map((a, idx) => {
-    const nv = nivelEngajamento(a.total);
-    const historColab = porColab[a.colaborador];
-    const posNaHistoria = historColab.findIndex(x => x.id === a.id);
-    const anterior = posNaHistoria > 0 ? historColab[posNaHistoria - 1] : null;
+  el.innerHTML = listaOrdenada.map(function(a) {
+    var nv = nivelEngajamento(a.total);
+    var historColab = porColab[a.colaborador] || [];
+    var posNaHistoria = historColab.findIndex(function(x){ return x.id === a.id; });
+    var anterior = posNaHistoria > 0 ? historColab[posNaHistoria - 1] : null;
+    var varTotal = anterior ? +(a.total - anterior.total).toFixed(2) : null;
+    var varSinal = varTotal === null ? '' : varTotal > 0 ? '&#9650;' : varTotal < 0 ? '&#9660;' : '&#8594;';
+    var varCor   = varTotal === null ? '' : varTotal > 0 ? '#22c55e' : varTotal < 0 ? '#ef4444' : '#94a3b8';
 
-    // Calcula variacao total
-    const varTotal = anterior ? +(a.total - anterior.total).toFixed(2) : null;
-    const varSinal = varTotal === null ? '' : varTotal > 0 ? '▲' : varTotal < 0 ? '▼' : '→';
-    const varCor   = varTotal === null ? '' : varTotal > 0 ? '#22c55e' : varTotal < 0 ? '#ef4444' : '#94a3b8';
+    var evolBadge = varTotal !== null
+      ? '<div style="display:flex;align-items:center;gap:4px;background:' + varCor + '18;border-radius:20px;padding:3px 10px;margin-top:4px"><span style="font-size:13px;font-weight:800;color:' + varCor + '">' + varSinal + ' ' + Math.abs(varTotal) + '</span><span style="font-size:11px;color:' + varCor + '"> vs anterior</span></div>'
+      : '<div style="font-size:11px;color:#94a3b8;margin-top:4px">1ª avaliacao</div>';
 
-    // Badge de evolucao
-    const evolBadge = varTotal !== null ? `
-      <div style="display:flex;align-items:center;gap:4px;background:${varCor}18;border-radius:20px;padding:3px 10px;margin-top:4px">
-        <span style="font-size:13px;font-weight:800;color:${varCor}">${varSinal} ${Math.abs(varTotal)}</span>
-        <span style="font-size:11px;color:${varCor}">vs anterior</span>
-      </div>` : `<div style="font-size:11px;color:#94a3b8;margin-top:4px">1ª avaliacao</div>`;
+    // Barras por nivel
+    var barrasHtml = Q12_NIVEIS.map(function(n) {
+      var sc = a.scores[n.key] || 0;
+      var scAnt = anterior ? (anterior.scores[n.key] || 0) : null;
+      var pct = (sc/5)*100;
+      var varNivel = scAnt !== null ? +(sc - scAnt).toFixed(2) : null;
+      var varNivelSinal = varNivel === null ? '' : varNivel > 0 ? '&#9650;' : varNivel < 0 ? '&#9660;' : '&#8594;';
+      var varNivelCor   = varNivel === null ? '' : varNivel > 0 ? '#22c55e' : varNivel < 0 ? '#ef4444' : '#94a3b8';
+      var marcadorAnt = scAnt !== null ? '<div style="position:absolute;top:0;left:' + ((scAnt/5)*100) + '%;width:2px;height:10px;background:#0f172a;border-radius:2px"></div>' : '';
+      var notaAnt = scAnt !== null ? '<div style="font-size:10px;color:#94a3b8;margin-top:2px">Anterior: ' + scAnt + '/5</div>' : '';
+      var varSpan = varNivel !== null ? '<span style="font-size:11px;font-weight:700;color:' + varNivelCor + '">' + varNivelSinal + Math.abs(varNivel) + '</span>' : '';
+      return '<div style="margin-bottom:10px">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">'
+        + '<span style="font-size:11px;font-weight:700;color:' + n.cor + '">' + n.label + '</span>'
+        + '<div style="display:flex;align-items:center;gap:6px">' + varSpan + '<span style="font-size:11px;font-weight:700;color:#374151">' + sc + '/5</span></div>'
+        + '</div>'
+        + '<div style="position:relative;background:#f1f5f9;border-radius:20px;height:10px">'
+        + '<div style="background:' + n.cor + ';border-radius:20px;height:10px;width:' + pct + '%"></div>'
+        + marcadorAnt
+        + '</div>'
+        + notaAnt
+        + '</div>';
+    }).join('');
 
-    return `<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:14px 16px;margin-bottom:12px">
-      <!-- Header -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
-        <div>
-          <div style="font-weight:700;color:#0f172a;font-size:15px">${a.colaborador}</div>
-          <div style="font-size:12px;color:#94a3b8">${fmtDate(a.data)}${a.origem==='colaborador'?' · respondido pelo colaborador':''}</div>
-          ${evolBadge}
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-size:24px;font-weight:800;color:${nv.cor}">${a.total}</div>
-          <div style="font-size:11px;font-weight:700;color:${nv.cor};background:${nv.bg};border-radius:20px;padding:2px 8px">${nv.label}</div>
-        </div>
-      </div>
+    // Analise de perguntas
+    var todasPergs = Q12_NIVEIS.reduce(function(acc, n) {
+      return acc.concat(n.perguntas.map(function(p){ return Object.assign({}, p, {val: a.respostas[p.id]||0, cor:n.cor, nivel:n.label}); }));
+    }, []);
+    var criticas  = todasPergs.filter(function(p){return p.val<=2;}).sort(function(x,y){return x.val-y.val;});
+    var atencao   = todasPergs.filter(function(p){return p.val===3;});
+    var positivas = todasPergs.filter(function(p){return p.val>=4;}).sort(function(x,y){return y.val-x.val;});
 
-      <!-- Barras por nivel com comparativo -->
-      ${Q12_NIVEIS.map(n => {
-        const sc = a.scores[n.key] || 0;
-        const scAnt = anterior ? (anterior.scores[n.key] || 0) : null;
-        const pct = (sc/5)*100;
-        const varNivel = scAnt !== null ? +(sc - scAnt).toFixed(2) : null;
-        const varNivelSinal = varNivel === null ? '' : varNivel > 0 ? '▲' : varNivel < 0 ? '▼' : '→';
-        const varNivelCor   = varNivel === null ? '' : varNivel > 0 ? '#22c55e' : varNivel < 0 ? '#ef4444' : '#94a3b8';
-        return `<div style="margin-bottom:10px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-            <span style="font-size:11px;font-weight:700;color:${n.cor}">${n.label}</span>
-            <div style="display:flex;align-items:center;gap:6px">
-              ${varNivel !== null ? `<span style="font-size:11px;font-weight:700;color:${varNivelCor}">${varNivelSinal}${Math.abs(varNivel)}</span>` : ''}
-              <span style="font-size:11px;font-weight:700;color:#374151">${sc}/5</span>
-            </div>
-          </div>
-          <div style="position:relative;background:#f1f5f9;border-radius:20px;height:10px">
-            <div style="background:${n.cor};border-radius:20px;height:10px;width:${pct}%"></div>
-            ${scAnt !== null ? `<div style="position:absolute;top:0;left:${(scAnt/5)*100}%;width:2px;height:10px;background:#0f172a;border-radius:2px" title="Anterior: ${scAnt}"></div>` : ''}
-          </div>
-          ${scAnt !== null ? `<div style="font-size:10px;color:#94a3b8;margin-top:2px">Anterior: ${scAnt}/5</div>` : ''}
-        </div>`;
-      }).join('')}
+    // Variacao vs anterior
+    var melhoraram = [], pioraram = [];
+    if (anterior) {
+      todasPergs.forEach(function(p) {
+        var vAnt = anterior.respostas[p.id] || 0;
+        if (p.val > vAnt) melhoraram.push(Object.assign({}, p, {vAnt:vAnt}));
+        if (p.val < vAnt) pioraram.push(Object.assign({}, p, {vAnt:vAnt}));
+      });
+    }
 
-      <!-- Badges resumo -->
-      ${(() => {
-        const todasPergs = Q12_NIVEIS.flatMap(n=>n.perguntas.map(p=>({...p, val: a.respostas[p.id]||0, cor:n.cor, nivel:n.label})));
-        const criticas  = todasPergs.filter(p=>p.val<=2).sort((x,y)=>x.val-y.val);
-        const atencao   = todasPergs.filter(p=>p.val===3);
-        const positivas = todasPergs.filter(p=>p.val>=4);
+    function pergCard(p, bg, cor) {
+      return '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;background:' + bg + ';border-radius:8px;padding:8px 10px">'
+        + '<div style="width:24px;height:24px;border-radius:50%;background:' + cor + ';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">' + p.val + '</div>'
+        + '<div><div style="font-size:10px;font-weight:700;color:' + p.cor + ';text-transform:uppercase;margin-bottom:2px">' + p.nivel + ' · ' + p.id.toUpperCase() + '</div>'
+        + '<div style="font-size:13px;color:#374151;line-height:1.4">' + p.texto + '</div></div></div>';
+    }
 
-        // Perguntas que melhoraram e pioraram vs anterior
-        let melhoraram = [], pioraram = [];
-        if (anterior) {
-          todasPergs.forEach(p => {
-            const vAnt = anterior.respostas[p.id] || 0;
-            if (p.val > vAnt) melhoraram.push({...p, vAnt});
-            if (p.val < vAnt) pioraram.push({...p, vAnt});
-          });
-        }
+    function pergCardVar(p, bg, cor) {
+      return '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;background:' + bg + ';border-radius:8px;padding:8px 10px">'
+        + '<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">'
+        + '<span style="font-size:10px;color:#94a3b8;text-decoration:line-through">' + p.vAnt + '</span>'
+        + '<span style="font-size:14px;font-weight:800;color:' + cor + '">' + p.val + '</span></div>'
+        + '<div><div style="font-size:10px;font-weight:700;color:' + p.cor + ';text-transform:uppercase;margin-bottom:2px">' + p.nivel + ' · ' + p.id.toUpperCase() + '</div>'
+        + '<div style="font-size:12px;color:#374151;line-height:1.4">' + p.texto + '</div></div></div>';
+    }
 
-        const blocoExpand = `
-          <div id="q12-detail-${a.id}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9">
+    var variacaoHtml = '';
+    if (anterior && (melhoraram.length || pioraram.length)) {
+      variacaoHtml = '<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:8px">VARIACAO VS AVALIACAO ANTERIOR</div>';
+      if (pioraram.length) {
+        variacaoHtml += '<div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:6px">Pioraram</div>';
+        pioraram.sort(function(x,y){return (x.val-x.vAnt)-(y.val-y.vAnt);}).forEach(function(p){ variacaoHtml += pergCardVar(p,'#fef2f2','#ef4444'); });
+      }
+      if (melhoraram.length) {
+        variacaoHtml += '<div style="font-size:11px;font-weight:700;color:#22c55e;margin-bottom:6px;margin-top:' + (pioraram.length?'10px':'0') + '">Melhoraram</div>';
+        melhoraram.sort(function(x,y){return (y.val-y.vAnt)-(x.val-x.vAnt);}).forEach(function(p){ variacaoHtml += pergCardVar(p,'#f0fdf4','#22c55e'); });
+      }
+      variacaoHtml += '</div>';
+    }
 
-            ${anterior && (melhoraram.length || pioraram.length) ? `
-              <div style="margin-bottom:16px">
-                <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:8px">VARIACAO VS AVALIACAO ANTERIOR</div>
-                ${pioraram.length ? `
-                  <div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:6px">Pioraram</div>
-                  ${pioraram.sort((x,y)=>(x.val-x.vAnt)-(y.val-y.vAnt)).map(p=>`
-                    <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;background:#fef2f2;border-radius:8px;padding:8px 10px">
-                      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
-                        <span style="font-size:10px;color:#94a3b8;text-decoration:line-through">${p.vAnt}</span>
-                        <span style="font-size:14px;font-weight:800;color:#ef4444">${p.val}</span>
-                      </div>
-                      <div>
-                        <div style="font-size:10px;font-weight:700;color:${p.cor};text-transform:uppercase;margin-bottom:2px">${p.nivel} · ${p.id.toUpperCase()}</div>
-                        <div style="font-size:12px;color:#374151;line-height:1.4">${p.texto}</div>
-                      </div>
-                    </div>`).join('')}` : ''}
-                ${melhoraram.length ? `
-                  <div style="font-size:11px;font-weight:700;color:#22c55e;margin-bottom:6px;margin-top:${pioraram.length?'10px':'0'}">Melhoraram</div>
-                  ${melhoraram.sort((x,y)=>(y.val-y.vAnt)-(x.val-x.vAnt)).map(p=>`
-                    <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;background:#f0fdf4;border-radius:8px;padding:8px 10px">
-                      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
-                        <span style="font-size:10px;color:#94a3b8;text-decoration:line-through">${p.vAnt}</span>
-                        <span style="font-size:14px;font-weight:800;color:#22c55e">${p.val}</span>
-                      </div>
-                      <div>
-                        <div style="font-size:10px;font-weight:700;color:${p.cor};text-transform:uppercase;margin-bottom:2px">${p.nivel} · ${p.id.toUpperCase()}</div>
-                        <div style="font-size:12px;color:#374151;line-height:1.4">${p.texto}</div>
-                      </div>
-                    </div>`).join('')}` : ''}
-              </div>` : ''}
+    var criticasHtml = '';
+    if (criticas.length) {
+      criticasHtml = '<div style="font-size:11px;font-weight:800;color:#ef4444;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Criticas (nota 1-2)</div>';
+      criticas.forEach(function(p){ criticasHtml += pergCard(p,'#fef2f2','#ef4444'); });
+    }
+    var atencaoHtml = '';
+    if (atencao.length) {
+      atencaoHtml = '<div style="font-size:11px;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:' + (criticas.length?'12px':'0') + '">Atencao (nota 3)</div>';
+      atencao.forEach(function(p){ atencaoHtml += pergCard(p,'#fefce8','#f59e0b'); });
+    }
+    var positivasHtml = '';
+    if (positivas.length) {
+      positivasHtml = '<div style="font-size:11px;font-weight:800;color:#22c55e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:' + ((criticas.length||atencao.length)?'12px':'0') + '">Pontos fortes (nota 4-5)</div>';
+      positivas.forEach(function(p){ positivasHtml += pergCard(p,'#f0fdf4','#22c55e'); });
+    }
 
-            ${criticas.length ? `
-              <div style="font-size:11px;font-weight:800;color:#ef4444;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Criticas (nota 1-2)</div>
-              ${criticas.map(p=>`
-                <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;background:#fef2f2;border-radius:8px;padding:8px 10px">
-                  <div style="width:24px;height:24px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">${p.val}</div>
-                  <div>
-                    <div style="font-size:10px;font-weight:700;color:${p.cor};text-transform:uppercase;margin-bottom:2px">${p.nivel} · ${p.id.toUpperCase()}</div>
-                    <div style="font-size:13px;color:#374151;line-height:1.4">${p.texto}</div>
-                  </div>
-                </div>`).join('')}` : ''}
+    var badges = [
+      criticas.length  ? '<span style="background:#fef2f2;color:#ef4444;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700">' + criticas.length + ' critica' + (criticas.length>1?'s':'') + '</span>' : '',
+      atencao.length   ? '<span style="background:#fefce8;color:#d97706;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700">' + atencao.length + ' atencao</span>' : '',
+      positivas.length ? '<span style="background:#f0fdf4;color:#16a34a;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700">' + positivas.length + ' forte' + (positivas.length>1?'s':'') + '</span>' : '',
+    ].filter(Boolean).join(' ');
 
-            ${atencao.length ? `
-              <div style="font-size:11px;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:${criticas.length?'12px':'0'}">Atencao (nota 3)</div>
-              ${atencao.map(p=>`
-                <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;background:#fefce8;border-radius:8px;padding:8px 10px">
-                  <div style="width:24px;height:24px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">${p.val}</div>
-                  <div>
-                    <div style="font-size:10px;font-weight:700;color:${p.cor};text-transform:uppercase;margin-bottom:2px">${p.nivel} · ${p.id.toUpperCase()}</div>
-                    <div style="font-size:13px;color:#374151;line-height:1.4">${p.texto}</div>
-                  </div>
-                </div>`).join('')}` : ''}
+    var detalheId = 'q12d-' + a.id.replace(/-/g,'');
+    var toggleId  = 'q12t-' + a.id.replace(/-/g,'');
 
-            ${positivas.length ? `
-              <div style="font-size:11px;font-weight:800;color:#22c55e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:${(criticas.length||atencao.length)?'12px':'0'}">Pontos fortes (nota 4-5)</div>
-              ${positivas.map(p=>`
-                <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;background:#f0fdf4;border-radius:8px;padding:8px 10px">
-                  <div style="width:24px;height:24px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">${p.val}</div>
-                  <div>
-                    <div style="font-size:10px;font-weight:700;color:${p.cor};text-transform:uppercase;margin-bottom:2px">${p.nivel} · ${p.id.toUpperCase()}</div>
-                    <div style="font-size:13px;color:#374151;line-height:1.4">${p.texto}</div>
-                  </div>
-                </div>`).join('')}` : ''}
-          </div>`;
-
-        const resumoBadges = [
-          criticas.length  ? `<span style="background:#fef2f2;color:#ef4444;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700">${criticas.length} critica${criticas.length>1?'s':''}</span>` : '',
-          atencao.length   ? `<span style="background:#fefce8;color:#d97706;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700">${atencao.length} atencao</span>` : '',
-          positivas.length ? `<span style="background:#f0fdf4;color:#16a34a;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700">${positivas.length} forte${positivas.length>1?'s':''}</span>` : '',
-        ].filter(Boolean).join(' ');
-
-        return `
-          <div style="margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9">
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <div style="display:flex;gap:6px;flex-wrap:wrap">${resumoBadges}</div>
-              <button onclick="toggleQ12Detail('${a.id}')" id="q12-toggle-${a.id}"
-                style="background:none;border:1.5px solid #e2e8f0;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;white-space:nowrap">
-                Ver detalhes
-              </button>
-            </div>
-            ${blocoExpand}
-          </div>`;
-      })()}
-      <button onclick="delQ12('${a.id}')" style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;margin-top:12px;display:flex;align-items:center;gap:4px">${SVG.trashRed} Excluir avaliacao</button>
-    </div>`;
+    return '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:14px 16px;margin-bottom:12px">'
+      + '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">'
+      + '<div><div style="font-weight:700;color:#0f172a;font-size:15px">' + a.colaborador + '</div>'
+      + '<div style="font-size:12px;color:#94a3b8">' + fmtDate(a.data) + (a.origem==='colaborador'?' · respondido pelo colaborador':'') + '</div>'
+      + evolBadge + '</div>'
+      + '<div style="text-align:right;flex-shrink:0">'
+      + '<div style="font-size:24px;font-weight:800;color:' + nv.cor + '">' + a.total + '</div>'
+      + '<div style="font-size:11px;font-weight:700;color:' + nv.cor + ';background:' + nv.bg + ';border-radius:20px;padding:2px 8px">' + nv.label + '</div>'
+      + '</div></div>'
+      + barrasHtml
+      + '<div style="margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between">'
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap">' + badges + '</div>'
+      + '<button onclick="toggleQ12Detail('' + detalheId + '','' + toggleId + '')" id="' + toggleId + '" style="background:none;border:1.5px solid #e2e8f0;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;white-space:nowrap">Ver detalhes</button>'
+      + '</div>'
+      + '<div id="' + detalheId + '" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9">'
+      + variacaoHtml + criticasHtml + atencaoHtml + positivasHtml
+      + '</div></div>'
+      + '<button onclick="delQ12('' + a.id + '')" style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;margin-top:12px;display:flex;align-items:center;gap:4px">' + SVG.trashRed + ' Excluir avaliacao</button>'
+      + '</div>';
   }).join('');
 }
 
-
-      <button onclick="delQ12('${a.id}')" style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;margin-top:8px;display:flex;align-items:center;gap:4px">${SVG.trashRed} Excluir avaliacao</button>
-    </div>`;
-  }).join('');
-}
 
 async function delQ12(id) {
   await sbDelete('q12_avaliacoes', id);
@@ -2247,15 +2211,13 @@ async function delQ12(id) {
   renderDashboard();
 }
 
-function toggleQ12Detail(id) {
-  const detail = document.getElementById('q12-detail-'+id);
-  const btn = document.getElementById('q12-toggle-'+id);
+function toggleQ12Detail(detalheId, toggleId) {
+  var detail = document.getElementById(detalheId);
+  var btn = document.getElementById(toggleId);
   if (!detail) return;
-  const open = detail.style.display === 'none';
+  var open = detail.style.display === 'none';
   detail.style.display = open ? '' : 'none';
-  btn.textContent = open ? 'Ocultar' : 'Ver detalhes';
-  btn.style.color = open ? '#0f172a' : '#64748b';
-  btn.style.borderColor = open ? '#0f172a' : '#e2e8f0';
+  if (btn) { btn.textContent = open ? 'Ocultar' : 'Ver detalhes'; btn.style.color = open ? '#0f172a' : '#64748b'; btn.style.borderColor = open ? '#0f172a' : '#e2e8f0'; }
 }
 
 // ── FEEDBACKS ─────────────────────────────────────────────────────────────────
