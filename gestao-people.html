@@ -741,10 +741,10 @@ function initReunForm() {
   document.getElementById('reun-data').value = today();
   // Tipo chips
   const tc = document.getElementById('reun-tipo-chips');
-  tc.innerHTML = TIPOS.map(t=>`<button class="chip-btn" onclick="setReunTipo(this,'${t.replace(/'/g,"\\'")}'')">${t}</button>`).join('');
+  tc.innerHTML = TIPOS.map(t=>`<button class="chip-btn" onclick="setReunTipo(this,this.dataset.tipo)" data-tipo="${t}">${t}</button>`).join('');
   // Temas
   const tmc = document.getElementById('reun-temas-chips');
-  tmc.innerHTML = TEMAS_LIST.map(t=>`<button class="chip-btn" onclick="toggleTema(this,'${t}')">${t}</button>`).join('');
+  tmc.innerHTML = TEMAS_LIST.map(t=>`<button class="chip-btn" onclick="toggleTema(this,this.dataset.tema)" data-tema="${t}">${t}</button>`).join('');
   // Clima
   const cg = document.getElementById('reun-clima-grid');
   cg.innerHTML = SENTIMENTOS.map(s=>`<button class="clima-btn" onclick="setClima(this,'${s.label}','${s.cor}')" style="color:${s.cor}">${s.icon}<span>${s.label}</span></button>`).join('');
@@ -756,16 +756,18 @@ function initReunForm() {
 }
 
 function setReunTipo(btn, tipo) {
+  const t = tipo || btn.dataset.tipo;
   document.querySelectorAll('#reun-tipo-chips .chip-btn').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  reunTipo = tipo;
-  document.getElementById('reun-guide-hint').style.display = (tipo && tipo !== 'Outro') ? '' : 'none';
+  reunTipo = t;
+  document.getElementById('reun-guide-hint').style.display = (t && t !== 'Outro') ? '' : 'none';
   checkReunBtn();
 }
 function toggleTema(btn, tema) {
+  const t = tema || btn.dataset.tema;
   btn.classList.toggle('on');
-  if (reunTemas.includes(tema)) reunTemas = reunTemas.filter(t=>t!==tema);
-  else reunTemas.push(tema);
+  if (reunTemas.includes(t)) reunTemas = reunTemas.filter(x=>x!==t);
+  else reunTemas.push(t);
 }
 function setClima(btn, label, cor) {
   document.querySelectorAll('#reun-clima-grid .clima-btn').forEach(b=>{ b.classList.remove('on'); b.style.borderColor='#e2e8f0'; b.style.background='#f8fafc'; });
