@@ -129,6 +129,18 @@ textarea.inp{resize:vertical;min-height:80px}
 .colab-form{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px}
 .colab-form label{font-size:12px;font-weight:700;color:#64748b;margin-bottom:-4px}
 
+/* Checklists */
+.check-tabs{display:flex;gap:8px;margin-bottom:20px}
+.check-tab{flex:1;padding:12px;border:1.5px solid #e2e8f0;border-radius:12px;background:#f8fafc;font-size:14px;font-weight:700;color:#64748b}
+.check-tab.on{background:#0f172a;color:#fff;border-color:#0f172a}
+.check-item-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9}
+.check-item-txt{flex:1;font-size:14px;color:#0f172a}
+.check-exec-row{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid #f1f5f9}
+.check-exec-row input[type=checkbox]{width:20px;height:20px;margin-top:1px;accent-color:#0f172a;flex-shrink:0}
+.check-progress-track{height:8px;background:#f1f5f9;border-radius:8px;overflow:hidden}
+.check-progress-fill{height:100%;background:#0f172a;border-radius:8px}
+.check-hist-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:10px}
+
 /* Empty */
 .empty{text-align:center;padding:48px 24px;background:#fff;border-radius:14px;border:1.5px solid #e2e8f0;color:#94a3b8}
 
@@ -296,6 +308,10 @@ textarea.inp{resize:vertical;min-height:80px}
     <div class="page-sub">Alinhamentos, direcoes, papo de corredor</div>
     <div id="rap-success" class="success" style="display:none">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Registrado!
+    </div>
+    <div class="field">
+      <label>Pilar *</label>
+      <div class="origem-grid" id="rap-pilar-grid"></div>
     </div>
     <div class="field">
       <label>Quem participou? *</label>
@@ -648,6 +664,79 @@ textarea.inp{resize:vertical;min-height:80px}
     <div id="colab-empty" class="empty" style="display:none"><div style="font-size:36px;margin-bottom:10px;opacity:.3">👥</div><div>Adicione o primeiro colaborador acima.</div></div>
   </div>
 
+  <!-- CHECKLISTS -->
+  <div id="v-checklists" class="view">
+    <div class="page-title">Checklists</div>
+    <div class="page-sub">Limpeza e manutencao — Pilar Operacao</div>
+
+    <div class="check-tabs">
+      <button class="check-tab" id="check-tab-limpeza" onclick="setChecklistTipo('limpeza')">Limpeza</button>
+      <button class="check-tab" id="check-tab-manutencao" onclick="setChecklistTipo('manutencao')">Manutencao</button>
+    </div>
+
+    <!-- Execucao -->
+    <div class="sec-title">Executar checklist de hoje</div>
+    <div id="check-exec-empty" class="empty" style="display:none"><div style="font-size:36px;margin-bottom:10px;opacity:.3">📋</div><div>Nenhum item cadastrado ainda. Adicione os pontos que voce quer acompanhar abaixo.</div></div>
+    <div id="check-exec-list"></div>
+    <div class="field" id="check-exec-obs-field" style="display:none">
+      <label>Observacoes (opcional)</label>
+      <textarea class="inp" id="check-exec-obs" rows="2" placeholder="Algo que precisa de atencao..."></textarea>
+    </div>
+    <button class="btn-primary" id="check-exec-btn" style="display:none" onclick="salvarChecklistExec()">Concluir checklist</button>
+
+    <!-- Itens (cadastro/edicao) -->
+    <div class="sec-title">Itens do checklist</div>
+    <div class="hint" style="margin-top:-8px;margin-bottom:14px">Defina aqui os pontos que voce vai olhar. Ajuste como quiser depois de alinhar com a lideranca.</div>
+    <div id="check-itens-list"></div>
+    <div class="add-row">
+      <input class="inp" id="novo-check-item" placeholder="Novo item do checklist..." onkeydown="if(event.key==='Enter')addChecklistItem()">
+      <button class="btn-add" onclick="addChecklistItem()">Adicionar</button>
+    </div>
+
+    <!-- Historico -->
+    <div class="sec-title">Historico de execucoes</div>
+    <div id="check-hist-empty" class="empty" style="display:none"><div style="font-size:36px;margin-bottom:10px;opacity:.3">🕘</div><div>Nenhuma execucao registrada ainda.</div></div>
+    <div id="check-hist-list" style="margin-bottom:24px"></div>
+  </div>
+
+  <!-- INDICADORES -->
+  <div id="v-indicadores" class="view">
+    <div class="page-title">Indicadores</div>
+    <div class="page-sub">Metas e resultados dos 4 pilares</div>
+
+    <div class="field">
+      <label>Filtrar por pilar</label>
+      <div class="tags" id="ind-filtro-chips"></div>
+    </div>
+
+    <div class="colab-form">
+      <label>Pilar *</label>
+      <div class="origem-grid" id="ind-pilar-grid"></div>
+      <label>Nome do indicador *</label>
+      <input class="inp" id="novo-ind-nome" placeholder="Ex: Absenteismo, NPS, Churn...">
+      <div style="display:flex;gap:10px">
+        <div style="flex:1">
+          <label>Valor atual *</label>
+          <input class="inp" id="novo-ind-atual" type="text" inputmode="decimal" placeholder="Ex: 8%">
+        </div>
+        <div style="flex:1">
+          <label>Meta *</label>
+          <input class="inp" id="novo-ind-meta" type="text" inputmode="decimal" placeholder="Ex: 5%">
+        </div>
+      </div>
+      <label>Periodo</label>
+      <select class="inp" id="novo-ind-periodo">
+        <option value="Semanal">Semanal</option>
+        <option value="Mensal" selected>Mensal</option>
+        <option value="Trimestral">Trimestral</option>
+      </select>
+      <button class="btn-add" onclick="addIndicador()">Adicionar indicador</button>
+    </div>
+
+    <div id="ind-list"></div>
+    <div id="ind-empty" class="empty" style="display:none"><div style="font-size:36px;margin-bottom:10px;opacity:.3">📊</div><div>Nenhum indicador cadastrado ainda.</div></div>
+  </div>
+
 </main>
 
 <!-- BOTTOM NAV -->
@@ -730,6 +819,26 @@ textarea.inp{resize:vertical;min-height:80px}
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
+    <button class="mais-item" id="nav-checklists" onclick="navMais('checklists')">
+      <div class="mais-icon" style="background:#ecfeff">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0e7490" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 11l2 2 4-4"/></svg>
+      </div>
+      <div class="mais-label">
+        <div class="mais-title">Checklists</div>
+        <div class="mais-sub">Limpeza e manutencao</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <button class="mais-item" id="nav-indicadores" onclick="navMais('indicadores')">
+      <div class="mais-icon" style="background:#fff7ed">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+      <div class="mais-label">
+        <div class="mais-title">Indicadores</div>
+        <div class="mais-sub">Metas dos 4 pilares</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
   </div>
 </div>
 
@@ -795,6 +904,9 @@ let rapidos       = load('gp_rapidos');
 let solicitacoes  = load('gp_solicit');
 let feedbacks     = load('gp_feedbacks');
 let q12avaliacoes = load('gp_q12');
+let checklistItens = load('gp_checklist_itens');
+let checklistExec  = load('gp_checklist_exec');
+let indicadores     = load('gp_indicadores');
 
 // Dados de contato (WhatsApp/e-mail) por colaborador — sincronizados com o Supabase
 // (colunas whatsapp/email na tabela "colaboradores") e cacheados localmente.
@@ -806,13 +918,16 @@ function saveColabsMeta() { save('gp_colabs_meta', colabsMeta); }
 async function syncFromSupabase() {
   mostrarSyncStatus('Sincronizando...');
   try {
-    const [rc, cl, rp, sl, fb, q12] = await Promise.all([
+    const [rc, cl, rp, sl, fb, q12, ci, ce, ind] = await Promise.all([
       sbGet('reunioes'),
       sbGetColaboradores(),
       sbGet('rapidos'),
       sbGet('solicitacoes'),
       sbGet('feedbacks'),
       sbGet('q12_avaliacoes'),
+      sbGet('checklist_itens').catch(()=>[]),
+      sbGet('checklist_execucoes').catch(()=>[]),
+      sbGet('indicadores').catch(()=>[]),
     ]);
     reunioes      = rc.map(r => ({...r, id: r.id, temas: r.temas||[], assinaturas: r.assinaturas||[]}));
     colabs        = cl.map(c => c.nome);
@@ -822,6 +937,9 @@ async function syncFromSupabase() {
     solicitacoes  = sl;
     feedbacks     = fb.map(f => ({...f, areas: f.areas||[]}));
     q12avaliacoes = q12.map(a => ({...a, respostas: a.respostas||{}, scores: a.scores||{}}));
+    if (ci && ci.length) { checklistItens = ci; save('gp_checklist_itens', checklistItens); }
+    if (ce && ce.length) { checklistExec = ce.map(e=>({...e, itens: e.itens||[]})); save('gp_checklist_exec', checklistExec); }
+    if (ind && ind.length) { indicadores = ind; save('gp_indicadores', indicadores); }
     // Atualiza cache local
     save('gp_reunioes', reunioes); save('gp_colabs', colabs);
     saveColabsMeta();
@@ -846,7 +964,7 @@ function mostrarSyncStatus(msg) {
 }
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let rapCtx = '', rapSetor = '';
+let rapCtx = '', rapSetor = '', rapPilar = '';
 let reunTipo = '', reunTemas = [], reunClima = '';
 let solOrigem = '';
 let fbTipo = '', fbOrigem = '', fbAreas = [];
@@ -865,6 +983,8 @@ function nav(id) {
   if (id === 'dashboard') renderDashboard();
   if (id === 'historico') renderHistorico();
   if (id === 'colaboradores') renderColabs();
+  if (id === 'checklists') initChecklists();
+  if (id === 'indicadores') renderIndicadores();
   if (id === 'rapido') renderRapidoHistorico();
   if (id === 'solicitacoes') { initSolicitForm(); renderKanban(); }
   if (id === 'feedbacks') renderFeedbacks();
@@ -903,11 +1023,30 @@ const ORIGENS_PADRAO = [
   {key:'prestador',   label:'Prestador',   cor:'#0ea5e9'},
   {key:'superior',    label:'Superior',    cor:'#f59e0b'},
   {key:'eu',          label:'Eu mesmo',    cor:'#10b981'},
+  {key:'aluno',       label:'Aluno',       cor:'#ec4899'},
+  {key:'operacao',    label:'Operacao',    cor:'#14b8a6'},
 ];
 // Origens dinamicas — carregadas do localStorage, editaveis pelo usuario
 let origens = load('gp_origens') || ORIGENS_PADRAO.map(o => ({...o}));
 // Garante que campos obrigatorios existam
 if (!origens.length) origens = ORIGENS_PADRAO.map(o => ({...o}));
+// Garante que Aluno e Operacao existam mesmo em contas ja customizadas antes desta versao
+['aluno','operacao'].forEach(k => {
+  if (!origens.find(o=>o.key===k)) {
+    const padrao = ORIGENS_PADRAO.find(o=>o.key===k);
+    origens.push({...padrao});
+    save('gp_origens', origens);
+    sbInsert('origens', {...padrao}).catch(()=>{});
+  }
+});
+
+// Os 4 pilares do modelo de lideranca
+const PILARES = [
+  {key:'pessoas',     label:'Pessoas',     cor:'#6366f1'},
+  {key:'operacao',    label:'Operacao',    cor:'#0ea5e9'},
+  {key:'experiencia', label:'Experiencia', cor:'#10b981'},
+  {key:'resultado',   label:'Resultado',   cor:'#f59e0b'},
+];
 
 const CORES_DISPONIVEIS = ['#6366f1','#0ea5e9','#f59e0b','#10b981','#ef4444','#8b5cf6','#f97316','#ec4899','#14b8a6','#64748b'];
 const ICONE_PADRAO = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>';
@@ -997,6 +1136,26 @@ function initRapidoForm() {
   // Colaboradores select
   const sel = document.getElementById('rap-colab');
   sel.innerHTML = '<option value="">Selecione...</option>' + colabs.map(c=>`<option>${c}</option>`).join('');
+  // Pilares
+  renderRapPilarGrid();
+}
+function renderRapPilarGrid() {
+  const pg = document.getElementById('rap-pilar-grid');
+  pg.innerHTML = PILARES.map(p=>`
+    <button class="origem-btn" id="rap-pilar-${p.key}" onclick="setRapPilar('${p.key}')" style="color:#64748b">
+      <div style="width:18px;height:18px;border-radius:50%;background:${p.cor};flex-shrink:0"></div>
+      ${p.label}
+    </button>`).join('');
+}
+function setRapPilar(key) {
+  rapPilar = key;
+  PILARES.forEach(p=>{
+    const btn = document.getElementById('rap-pilar-'+p.key);
+    if (!btn) return;
+    if (key === p.key) { btn.style.borderColor=p.cor; btn.style.background=p.cor+'14'; btn.style.color=p.cor; }
+    else { btn.style.borderColor='#e2e8f0'; btn.style.background='#f8fafc'; btn.style.color='#64748b'; }
+  });
+  checkRapBtn();
 }
 function setCtx(ctx) {
   rapCtx = ctx; rapSetor = '';
@@ -1013,7 +1172,7 @@ function setRapSetor(s) {
 }
 function checkRapBtn() {
   const assunto = document.getElementById('rap-assunto').value.trim();
-  document.getElementById('rap-save-btn').disabled = !(rapCtx && assunto);
+  document.getElementById('rap-save-btn').disabled = !(rapPilar && rapCtx && assunto);
 }
 
 // ── SOLICIT FORM ──────────────────────────────────────────────────────────────
@@ -1132,21 +1291,23 @@ async function salvarReuniao() {
 
 async function salvarRapido() {
   const assunto = document.getElementById('rap-assunto').value.trim();
-  if (!rapCtx || !assunto) return;
+  if (!rapPilar || !rapCtx || !assunto) return;
   let participantes = '';
   if (rapCtx==='individual') participantes = document.getElementById('rap-colab').value;
   else if (rapCtx==='grupo') participantes = document.getElementById('rap-grupo-nomes').value;
   else if (rapCtx==='setor') participantes = rapSetor;
-  const rapData = { data: today(), contexto: rapCtx, participantes, assunto, encaminhamento: document.getElementById('rap-enc').value, assinaturas: [] };
-  const rapSaved = await sbInsert('rapidos', rapData);
+  const rapData = { data: today(), pilar: rapPilar, contexto: rapCtx, participantes, assunto, encaminhamento: document.getElementById('rap-enc').value, assinaturas: [] };
+  let rapSaved = await sbInsert('rapidos', rapData);
+  if (!rapSaved) rapSaved = await sbInsert('rapidos', { data: rapData.data, contexto: rapCtx, participantes, assunto, encaminhamento: rapData.encaminhamento, assinaturas: [] }); // fallback se a coluna 'pilar' ainda nao existir
   const regRap = rapSaved ? {...rapData, id: rapSaved.id} : {...rapData, id: 'local_'+Date.now()};
   rapidos.unshift(regRap);
   save('gp_rapidos', rapidos);
   // reset
   const ctxSalvo = rapCtx;
   const partSalvo = participantes;
-  rapCtx=''; rapSetor='';
+  rapCtx=''; rapSetor=''; rapPilar='';
   ['individual','grupo','setor'].forEach(c=>{ document.getElementById('ctx-'+c).classList.remove('on'); document.getElementById('rap-'+c+'-field').style.display='none'; });
+  renderRapPilarGrid();
   document.getElementById('rap-assunto').value='';
   document.getElementById('rap-enc').value='';
   document.getElementById('rap-colab').value='';
@@ -1251,13 +1412,15 @@ function renderRapCard(r) {
   const ctx = {individual:'Individual',grupo:'Grupo',setor:'Setor'};
   const ctxCor = {individual:'#6366f1',grupo:'#0ea5e9',setor:'#10b981'};
   const cor = ctxCor[r.contexto]||'#64748b';
+  const pilar = PILARES.find(p=>p.key===r.pilar);
+  const pilarBadge = pilar ? `<span class="tag" style="background:${pilar.cor}18;color:${pilar.cor};margin-left:6px">${pilar.label}</span>` : '';
   return `<div class="rap-card">
     <div class="rap-top">
       <div style="display:flex;align-items:center;gap:8px">
         <div style="width:32px;height:32px;border-radius:8px;background:${cor}18;display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${cor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         </div>
-        <div><div style="font-weight:700;color:#0f172a;font-size:13px">${ctx[r.contexto]||''}${r.participantes?' · '+r.participantes:''}</div><div style="font-size:11px;color:#94a3b8">${fmtDate(r.data)}</div></div>
+        <div><div style="font-weight:700;color:#0f172a;font-size:13px">${ctx[r.contexto]||''}${r.participantes?' · '+r.participantes:''}${pilarBadge}</div><div style="font-size:11px;color:#94a3b8">${fmtDate(r.data)}</div></div>
       </div>
       <button class="btn-delete" data-id="${r.id}" onclick="delRapido(this.dataset.id)">${SVG.trash}</button>
     </div>
@@ -1557,6 +1720,187 @@ async function salvarEditarColab() {
   renderColabs();
   renderHistorico();
   renderDashboard();
+}
+
+// ── CHECKLISTS (Pilar Operacao) ────────────────────────────────────────────────
+let checklistTipoAtual = 'limpeza';
+let checklistExecState = {};
+
+function initChecklists() {
+  setChecklistTipo(checklistTipoAtual || 'limpeza');
+}
+
+function setChecklistTipo(tipo) {
+  checklistTipoAtual = tipo;
+  checklistExecState = {};
+  ['limpeza','manutencao'].forEach(t => document.getElementById('check-tab-'+t).classList.toggle('on', t===tipo));
+  renderChecklistItens();
+  renderChecklistExec();
+  renderChecklistHist();
+}
+
+function itensDoTipo(tipo) {
+  return checklistItens.filter(i => i.tipo === tipo);
+}
+
+function renderChecklistItens() {
+  const itens = itensDoTipo(checklistTipoAtual);
+  document.getElementById('check-itens-list').innerHTML = itens.map(i => `
+    <div class="check-item-row">
+      <span class="check-item-txt">${i.texto}</span>
+      <button class="btn-delete" data-id="${i.id}" onclick="delChecklistItem(this.dataset.id)">${SVG.trash}</button>
+    </div>`).join('') || '<div class="hint">Nenhum item ainda. Adicione abaixo.</div>';
+}
+
+async function addChecklistItem() {
+  const inp = document.getElementById('novo-check-item');
+  const texto = inp.value.trim();
+  if (!texto) return;
+  const ordem = itensDoTipo(checklistTipoAtual).length;
+  const data = { tipo: checklistTipoAtual, texto, ordem };
+  const saved = await sbInsert('checklist_itens', data);
+  const item = saved ? {...data, id: saved.id} : {...data, id: 'local_'+Date.now()};
+  checklistItens.push(item);
+  save('gp_checklist_itens', checklistItens);
+  inp.value = '';
+  renderChecklistItens();
+  renderChecklistExec();
+}
+
+async function delChecklistItem(id) {
+  await sbDelete('checklist_itens', id).catch(()=>{});
+  checklistItens = checklistItens.filter(i => String(i.id) !== String(id));
+  save('gp_checklist_itens', checklistItens);
+  delete checklistExecState[id];
+  renderChecklistItens();
+  renderChecklistExec();
+}
+
+function renderChecklistExec() {
+  const itens = itensDoTipo(checklistTipoAtual);
+  document.getElementById('check-exec-empty').style.display = itens.length ? 'none' : '';
+  document.getElementById('check-exec-obs-field').style.display = itens.length ? '' : 'none';
+  document.getElementById('check-exec-btn').style.display = itens.length ? '' : 'none';
+  document.getElementById('check-exec-list').innerHTML = itens.map(i => `
+    <label class="check-exec-row">
+      <input type="checkbox" data-id="${i.id}" ${checklistExecState[i.id] ? 'checked' : ''} onchange="checklistExecState['${i.id}']=this.checked">
+      <span class="check-item-txt">${i.texto}</span>
+    </label>`).join('');
+}
+
+async function salvarChecklistExec() {
+  const itens = itensDoTipo(checklistTipoAtual);
+  if (!itens.length) return;
+  const itensSnapshot = itens.map(i => ({ texto: i.texto, feito: !!checklistExecState[i.id] }));
+  const concluidos = itensSnapshot.filter(i => i.feito).length;
+  const execData = {
+    tipo: checklistTipoAtual, data: today(), itens: itensSnapshot,
+    concluidos, total: itensSnapshot.length,
+    observacoes: document.getElementById('check-exec-obs').value.trim()
+  };
+  const saved = await sbInsert('checklist_execucoes', execData);
+  const exec = saved ? {...execData, id: saved.id} : {...execData, id: 'local_'+Date.now()};
+  checklistExec.unshift(exec);
+  save('gp_checklist_exec', checklistExec);
+  checklistExecState = {};
+  document.getElementById('check-exec-obs').value = '';
+  renderChecklistExec();
+  renderChecklistHist();
+}
+
+function renderChecklistHist() {
+  const lista = checklistExec.filter(e => e.tipo === checklistTipoAtual);
+  document.getElementById('check-hist-empty').style.display = lista.length ? 'none' : '';
+  document.getElementById('check-hist-list').innerHTML = lista.map(e => {
+    const pct = e.total ? Math.round(e.concluidos/e.total*100) : 0;
+    const cor = pct === 100 ? '#16a34a' : pct >= 50 ? '#d97706' : '#dc2626';
+    return `<div class="check-hist-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-weight:700;color:#0f172a;font-size:13px">${fmtDate(e.data)}</div>
+        <div style="font-size:12px;font-weight:700;color:${cor}">${e.concluidos}/${e.total} · ${pct}%</div>
+      </div>
+      <div class="check-progress-track"><div class="check-progress-fill" style="width:${pct}%;background:${cor}"></div></div>
+      ${e.observacoes ? `<div style="font-size:13px;color:#64748b;margin-top:8px">${e.observacoes}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── INDICADORES (4 pilares) ────────────────────────────────────────────────────
+let indPilarNovo = '';
+let indFiltroPilar = '';
+
+function renderIndPilarGrid() {
+  const pg = document.getElementById('ind-pilar-grid');
+  pg.innerHTML = PILARES.map(p=>`
+    <button class="origem-btn" id="ind-pilar-${p.key}" onclick="setIndPilarNovo('${p.key}')" style="color:#64748b">
+      <div style="width:18px;height:18px;border-radius:50%;background:${p.cor};flex-shrink:0"></div>
+      ${p.label}
+    </button>`).join('');
+}
+function setIndPilarNovo(key) {
+  indPilarNovo = key;
+  PILARES.forEach(p=>{
+    const btn = document.getElementById('ind-pilar-'+p.key);
+    if (!btn) return;
+    if (key === p.key) { btn.style.borderColor=p.cor; btn.style.background=p.cor+'14'; btn.style.color=p.cor; }
+    else { btn.style.borderColor='#e2e8f0'; btn.style.background='#f8fafc'; btn.style.color='#64748b'; }
+  });
+}
+
+function renderIndFiltroChips() {
+  const fc = document.getElementById('ind-filtro-chips');
+  fc.innerHTML = '<button class="chip-btn'+(indFiltroPilar===''?' on':'')+'" onclick="setIndFiltro(\'\')">Todos</button>' +
+    PILARES.map(p=>`<button class="chip-btn${indFiltroPilar===p.key?' on':''}" onclick="setIndFiltro('${p.key}')">${p.label}</button>`).join('');
+}
+function setIndFiltro(key) {
+  indFiltroPilar = key;
+  renderIndFiltroChips();
+  renderIndicadores();
+}
+
+async function addIndicador() {
+  const nome = document.getElementById('novo-ind-nome').value.trim();
+  const atual = document.getElementById('novo-ind-atual').value.trim();
+  const meta = document.getElementById('novo-ind-meta').value.trim();
+  const periodo = document.getElementById('novo-ind-periodo').value;
+  if (!indPilarNovo || !nome || !atual || !meta) return;
+  const data = { pilar: indPilarNovo, nome, valor_atual: atual, meta, periodo, data: today() };
+  const saved = await sbInsert('indicadores', data);
+  const ind = saved ? {...data, id: saved.id} : {...data, id: 'local_'+Date.now()};
+  indicadores.unshift(ind);
+  save('gp_indicadores', indicadores);
+  document.getElementById('novo-ind-nome').value = '';
+  document.getElementById('novo-ind-atual').value = '';
+  document.getElementById('novo-ind-meta').value = '';
+  renderIndicadores();
+}
+
+async function delIndicador(id) {
+  await sbDelete('indicadores', id).catch(()=>{});
+  indicadores = indicadores.filter(i => String(i.id) !== String(id));
+  save('gp_indicadores', indicadores);
+  renderIndicadores();
+}
+
+function renderIndicadores() {
+  renderIndPilarGrid();
+  renderIndFiltroChips();
+  const lista = indFiltroPilar ? indicadores.filter(i=>i.pilar===indFiltroPilar) : indicadores;
+  document.getElementById('ind-empty').style.display = lista.length ? 'none' : '';
+  document.getElementById('ind-list').innerHTML = lista.map(i => {
+    const pilar = PILARES.find(p=>p.key===i.pilar);
+    const cor = pilar ? pilar.cor : '#64748b';
+    return `<div class="colab-item">
+      <div style="width:40px;height:40px;border-radius:10px;background:${cor}18;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${cor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+      <div style="flex:1">
+        <div class="colab-name">${i.nome}</div>
+        <div class="colab-meta">${pilar ? pilar.label : ''} · ${i.periodo||''} · Atual: ${i.valor_atual} · Meta: ${i.meta}</div>
+      </div>
+      <button class="btn-delete" data-id="${i.id}" onclick="delIndicador(this.dataset.id)">${SVG.trash}</button>
+    </div>`;
+  }).join('');
 }
 
 async function delReuniao(id) {
