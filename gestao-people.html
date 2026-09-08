@@ -121,6 +121,13 @@ textarea.inp{resize:vertical;min-height:80px}
 .colab-item{display:flex;align-items:center;gap:12px;padding:14px 4px;border-bottom:1px solid #f1f5f9}
 .colab-name{font-weight:700;color:#0f172a;font-size:15px}
 .colab-meta{font-size:12px;color:#94a3b8;margin-top:2px}
+.colab-contact{font-size:12px;color:#64748b;margin-top:2px;display:flex;align-items:center;gap:4px}
+.colab-actions{display:flex;align-items:center;gap:2px}
+.btn-edit{background:none;border:none;color:#94a3b8;padding:4px 8px}
+
+/* Colaborador form (cadastro/edicao) */
+.colab-form{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px}
+.colab-form label{font-size:12px;font-weight:700;color:#64748b;margin-bottom:-4px}
 
 /* Empty */
 .empty{text-align:center;padding:48px 24px;background:#fff;border-radius:14px;border:1.5px solid #e2e8f0;color:#94a3b8}
@@ -628,8 +635,13 @@ textarea.inp{resize:vertical;min-height:80px}
   <div id="v-colaboradores" class="view">
     <div class="page-title">Equipe</div>
     <div class="page-sub" id="equipe-sub">0 colaboradores</div>
-    <div class="add-row">
-      <input class="inp" id="novo-colab" placeholder="Nome do colaborador..." onkeydown="if(event.key==='Enter')addColab()">
+    <div class="colab-form">
+      <label>Nome completo *</label>
+      <input class="inp" id="novo-colab-nome" placeholder="Nome completo do colaborador...">
+      <label>WhatsApp</label>
+      <input class="inp" id="novo-colab-whats" type="tel" placeholder="(11) 91234-5678">
+      <label>E-mail</label>
+      <input class="inp" id="novo-colab-email" type="email" placeholder="nome@exemplo.com" onkeydown="if(event.key==='Enter')addColab()">
       <button class="btn-add" onclick="addColab()">Adicionar</button>
     </div>
     <div id="colab-list"></div>
@@ -762,6 +774,16 @@ async function sbDelete(table, id) {
   return r.ok;
 }
 
+// Busca colaboradores com whatsapp/email; se as colunas ainda nao existirem
+// no banco (antes de rodar o SQL de migracao), cai de volta para so o nome.
+async function sbGetColaboradores() {
+  const r = await fetch(`${SB_URL}/rest/v1/colaboradores?select=nome,whatsapp,email&order=nome.asc`, {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  });
+  if (r.ok) return await r.json();
+  return await sbGet('colaboradores', '&select=nome&order=nome.asc');
+}
+
 // ── DATA (local cache + Supabase sync) ────────────────────────────────────────
 // localStorage como cache local para resposta imediata
 const load = k => { try { return JSON.parse(localStorage.getItem(k)) || [] } catch { return [] } };
@@ -774,13 +796,19 @@ let solicitacoes  = load('gp_solicit');
 let feedbacks     = load('gp_feedbacks');
 let q12avaliacoes = load('gp_q12');
 
+// Dados de contato (WhatsApp/e-mail) por colaborador — sincronizados com o Supabase
+// (colunas whatsapp/email na tabela "colaboradores") e cacheados localmente.
+const loadMeta = k => { try { return JSON.parse(localStorage.getItem(k)) || {} } catch { return {} } };
+let colabsMeta = loadMeta('gp_colabs_meta');
+function saveColabsMeta() { save('gp_colabs_meta', colabsMeta); }
+
 // Carrega dados do Supabase e atualiza o app
 async function syncFromSupabase() {
   mostrarSyncStatus('Sincronizando...');
   try {
     const [rc, cl, rp, sl, fb, q12] = await Promise.all([
       sbGet('reunioes'),
-      sbGet('colaboradores', '&select=nome&order=nome.asc'),
+      sbGetColaboradores(),
       sbGet('rapidos'),
       sbGet('solicitacoes'),
       sbGet('feedbacks'),
@@ -788,12 +816,15 @@ async function syncFromSupabase() {
     ]);
     reunioes      = rc.map(r => ({...r, id: r.id, temas: r.temas||[], assinaturas: r.assinaturas||[]}));
     colabs        = cl.map(c => c.nome);
+    colabsMeta    = {};
+    cl.forEach(c => { colabsMeta[c.nome] = { whatsapp: c.whatsapp || '', email: c.email || '' }; });
     rapidos       = rp.map(r => ({...r, assinaturas: r.assinaturas||[]}));
     solicitacoes  = sl;
     feedbacks     = fb.map(f => ({...f, areas: f.areas||[]}));
     q12avaliacoes = q12.map(a => ({...a, respostas: a.respostas||{}, scores: a.scores||{}}));
     // Atualiza cache local
     save('gp_reunioes', reunioes); save('gp_colabs', colabs);
+    saveColabsMeta();
     save('gp_rapidos', rapidos);   save('gp_solicit', solicitacoes);
     save('gp_feedbacks', feedbacks); save('gp_q12', q12avaliacoes);
     mostrarSyncStatus('');
@@ -851,6 +882,9 @@ const SVG = {
   check: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
   arr: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
   clock: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  edit: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  phone: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
+  mail: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
 };
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
@@ -1354,11 +1388,18 @@ function renderColabs() {
     const badge = qtd===0
       ? '<span class="tag tag-orange">Pendente</span>'
       : '<span class="tag tag-green">'+SVG.check+'</span>';
+    const meta = colabsMeta[c] || {};
+    const contatos = (meta.whatsapp ? '<div class="colab-contact">'+SVG.phone+' '+meta.whatsapp+'</div>' : '')
+      + (meta.email ? '<div class="colab-contact">'+SVG.mail+' '+meta.email+'</div>' : '');
+    const nomeAttr = c.replace(/"/g,'&quot;');
     return '<div class="colab-item">'
       + avatar(c,40)
-      + '<div style="flex:1"><div class="colab-name">'+c+'</div><div class="colab-meta">'+(qtd===1?'1 reuniao registrada':qtd+' reunioes registradas')+'</div></div>'
+      + '<div style="flex:1"><div class="colab-name">'+c+'</div><div class="colab-meta">'+(qtd===1?'1 reuniao registrada':qtd+' reunioes registradas')+'</div>'+contatos+'</div>'
       + badge
-      + '<button class="btn-delete" data-nome="'+c.replace(/"/g,'&quot;')+'" onclick="delColab(this.dataset.nome)">'+SVG.trash+'</button>'
+      + '<div class="colab-actions">'
+      + '<button class="btn-edit" data-nome="'+nomeAttr+'" onclick="abrirEditarColab(this.dataset.nome)">'+SVG.edit+'</button>'
+      + '<button class="btn-delete" data-nome="'+nomeAttr+'" onclick="delColab(this.dataset.nome)">'+SVG.trash+'</button>'
+      + '</div>'
       + '</div>';
   }).join('');
 }
@@ -1421,13 +1462,22 @@ function setStatus(id, newStatus) {
 }
 
 async function addColab() {
-  const inp = document.getElementById('novo-colab');
-  const nome = inp.value.trim();
+  const inpNome  = document.getElementById('novo-colab-nome');
+  const inpWhats = document.getElementById('novo-colab-whats');
+  const inpEmail = document.getElementById('novo-colab-email');
+  const nome  = inpNome.value.trim();
+  const whats = inpWhats.value.trim();
+  const email = inpEmail.value.trim();
   if (!nome || colabs.includes(nome)) return;
-  await sbInsert('colaboradores', { nome });
+  const inserted = await sbInsert('colaboradores', { nome, whatsapp: whats || null, email: email || null });
+  if (!inserted) await sbInsert('colaboradores', { nome }); // fallback se as colunas ainda nao existirem
   colabs = [...colabs, nome].sort();
   save('gp_colabs', colabs);
-  inp.value='';
+  if (whats || email) {
+    colabsMeta[nome] = { whatsapp: whats, email: email };
+    saveColabsMeta();
+  }
+  inpNome.value=''; inpWhats.value=''; inpEmail.value='';
   renderColabs();
 }
 
@@ -1437,7 +1487,76 @@ async function delColab(nome) {
   });
   colabs = colabs.filter(c=>c!==nome);
   save('gp_colabs', colabs);
+  delete colabsMeta[nome];
+  saveColabsMeta();
   renderColabs();
+}
+
+let editColabAtual = null;
+
+function abrirEditarColab(nome) {
+  editColabAtual = nome;
+  const meta = colabsMeta[nome] || {};
+  document.getElementById('edit-colab-nome').value  = nome;
+  document.getElementById('edit-colab-whats').value = meta.whatsapp || '';
+  document.getElementById('edit-colab-email').value = meta.email || '';
+  document.getElementById('modal-editar-colab').style.display = 'flex';
+}
+
+function fecharEditarColab() {
+  document.getElementById('modal-editar-colab').style.display = 'none';
+  editColabAtual = null;
+}
+
+async function salvarEditarColab() {
+  if (!editColabAtual) return;
+  const nomeAntigo = editColabAtual;
+  const nomeNovo  = document.getElementById('edit-colab-nome').value.trim();
+  const whats     = document.getElementById('edit-colab-whats').value.trim();
+  const email     = document.getElementById('edit-colab-email').value.trim();
+  if (!nomeNovo) return;
+  if (nomeNovo !== nomeAntigo && colabs.includes(nomeNovo)) {
+    alert('Ja existe um colaborador com esse nome.');
+    return;
+  }
+
+  if (nomeNovo !== nomeAntigo) {
+    // Atualiza no Supabase (nao ha coluna de rename direta pelo esquema atual, entao ajusta via nome)
+    await fetch(`${SB_URL}/rest/v1/colaboradores?nome=eq.${encodeURIComponent(nomeAntigo)}`, {
+      method: 'PATCH',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome: nomeNovo, whatsapp: whats || null, email: email || null })
+    }).catch(()=>{});
+
+    // Atualiza a lista local de colaboradores
+    colabs = colabs.map(c => c === nomeAntigo ? nomeNovo : c).sort();
+    save('gp_colabs', colabs);
+
+    // Propaga o novo nome para todos os registros que referenciam o colaborador
+    reunioes.forEach(r => { if (r.colaborador === nomeAntigo) r.colaborador = nomeNovo; });
+    save('gp_reunioes', reunioes);
+    q12avaliacoes.forEach(a => { if (a.colaborador === nomeAntigo) a.colaborador = nomeNovo; });
+    save('gp_q12', q12avaliacoes);
+    solicitacoes.forEach(s => { if (s.quem === nomeAntigo) s.quem = nomeNovo; });
+    save('gp_solicit', solicitacoes);
+
+    // Move os dados de contato para a nova chave
+    colabsMeta[nomeNovo] = { whatsapp: whats, email: email };
+    delete colabsMeta[nomeAntigo];
+  } else {
+    await fetch(`${SB_URL}/rest/v1/colaboradores?nome=eq.${encodeURIComponent(nomeAntigo)}`, {
+      method: 'PATCH',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ whatsapp: whats || null, email: email || null })
+    }).catch(()=>{});
+    colabsMeta[nomeNovo] = { whatsapp: whats, email: email };
+  }
+  saveColabsMeta();
+
+  fecharEditarColab();
+  renderColabs();
+  renderHistorico();
+  renderDashboard();
 }
 
 async function delReuniao(id) {
@@ -2345,6 +2464,31 @@ syncFromSupabase().catch(e => console.error('Sync error:', e));
   </div>
 </div>
 
+
+<!-- MODAL EDITAR COLABORADOR -->
+<div id="modal-editar-colab" style="display:none;position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.5);align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 20px 32px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="font-size:17px;font-weight:800;color:#0f172a">Editar colaborador</div>
+      <button onclick="fecharEditarColab()" style="background:none;border:none;font-size:22px;color:#94a3b8;cursor:pointer">×</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div>
+        <label style="font-size:12px;font-weight:700;color:#64748b">Nome completo *</label>
+        <input class="inp" id="edit-colab-nome" placeholder="Nome completo do colaborador...">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:#64748b">WhatsApp</label>
+        <input class="inp" id="edit-colab-whats" type="tel" placeholder="(11) 91234-5678">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:#64748b">E-mail</label>
+        <input class="inp" id="edit-colab-email" type="email" placeholder="nome@exemplo.com">
+      </div>
+    </div>
+    <button class="btn-primary" style="margin-top:18px" onclick="salvarEditarColab()">Salvar alteracoes</button>
+  </div>
+</div>
 
 <!-- MODAL ASSINATURA -->
 <div id="modal-assinatura" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:flex-end;justify-content:center">
