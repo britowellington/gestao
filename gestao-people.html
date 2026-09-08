@@ -151,8 +151,15 @@ textarea.inp{resize:vertical;min-height:80px}
 .check-tab.on{background:#0f172a;color:#fff;border-color:#0f172a}
 .check-item-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9}
 .check-item-txt{flex:1;font-size:14px;color:#0f172a}
-.check-exec-row{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid #f1f5f9}
-.check-exec-row input[type=checkbox]{width:20px;height:20px;margin-top:1px;accent-color:#0f172a;flex-shrink:0}
+.check-exec-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px}
+.check-exec-titulo{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:10px}
+.term-track{display:flex;gap:6px}
+.term-seg{flex:1;border:1.5px solid #e2e8f0;background:#f8fafc;border-radius:10px;padding:10px 4px;font-size:11px;font-weight:700;color:#94a3b8;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.term-seg.on-insatisfatorio{background:#fef2f2;border-color:#ef4444;color:#b91c1c}
+.term-seg.on-satisfatorio{background:#fffbeb;border-color:#f59e0b;color:#b45309}
+.term-seg.on-otimo{background:#f0fdf4;border-color:#22c55e;color:#15803d}
+.check-obs-toggle{background:none;border:none;color:#64748b;font-size:12px;font-weight:700;padding:8px 0 0;cursor:pointer}
+.check-obs-box{margin-top:8px}
 .check-progress-track{height:8px;background:#f1f5f9;border-radius:8px;overflow:hidden}
 .check-progress-fill{height:100%;background:#0f172a;border-radius:8px}
 .check-hist-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:10px}
@@ -690,10 +697,6 @@ textarea.inp{resize:vertical;min-height:80px}
     <div class="sec-title">Executar checklist de hoje</div>
     <div id="check-exec-empty" class="empty" style="display:none"><div style="font-size:36px;margin-bottom:10px;opacity:.3">📋</div><div>Nenhum item cadastrado ainda. Adicione os pontos que voce quer acompanhar abaixo.</div></div>
     <div id="check-exec-list"></div>
-    <div class="field" id="check-exec-obs-field" style="display:none">
-      <label>Observacoes (opcional)</label>
-      <textarea class="inp" id="check-exec-obs" rows="2" placeholder="Algo que precisa de atencao..."></textarea>
-    </div>
     <button class="btn-primary" id="check-exec-btn" style="display:none" onclick="salvarChecklistExec()">Concluir checklist</button>
 
     <!-- Itens (cadastro/edicao) -->
@@ -1097,6 +1100,7 @@ function avatar(nome, size=40) {
 }
 function fmtDate(iso) { return iso ? iso.split('-').reverse().join('/') : ''; }
 function today() { return new Date().toISOString().split('T')[0]; }
+function agoraHora() { const d = new Date(); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
 function isAtrasada(s) {
   if (!s.prazo || s.status === 'concluida' || s.status === 'cancelada') return false;
   const hoje = new Date(); hoje.setHours(0,0,0,0);
@@ -1900,31 +1904,67 @@ async function delChecklistItem(id) {
 function renderChecklistExec() {
   const itens = itensDoTipo(checklistTipoAtual);
   document.getElementById('check-exec-empty').style.display = itens.length ? 'none' : '';
-  document.getElementById('check-exec-obs-field').style.display = itens.length ? '' : 'none';
   document.getElementById('check-exec-btn').style.display = itens.length ? '' : 'none';
-  document.getElementById('check-exec-list').innerHTML = itens.map(i => `
-    <label class="check-exec-row">
-      <input type="checkbox" data-id="${i.id}" ${checklistExecState[i.id] ? 'checked' : ''} onchange="checklistExecState['${i.id}']=this.checked">
-      <span class="check-item-txt">${i.texto}</span>
-    </label>`).join('');
+  const NIVEIS = [
+    { key: 'insatisfatorio', label: 'Insatisfatorio' },
+    { key: 'satisfatorio',   label: 'Satisfatorio' },
+    { key: 'otimo',          label: 'Otimo' },
+  ];
+  document.getElementById('check-exec-list').innerHTML = itens.map(i => {
+    const st = checklistExecState[i.id] || { status: null, obs: '' };
+    const temObs = !!st.obs;
+    return `<div class="check-exec-card">
+      <div class="check-exec-titulo">${i.texto}</div>
+      <div class="term-track">
+        ${NIVEIS.map(n => `<button type="button" class="term-seg${st.status===n.key?' on-'+n.key:''}" onclick="setChecklistStatus('${i.id}','${n.key}')">${n.label}</button>`).join('')}
+      </div>
+      <button type="button" class="check-obs-toggle" id="check-obs-toggle-${i.id}" onclick="toggleChecklistObs('${i.id}')">${temObs ? 'Editar observacao' : '+ observacao'}</button>
+      <div class="check-obs-box" id="check-obs-box-${i.id}" style="display:${temObs ? '' : 'none'}">
+        <textarea class="inp" rows="2" placeholder="O que precisa de atencao..." oninput="setChecklistObs('${i.id}', this.value)">${st.obs || ''}</textarea>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setChecklistStatus(id, status) {
+  const atual = checklistExecState[id] || { status: null, obs: '' };
+  atual.status = atual.status === status ? null : status; // toca de novo no mesmo nivel desmarca
+  checklistExecState[id] = atual;
+  renderChecklistExec();
+}
+
+function toggleChecklistObs(id) {
+  const box = document.getElementById('check-obs-box-' + id);
+  const abrir = box.style.display === 'none';
+  box.style.display = abrir ? '' : 'none';
+  document.getElementById('check-obs-toggle-' + id).textContent = abrir ? 'Ocultar observacao' : ((checklistExecState[id] && checklistExecState[id].obs) ? 'Editar observacao' : '+ observacao');
+  if (abrir) box.querySelector('textarea').focus();
+}
+
+function setChecklistObs(id, valor) {
+  const atual = checklistExecState[id] || { status: null, obs: '' };
+  atual.obs = valor;
+  checklistExecState[id] = atual;
 }
 
 async function salvarChecklistExec() {
   const itens = itensDoTipo(checklistTipoAtual);
   if (!itens.length) return;
-  const itensSnapshot = itens.map(i => ({ texto: i.texto, feito: !!checklistExecState[i.id] }));
-  const concluidos = itensSnapshot.filter(i => i.feito).length;
+  const itensSnapshot = itens.map(i => {
+    const st = checklistExecState[i.id] || { status: null, obs: '' };
+    return { texto: i.texto, status: st.status || null, obs: st.obs || '' };
+  });
+  const concluidos = itensSnapshot.filter(i => i.status).length;
   const execData = {
-    tipo: checklistTipoAtual, data: today(), itens: itensSnapshot,
+    tipo: checklistTipoAtual, data: today(), hora: agoraHora(), itens: itensSnapshot,
     concluidos, total: itensSnapshot.length,
-    observacoes: document.getElementById('check-exec-obs').value.trim()
   };
-  const saved = await sbInsert('checklist_execucoes', execData);
+  let saved = await sbInsert('checklist_execucoes', execData);
+  if (!saved) saved = await sbInsert('checklist_execucoes', { tipo: checklistTipoAtual, data: today(), itens: itensSnapshot, concluidos, total: itensSnapshot.length }); // fallback se a coluna 'hora' ainda nao existir
   const exec = saved ? {...execData, id: saved.id} : {...execData, id: 'local_'+Date.now()};
   checklistExec.unshift(exec);
   save('gp_checklist_exec', checklistExec);
   checklistExecState = {};
-  document.getElementById('check-exec-obs').value = '';
   renderChecklistExec();
   renderChecklistHist();
 }
@@ -1932,16 +1972,25 @@ async function salvarChecklistExec() {
 function renderChecklistHist() {
   const lista = checklistExec.filter(e => e.tipo === checklistTipoAtual);
   document.getElementById('check-hist-empty').style.display = lista.length ? 'none' : '';
+  const CORES = { otimo: '#22c55e', satisfatorio: '#f59e0b', insatisfatorio: '#ef4444' };
+  const LABELS = { otimo: 'Otimo', satisfatorio: 'Satisfatorio', insatisfatorio: 'Insatisfatorio' };
   document.getElementById('check-hist-list').innerHTML = lista.map(e => {
     const pct = e.total ? Math.round(e.concluidos/e.total*100) : 0;
     const cor = pct === 100 ? '#16a34a' : pct >= 50 ? '#d97706' : '#dc2626';
+    const contagem = { otimo: 0, satisfatorio: 0, insatisfatorio: 0 };
+    (e.itens || []).forEach(it => { if (it.status && contagem[it.status] !== undefined) contagem[it.status]++; });
+    const resumoNiveis = Object.keys(contagem).filter(k => contagem[k]).map(k =>
+      `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#64748b"><span style="width:8px;height:8px;border-radius:50%;background:${CORES[k]};display:inline-block"></span>${contagem[k]} ${LABELS[k].toLowerCase()}</span>`
+    ).join('');
+    const obsItens = (e.itens || []).filter(it => it.obs);
     return `<div class="check-hist-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="font-weight:700;color:#0f172a;font-size:13px">${fmtDate(e.data)}</div>
-        <div style="font-size:12px;font-weight:700;color:${cor}">${e.concluidos}/${e.total} · ${pct}%</div>
+        <div style="font-weight:700;color:#0f172a;font-size:13px">${fmtDate(e.data)}${e.hora ? ' · '+e.hora : ''}</div>
+        <div style="font-size:12px;font-weight:700;color:${cor}">${e.concluidos}/${e.total} avaliados</div>
       </div>
       <div class="check-progress-track"><div class="check-progress-fill" style="width:${pct}%;background:${cor}"></div></div>
-      ${e.observacoes ? `<div style="font-size:13px;color:#64748b;margin-top:8px">${e.observacoes}</div>` : ''}
+      ${resumoNiveis ? `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">${resumoNiveis}</div>` : ''}
+      ${obsItens.length ? obsItens.map(it => `<div style="font-size:12px;color:#64748b;margin-top:6px"><b style="color:#0f172a">${it.texto}:</b> ${it.obs}</div>`).join('') : ''}
     </div>`;
   }).join('');
 }
