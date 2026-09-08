@@ -704,37 +704,51 @@ textarea.inp{resize:vertical;min-height:80px}
     <div class="page-title">Indicadores</div>
     <div class="page-sub">Metas e resultados dos 4 pilares</div>
 
+    <div class="check-tabs">
+      <button class="check-tab" id="ind-tab-cadastro" onclick="setIndTab('cadastro')">Cadastro</button>
+      <button class="check-tab" id="ind-tab-graficos" onclick="setIndTab('graficos')">Graficos</button>
+    </div>
+
     <div class="field">
       <label>Filtrar por pilar</label>
       <div class="tags" id="ind-filtro-chips"></div>
     </div>
 
-    <div class="colab-form">
-      <label>Pilar *</label>
-      <div class="origem-grid" id="ind-pilar-grid"></div>
-      <label>Nome do indicador *</label>
-      <input class="inp" id="novo-ind-nome" placeholder="Ex: Absenteismo, NPS, Churn...">
-      <div style="display:flex;gap:10px">
-        <div style="flex:1">
-          <label>Valor atual *</label>
-          <input class="inp" id="novo-ind-atual" type="text" inputmode="decimal" placeholder="Ex: 8%">
+    <!-- ABA CADASTRO -->
+    <div id="ind-view-cadastro">
+      <div class="colab-form">
+        <label>Pilar *</label>
+        <div class="origem-grid" id="ind-pilar-grid"></div>
+        <label>Nome do indicador *</label>
+        <input class="inp" id="novo-ind-nome" placeholder="Ex: Absenteismo, NPS, Churn...">
+        <div style="display:flex;gap:10px">
+          <div style="flex:1">
+            <label>Valor atual *</label>
+            <input class="inp" id="novo-ind-atual" type="text" inputmode="decimal" placeholder="Ex: 8%">
+          </div>
+          <div style="flex:1">
+            <label>Meta *</label>
+            <input class="inp" id="novo-ind-meta" type="text" inputmode="decimal" placeholder="Ex: 5%">
+          </div>
         </div>
-        <div style="flex:1">
-          <label>Meta *</label>
-          <input class="inp" id="novo-ind-meta" type="text" inputmode="decimal" placeholder="Ex: 5%">
-        </div>
+        <label>Periodo</label>
+        <select class="inp" id="novo-ind-periodo">
+          <option value="Semanal">Semanal</option>
+          <option value="Mensal" selected>Mensal</option>
+          <option value="Trimestral">Trimestral</option>
+        </select>
+        <button class="btn-add" onclick="addIndicador()">Adicionar indicador</button>
       </div>
-      <label>Periodo</label>
-      <select class="inp" id="novo-ind-periodo">
-        <option value="Semanal">Semanal</option>
-        <option value="Mensal" selected>Mensal</option>
-        <option value="Trimestral">Trimestral</option>
-      </select>
-      <button class="btn-add" onclick="addIndicador()">Adicionar indicador</button>
+
+      <div id="ind-list"></div>
+      <div id="ind-empty" class="empty" style="display:none"><div style="font-size:36px;margin-bottom:10px;opacity:.3">📊</div><div>Nenhum indicador cadastrado ainda.</div></div>
     </div>
 
-    <div id="ind-list"></div>
-    <div id="ind-empty" class="empty" style="display:none"><div style="font-size:36px;margin-bottom:10px;opacity:.3">📊</div><div>Nenhum indicador cadastrado ainda.</div></div>
+    <!-- ABA GRAFICOS -->
+    <div id="ind-view-graficos" style="display:none">
+      <div id="ind-graficos-empty" class="empty" style="display:none"><div style="font-size:36px;margin-bottom:10px;opacity:.3">📈</div><div>Cadastre indicadores na aba "Cadastro" para ver os graficos aqui.</div></div>
+      <div id="ind-graficos-container" style="margin-bottom:24px"></div>
+    </div>
   </div>
 
 </main>
@@ -984,7 +998,7 @@ function nav(id) {
   if (id === 'historico') renderHistorico();
   if (id === 'colaboradores') renderColabs();
   if (id === 'checklists') initChecklists();
-  if (id === 'indicadores') renderIndicadores();
+  if (id === 'indicadores') initIndicadores();
   if (id === 'rapido') renderRapidoHistorico();
   if (id === 'solicitacoes') { initSolicitForm(); renderKanban(); }
   if (id === 'feedbacks') renderFeedbacks();
@@ -1828,6 +1842,20 @@ function renderChecklistHist() {
 // ── INDICADORES (4 pilares) ────────────────────────────────────────────────────
 let indPilarNovo = '';
 let indFiltroPilar = '';
+let indTabAtual = 'cadastro';
+
+function initIndicadores() {
+  setIndTab(indTabAtual || 'cadastro');
+}
+
+function setIndTab(tab) {
+  indTabAtual = tab;
+  document.getElementById('ind-tab-cadastro').classList.toggle('on', tab==='cadastro');
+  document.getElementById('ind-tab-graficos').classList.toggle('on', tab==='graficos');
+  document.getElementById('ind-view-cadastro').style.display = tab==='cadastro' ? '' : 'none';
+  document.getElementById('ind-view-graficos').style.display = tab==='graficos' ? '' : 'none';
+  renderIndicadores();
+}
 
 function renderIndPilarGrid() {
   const pg = document.getElementById('ind-pilar-grid');
@@ -1885,6 +1913,7 @@ async function delIndicador(id) {
 function renderIndicadores() {
   renderIndPilarGrid();
   renderIndFiltroChips();
+  if (indTabAtual === 'graficos') { renderIndicadoresGraficos(); return; }
   const lista = indFiltroPilar ? indicadores.filter(i=>i.pilar===indFiltroPilar) : indicadores;
   document.getElementById('ind-empty').style.display = lista.length ? 'none' : '';
   document.getElementById('ind-list').innerHTML = lista.map(i => {
@@ -1901,6 +1930,57 @@ function renderIndicadores() {
       <button class="btn-delete" data-id="${i.id}" onclick="delIndicador(this.dataset.id)">${SVG.trash}</button>
     </div>`;
   }).join('');
+}
+
+// Extrai o primeiro numero de um texto livre (ex: "8%" -> 8, "R$ 15.000" -> 15000)
+function parseIndNum(str) {
+  if (str === undefined || str === null) return null;
+  let s = String(str).trim();
+  if (!s) return null;
+  // remove separador de milhar (ponto) quando seguido de 3 digitos, troca virgula decimal por ponto
+  s = s.replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.');
+  const m = s.match(/-?\d+(?:\.\d+)?/);
+  return m ? parseFloat(m[0]) : null;
+}
+
+function renderIndicadorChart(i) {
+  const pilar = PILARES.find(p=>p.key===i.pilar);
+  const cor = pilar ? pilar.cor : '#64748b';
+  const atualNum = parseIndNum(i.valor_atual);
+  const metaNum  = parseIndNum(i.meta);
+  if (atualNum === null || metaNum === null) {
+    return `<div class="check-hist-card">
+      <div style="font-weight:700;color:#0f172a;font-size:14px;margin-bottom:4px">${i.nome}</div>
+      <div style="font-size:13px;color:#64748b">Atual: ${i.valor_atual} · Meta: ${i.meta}</div>
+    </div>`;
+  }
+  const maxV = Math.max(atualNum, metaNum, 1);
+  const atualPct = Math.max(2, Math.min(100, atualNum/maxV*100));
+  const metaPct  = Math.max(2, Math.min(100, metaNum/maxV*100));
+  return `<div class="check-hist-card">
+    <div style="font-weight:700;color:#0f172a;font-size:14px;margin-bottom:10px">${i.nome}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <div style="width:42px;font-size:11px;color:#94a3b8;flex-shrink:0">Atual</div>
+      <div class="check-progress-track" style="flex:1"><div class="check-progress-fill" style="width:${atualPct}%;background:${cor}"></div></div>
+      <div style="width:58px;font-size:12px;font-weight:700;color:${cor};text-align:right;flex-shrink:0">${i.valor_atual}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:42px;font-size:11px;color:#94a3b8;flex-shrink:0">Meta</div>
+      <div class="check-progress-track" style="flex:1"><div class="check-progress-fill" style="width:${metaPct}%;background:#cbd5e1"></div></div>
+      <div style="width:58px;font-size:12px;font-weight:700;color:#64748b;text-align:right;flex-shrink:0">${i.meta}</div>
+    </div>
+  </div>`;
+}
+
+function renderIndicadoresGraficos() {
+  const lista = indFiltroPilar ? indicadores.filter(i=>i.pilar===indFiltroPilar) : indicadores;
+  document.getElementById('ind-graficos-empty').style.display = lista.length ? 'none' : '';
+  const porPilar = {};
+  lista.forEach(i => { (porPilar[i.pilar] = porPilar[i.pilar] || []).push(i); });
+  document.getElementById('ind-graficos-container').innerHTML = PILARES
+    .filter(p => porPilar[p.key] && porPilar[p.key].length)
+    .map(p => `<div class="sec-title" style="color:${p.cor}">${p.label}</div>${porPilar[p.key].map(renderIndicadorChart).join('')}`)
+    .join('');
 }
 
 async function delReuniao(id) {
