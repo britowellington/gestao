@@ -44,13 +44,15 @@ input,select,textarea{font-family:inherit}
 
 /* Dashboard por pilares */
 .pilar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.pilar-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px}
+.pilar-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .1s}
+.pilar-card:active{transform:scale(.97);background:#f8fafc}
 .pilar-card-head{display:flex;align-items:center;gap:6px;margin-bottom:8px}
 .pilar-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .pilar-card-label{font-size:13px;font-weight:700;color:#0f172a}
 .pilar-card-num{font-size:20px;font-weight:800;color:#0f172a;line-height:1}
 .pilar-card-sub{font-size:11px;color:#94a3b8;margin-top:4px}
-.atividade-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9}
+.atividade-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.atividade-row:active{background:#f8fafc}
 .atividade-row:last-child{border-bottom:none}
 .atividade-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .atividade-txt{font-size:13px;color:#0f172a}
@@ -280,7 +282,7 @@ textarea.inp{resize:vertical;min-height:80px}
 
     <div class="pilar-grid" id="d-pilar-grid"></div>
 
-    <div id="d-atrasadas-box" style="display:none" class="alert-box red">
+    <div id="d-atrasadas-box" style="display:none;cursor:pointer" class="alert-box red" onclick="nav('solicitacoes')">
       <div class="alert-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="alert-title red" id="d-atrasadas-txt"></span></div>
       <div class="tags" id="d-atrasadas-tags"></div>
     </div>
@@ -1401,6 +1403,7 @@ function renderDashboardPilares() {
     return a !== null && m !== null && a !== m;
   }).length;
 
+  const destinoPorPilar = { pessoas: 'historico', operacao: 'checklists', experiencia: 'feedbacks', resultado: 'indicadores' };
   const dados = [
     { pilar: PILARES[0], num: reunioes.length, sub: semR.length ? (semR.length + (semR.length>1?' pendentes':' pendente')) : 'reunioes registradas' },
     { pilar: PILARES[1], num: opNum, sub: opSub },
@@ -1409,7 +1412,7 @@ function renderDashboardPilares() {
   ];
 
   document.getElementById('d-pilar-grid').innerHTML = dados.map(d => `
-    <div class="pilar-card">
+    <div class="pilar-card" onclick="nav('${destinoPorPilar[d.pilar.key]}')">
       <div class="pilar-card-head">
         <div class="pilar-dot" style="background:${d.pilar.cor}"></div>
         <div class="pilar-card-label">${d.pilar.label}</div>
@@ -1421,19 +1424,32 @@ function renderDashboardPilares() {
 
 function buildAtividadeRecente() {
   const itens = [];
-  reunioes.forEach(r => itens.push({ pilar: 'pessoas', txt: '1:1 com ' + r.colaborador, data: r.data }));
-  rapidos.forEach(r => itens.push({ pilar: r.pilar || 'pessoas', txt: (r.assunto || 'Registro rapido').slice(0, 44), data: r.data }));
+  reunioes.forEach(r => itens.push({ pilar: 'pessoas', tipo: 'reuniao', txt: '1:1 com ' + r.colaborador, data: r.data }));
+  rapidos.forEach(r => itens.push({ pilar: r.pilar || 'pessoas', tipo: 'rapido', txt: (r.assunto || 'Registro rapido').slice(0, 44), data: r.data }));
   checklistExec.forEach(e => {
     const tipoLabel = e.tipo === 'limpeza' ? 'Limpeza' : 'Manutencao';
-    itens.push({ pilar: 'operacao', txt: `Checklist ${tipoLabel} · ${e.concluidos}/${e.total} concluido`, data: e.data });
+    itens.push({ pilar: 'operacao', tipo: 'checklist', extra: e.tipo, txt: `Checklist ${tipoLabel} · ${e.concluidos}/${e.total} concluido`, data: e.data });
   });
-  feedbacks.forEach(f => itens.push({ pilar: f.origem === 'aluno' ? 'experiencia' : 'pessoas', txt: 'Feedback: ' + (f.descricao || '').slice(0, 44), data: f.data }));
-  indicadores.forEach(i => { if (i.data) itens.push({ pilar: 'resultado', txt: i.nome + ' atualizado para ' + i.valor_atual, data: i.data }); });
+  feedbacks.forEach(f => itens.push({ pilar: f.origem === 'aluno' ? 'experiencia' : 'pessoas', tipo: 'feedback', txt: 'Feedback: ' + (f.descricao || '').slice(0, 44), data: f.data }));
+  indicadores.forEach(i => { if (i.data) itens.push({ pilar: 'resultado', tipo: 'indicador', txt: i.nome + ' atualizado para ' + i.valor_atual, data: i.data }); });
   solicitacoes.forEach(s => {
     const pilarKey = s.origem === 'aluno' ? 'experiencia' : (s.origem === 'operacao' ? 'operacao' : 'pessoas');
-    itens.push({ pilar: pilarKey, txt: 'Solicitacao: ' + (s.assunto || '').slice(0, 44), data: s.data });
+    itens.push({ pilar: pilarKey, tipo: 'solicitacao', txt: 'Solicitacao: ' + (s.assunto || '').slice(0, 44), data: s.data });
   });
   return itens.filter(i => i.data).sort((a, b) => b.data.localeCompare(a.data)).slice(0, 8);
+}
+
+const DESTINO_ATIVIDADE = { reuniao:'historico', rapido:'rapido', checklist:'checklists', feedback:'feedbacks', indicador:'indicadores', solicitacao:'solicitacoes' };
+function irParaAtividade(tipo, extra) {
+  if (tipo === 'checklist' && extra) checklistTipoAtual = extra;
+  const destino = DESTINO_ATIVIDADE[tipo];
+  if (destino) nav(destino);
+}
+
+function irRegistrarReuniao(nome) {
+  nav('nova');
+  const sel = document.getElementById('reun-colab');
+  if (sel) { sel.value = nome; checkReunBtn(); }
 }
 
 function renderDashboard() {
@@ -1449,7 +1465,7 @@ function renderDashboard() {
   // Sem reuniao
   const semR = (colabs||[]).filter(c=>!(reunioes||[]).find(r=>r.colaborador===c));
   const srb = document.getElementById('d-sem-reuniao-box');
-  if (semR.length) { srb.style.display=''; document.getElementById('d-sem-reuniao-tags').innerHTML = semR.map(c=>`<span class="tag tag-orange">${c}</span>`).join(''); }
+  if (semR.length) { srb.style.display=''; document.getElementById('d-sem-reuniao-tags').innerHTML = semR.map(c=>`<span class="tag tag-orange" style="cursor:pointer" data-nome="${c.replace(/"/g,'&quot;')}" onclick="irRegistrarReuniao(this.dataset.nome)">${c}</span>`).join(''); }
   else srb.style.display='none';
 
   // Atividade recente (unifica reunioes, rapidos, checklists, feedbacks, indicadores, solicitacoes)
@@ -1459,12 +1475,13 @@ function renderDashboard() {
     atvSec.style.display='';
     document.getElementById('d-atividade-list').innerHTML = atv.map(a => {
       const p = PILARES.find(x=>x.key===a.pilar) || {cor:'#94a3b8', label:''};
-      return `<div class="atividade-row">
+      return `<div class="atividade-row" onclick="irParaAtividade('${a.tipo}','${a.extra||''}')">
         <div class="atividade-dot" style="background:${p.cor}"></div>
         <div style="flex:1">
           <div class="atividade-txt">${a.txt}</div>
           <div class="atividade-meta">${p.label} · ${fmtDate(a.data)}</div>
         </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
       </div>`;
     }).join('');
   } else atvSec.style.display='none';
