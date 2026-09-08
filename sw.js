@@ -1,9 +1,9 @@
-const CACHE = 'gestao-v1';
+const CACHE = 'gestao-v3';
 const ASSETS = [
-  '/gestao-people.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  'gestao-people.html',
+  'manifest.json',
+  'icon-192.png',
+  'icon-512.png'
 ];
 
 self.addEventListener('install', e => {
