@@ -2446,9 +2446,10 @@ let recognition = null;
 let micAtivo = null; // id do campo ativo
 
 function toggleMic(fieldId, btn) {
-  // Se ja esta gravando nesse campo, para
+  // Se ja esta gravando nesse campo, para e restaura o botao imediatamente
   if (micAtivo === fieldId) {
     stopMic();
+    stopMicUI(fieldId, btn);
     return;
   }
   // Se estava gravando em outro campo, para primeiro
@@ -2521,11 +2522,12 @@ function toggleMic(fieldId, btn) {
 }
 
 function stopMic() {
+  micAtivo = null;
   if (recognition) {
     try { recognition.stop(); } catch(e) {}
     recognition = null;
   }
-  // UI cleanup feita no onend
+  // UI cleanup adicional feita no onend (para o caso de parada externa)
 }
 
 function stopMicUI(fieldId, btn) {
