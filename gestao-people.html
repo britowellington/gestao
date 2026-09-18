@@ -429,6 +429,7 @@ textarea.inp{resize:vertical;min-height:80px}
     <div class="field" id="reun-expect-wrap" style="display:none">
       <label>Minhas expectativas com voce</label>
       <div id="reun-expect-list"></div>
+      <button type="button" class="rq-add-btn" onclick="addReunExpect()">+ Adicionar expectativa</button>
     </div>
     <div class="field">
       <label>Temas abordados</label>
@@ -1017,7 +1018,7 @@ function mostrarSyncStatus(msg) {
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let rapCtx = '', rapSetor = '', rapPilar = '';
-let reunTipo = '', reunTemas = [], reunClima = '', reunPerguntas = [];
+let reunTipo = '', reunTemas = [], reunClima = '', reunPerguntas = [], reunExpect = [];
 let solOrigem = '';
 let fbTipo = '', fbOrigem = '', fbAreas = [];
 
@@ -1150,7 +1151,7 @@ function initReunForm() {
   const cg = document.getElementById('reun-clima-grid');
   cg.innerHTML = SENTIMENTOS.map(s=>`<button class="clima-btn" onclick="setClima(this,'${s.label}','${s.cor}')" style="color:${s.cor}">${s.icon}<span>${s.label}</span></button>`).join('');
   // Reset
-  reunTipo=''; reunTemas=[]; reunClima=''; reunPerguntas=[];
+  reunTipo=''; reunTemas=[]; reunClima=''; reunPerguntas=[]; reunExpect=[];
   ['reun-abordado','reun-acoes','reun-proximos'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('reun-guide-hint').style.display='none';
   document.getElementById('reun-perguntas-wrap').style.display='none';
@@ -1178,15 +1179,9 @@ function setReunTipo(btn, tipo) {
   renderReunPerguntas();
   document.getElementById('reun-perguntas-wrap').style.display = reunPerguntas.length ? '' : 'none';
 
-  const expectWrap = document.getElementById('reun-expect-wrap');
-  if (roteiro && roteiro.minhasExpectativas && roteiro.minhasExpectativas.length) {
-    document.getElementById('reun-expect-list').innerHTML = roteiro.minhasExpectativas.map(e =>
-      `<div class="rq-exp-row" style="border-left:3px solid ${roteiro.cor}"><div class="rq-exp-title">${e.t}</div><div class="rq-exp-dica">${e.d}</div></div>`
-    ).join('');
-    expectWrap.style.display = '';
-  } else {
-    expectWrap.style.display = 'none';
-  }
+  reunExpect = (roteiro && roteiro.minhasExpectativas) ? roteiro.minhasExpectativas.map(e => ({t: e.t, d: e.d, nota: ''})) : [];
+  renderReunExpect();
+  document.getElementById('reun-expect-wrap').style.display = reunExpect.length ? '' : 'none';
 
   document.getElementById('reun-abordado-label').textContent = reunPerguntas.length ? 'Resumo geral / outras observacoes (opcional)' : 'O que foi abordado';
   checkReunBtn();
@@ -1219,6 +1214,36 @@ function addReunPergunta() {
 function removeReunPergunta(i) {
   reunPerguntas.splice(i,1);
   renderReunPerguntas();
+}
+
+function renderReunExpect() {
+  const wrap = document.getElementById('reun-expect-list');
+  wrap.innerHTML = reunExpect.map((e,i) => `
+    <div class="rq-row">
+      <div class="rq-q-top">
+        <input class="rq-q-input" id="rqe-t-${i}" value="${escAttr(e.t)}" oninput="reunExpect[${i}].t=this.value" placeholder="Tema central">
+        <button type="button" class="rq-remove-btn" onclick="removeReunExpect(${i})" title="Remover expectativa">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <textarea class="inp" id="rqe-d-${i}" rows="2" placeholder="Descricao da expectativa..." style="margin-bottom:8px" oninput="reunExpect[${i}].d=this.value">${escAttr(e.d)}</textarea>
+      <div class="field-with-mic"><textarea class="inp textarea-mic" id="rqe-n-${i}" rows="2" placeholder="Particularidade para esta pessoa/setor (opcional)..." oninput="reunExpect[${i}].nota=this.value">${escAttr(e.nota)}</textarea><button class="mic-btn" onclick="toggleMic('rqe-n-${i}',this)" title="Gravar audio">${MIC_SVG_INNER}</button></div>
+      <div class="mic-status" id="mic-status-rqe-n-${i}">${MIC_STATUS_INNER}</div>
+    </div>`).join('');
+}
+
+function addReunExpect() {
+  reunExpect.push({t:'', d:'', nota:''});
+  renderReunExpect();
+  document.getElementById('reun-expect-wrap').style.display = '';
+  const idx = reunExpect.length - 1;
+  const el = document.getElementById('rqe-t-'+idx);
+  if (el) el.focus();
+}
+
+function removeReunExpect(i) {
+  reunExpect.splice(i,1);
+  renderReunExpect();
 }
 function toggleTema(btn, tema) {
   const t = tema || btn.dataset.tema;
@@ -1390,9 +1415,10 @@ async function salvarReuniao() {
   const data = document.getElementById('reun-data').value;
   if (!colab || !reunTipo || !reunClima) return;
   const perguntasRespostas = reunPerguntas.filter(q => q.p && q.p.trim()).map(q => ({p: q.p.trim(), r: q.r.trim()}));
-  const registro = { colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, perguntas_respostas: perguntasRespostas, assinaturas: [] };
+  const expectativas = reunExpect.filter(e => e.t && e.t.trim()).map(e => ({t: e.t.trim(), d: (e.d||'').trim(), nota: (e.nota||'').trim()}));
+  const registro = { colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, perguntas_respostas: perguntasRespostas, expectativas: expectativas, assinaturas: [] };
   let saved = await sbInsert('reunioes', registro);
-  if (!saved) saved = await sbInsert('reunioes', {colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: registro.abordado, acoes: registro.acoes, proximos: registro.proximos, assinaturas: []}); // fallback se a coluna 'perguntas_respostas' ainda nao existir
+  if (!saved) saved = await sbInsert('reunioes', {colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: registro.abordado, acoes: registro.acoes, proximos: registro.proximos, assinaturas: []}); // fallback se as colunas 'perguntas_respostas'/'expectativas' ainda nao existirem
   const regFinal = saved ? {...registro, id: saved.id} : {...registro, id: 'local_'+Date.now()};
   reunioes.unshift(regFinal);
   save('gp_reunioes', reunioes);
@@ -1650,6 +1676,7 @@ function renderReuniaoCard(r, expanded=false) {
     <div class="card-body${expanded?' open':''}" id="${bodyId}">
       ${r.temas&&r.temas.length?`<div class="tags" style="margin-bottom:14px">${r.temas.map(t=>`<span class="tag tag-blue">${t}</span>`).join('')}</div>`:''}
       ${r.perguntas_respostas&&r.perguntas_respostas.length?`<div class="info-label">Perguntas e respostas</div>${r.perguntas_respostas.map(q=>`<div class="rq-row" style="background:#f8fafc"><div class="rq-q-top" style="margin-bottom:${q.r?'6px':'0'}"><div style="font-weight:700;color:#0f172a;font-size:13.5px">${q.p}</div></div>${q.r?`<div class="info-text">${q.r}</div>`:''}</div>`).join('')}`:''}
+      ${r.expectativas&&r.expectativas.length?`<div class="info-label">Minhas expectativas registradas</div>${r.expectativas.map(e=>`<div class="rq-exp-row"><div class="rq-exp-title">${e.t}</div>${e.d?`<div class="rq-exp-dica" style="color:#64748b">${e.d}</div>`:''}${e.nota?`<div class="info-text" style="margin-top:4px">${e.nota}</div>`:''}</div>`).join('')}`:''}
       ${r.abordado?`<div class="info-label">${r.perguntas_respostas&&r.perguntas_respostas.length?'Resumo geral / outras observacoes':'O que foi abordado'}</div><div class="info-text">${r.abordado}</div>`:''}
       ${r.acoes?`<div class="info-label">Acoes combinadas</div><div class="info-text">${r.acoes}</div>`:''}
       ${r.proximos?`<div class="info-label">Proximos passos</div><div class="info-text">${r.proximos}</div>`:''}
