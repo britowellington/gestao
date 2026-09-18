@@ -99,6 +99,17 @@ input,select,textarea{font-family:inherit}
 .field label{display:block;font-size:14px;font-weight:700;color:#374151;margin-bottom:10px}
 .inp{width:100%;padding:13px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:16px;color:#0f172a;outline:none;background:#fff}
 .inp:focus{border-color:#0f172a}
+.rq-row{margin-bottom:14px;padding:14px;border:1.5px solid #e2e8f0;border-radius:10px;background:#fff}
+.rq-q-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px}
+.rq-q-input{flex:1;border:none;background:transparent;font-weight:700;font-size:14.5px;color:#0f172a;outline:none;padding:2px 0;border-bottom:1.5px dashed #e2e8f0;line-height:1.4}
+.rq-q-input:focus{border-bottom-color:#6366f1}
+.rq-remove-btn{background:none;border:none;color:#cbd5e1;cursor:pointer;padding:2px;flex-shrink:0}
+.rq-remove-btn:hover{color:#ef4444}
+.rq-add-btn{background:none;border:1.5px dashed #cbd5e1;color:#64748b;font-size:13px;font-weight:600;border-radius:10px;padding:12px;width:100%;cursor:pointer;text-align:center}
+.rq-add-btn:hover{border-color:#6366f1;color:#6366f1}
+.rq-exp-row{margin-bottom:10px;padding:12px 14px;border-radius:10px;background:#f8fafc;border:1px solid #eef2f7}
+.rq-exp-title{font-weight:700;color:#0f172a;font-size:13.5px;margin-bottom:2px}
+.rq-exp-dica{font-size:12.5px;color:#94a3b8;line-height:1.5;margin-bottom:8px}
 select.inp{appearance:auto}
 textarea.inp{resize:vertical;min-height:80px}
 
@@ -410,6 +421,15 @@ textarea.inp{resize:vertical;min-height:80px}
         </button>
       </div>
     </div>
+    <div class="field" id="reun-perguntas-wrap" style="display:none">
+      <label>Perguntas do roteiro</label>
+      <div id="reun-perguntas-list"></div>
+      <button type="button" class="rq-add-btn" onclick="addReunPergunta()">+ Adicionar pergunta</button>
+    </div>
+    <div class="field" id="reun-expect-wrap" style="display:none">
+      <label>Minhas expectativas com voce</label>
+      <div id="reun-expect-list"></div>
+    </div>
     <div class="field">
       <label>Temas abordados</label>
       <div class="tags" id="reun-temas-chips"></div>
@@ -418,8 +438,8 @@ textarea.inp{resize:vertical;min-height:80px}
       <label>Clima da conversa *</label>
       <div class="clima-grid" id="reun-clima-grid"></div>
     </div>
-    <div class="field">
-      <label>O que foi abordado</label>
+    <div class="field" id="reun-abordado-wrap">
+      <label id="reun-abordado-label">O que foi abordado</label>
       <div class="field-with-mic"><textarea class="inp textarea-mic" id="reun-abordado" rows="3" placeholder="Resumo da conversa..."></textarea><button class="mic-btn" onclick="toggleMic('reun-abordado',this)" title="Gravar audio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button></div>
       <div class="mic-status" id="mic-status-reun-abordado"><span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block"></span> Gravando... toque novamente para parar</div>
     </div>
@@ -997,7 +1017,7 @@ function mostrarSyncStatus(msg) {
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let rapCtx = '', rapSetor = '', rapPilar = '';
-let reunTipo = '', reunTemas = [], reunClima = '';
+let reunTipo = '', reunTemas = [], reunClima = '', reunPerguntas = [];
 let solOrigem = '';
 let fbTipo = '', fbOrigem = '', fbAreas = [];
 
@@ -1130,11 +1150,21 @@ function initReunForm() {
   const cg = document.getElementById('reun-clima-grid');
   cg.innerHTML = SENTIMENTOS.map(s=>`<button class="clima-btn" onclick="setClima(this,'${s.label}','${s.cor}')" style="color:${s.cor}">${s.icon}<span>${s.label}</span></button>`).join('');
   // Reset
-  reunTipo=''; reunTemas=[]; reunClima='';
+  reunTipo=''; reunTemas=[]; reunClima=''; reunPerguntas=[];
   ['reun-abordado','reun-acoes','reun-proximos'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('reun-guide-hint').style.display='none';
+  document.getElementById('reun-perguntas-wrap').style.display='none';
+  document.getElementById('reun-expect-wrap').style.display='none';
+  document.getElementById('reun-abordado-label').textContent='O que foi abordado';
   checkReunBtn();
 }
+
+function escAttr(s) {
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+const MIC_SVG_INNER = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
+const MIC_STATUS_INNER = '<span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block"></span> Gravando... toque novamente para parar';
 
 function setReunTipo(btn, tipo) {
   const t = tipo || btn.dataset.tipo;
@@ -1142,7 +1172,53 @@ function setReunTipo(btn, tipo) {
   btn.classList.add('on');
   reunTipo = t;
   document.getElementById('reun-guide-hint').style.display = (t && t !== 'Outro') ? '' : 'none';
+
+  const roteiro = ROTEIROS.find(r => r.tipo === t);
+  reunPerguntas = roteiro ? roteiro.perguntas.map(p => ({p: p.p, r: ''})) : [];
+  renderReunPerguntas();
+  document.getElementById('reun-perguntas-wrap').style.display = reunPerguntas.length ? '' : 'none';
+
+  const expectWrap = document.getElementById('reun-expect-wrap');
+  if (roteiro && roteiro.minhasExpectativas && roteiro.minhasExpectativas.length) {
+    document.getElementById('reun-expect-list').innerHTML = roteiro.minhasExpectativas.map(e =>
+      `<div class="rq-exp-row" style="border-left:3px solid ${roteiro.cor}"><div class="rq-exp-title">${e.t}</div><div class="rq-exp-dica">${e.d}</div></div>`
+    ).join('');
+    expectWrap.style.display = '';
+  } else {
+    expectWrap.style.display = 'none';
+  }
+
+  document.getElementById('reun-abordado-label').textContent = reunPerguntas.length ? 'Resumo geral / outras observacoes (opcional)' : 'O que foi abordado';
   checkReunBtn();
+}
+
+function renderReunPerguntas() {
+  const wrap = document.getElementById('reun-perguntas-list');
+  wrap.innerHTML = reunPerguntas.map((q,i) => `
+    <div class="rq-row">
+      <div class="rq-q-top">
+        <input class="rq-q-input" id="rq-q-${i}" value="${escAttr(q.p)}" oninput="reunPerguntas[${i}].p=this.value">
+        <button type="button" class="rq-remove-btn" onclick="removeReunPergunta(${i})" title="Remover pergunta">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="field-with-mic"><textarea class="inp textarea-mic" id="rq-r-${i}" rows="2" placeholder="O que a pessoa respondeu..." oninput="reunPerguntas[${i}].r=this.value">${escAttr(q.r)}</textarea><button class="mic-btn" onclick="toggleMic('rq-r-${i}',this)" title="Gravar audio">${MIC_SVG_INNER}</button></div>
+      <div class="mic-status" id="mic-status-rq-r-${i}">${MIC_STATUS_INNER}</div>
+    </div>`).join('');
+}
+
+function addReunPergunta() {
+  reunPerguntas.push({p:'', r:''});
+  renderReunPerguntas();
+  document.getElementById('reun-perguntas-wrap').style.display = '';
+  const idx = reunPerguntas.length - 1;
+  const el = document.getElementById('rq-q-'+idx);
+  if (el) el.focus();
+}
+
+function removeReunPergunta(i) {
+  reunPerguntas.splice(i,1);
+  renderReunPerguntas();
 }
 function toggleTema(btn, tema) {
   const t = tema || btn.dataset.tema;
@@ -1313,8 +1389,10 @@ async function salvarReuniao() {
   const colab = document.getElementById('reun-colab').value;
   const data = document.getElementById('reun-data').value;
   if (!colab || !reunTipo || !reunClima) return;
-  const registro = { colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, assinaturas: [] };
-  const saved = await sbInsert('reunioes', registro);
+  const perguntasRespostas = reunPerguntas.filter(q => q.p && q.p.trim()).map(q => ({p: q.p.trim(), r: q.r.trim()}));
+  const registro = { colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, perguntas_respostas: perguntasRespostas, assinaturas: [] };
+  let saved = await sbInsert('reunioes', registro);
+  if (!saved) saved = await sbInsert('reunioes', {colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: registro.abordado, acoes: registro.acoes, proximos: registro.proximos, assinaturas: []}); // fallback se a coluna 'perguntas_respostas' ainda nao existir
   const regFinal = saved ? {...registro, id: saved.id} : {...registro, id: 'local_'+Date.now()};
   reunioes.unshift(regFinal);
   save('gp_reunioes', reunioes);
@@ -1571,7 +1649,8 @@ function renderReuniaoCard(r, expanded=false) {
     </div>
     <div class="card-body${expanded?' open':''}" id="${bodyId}">
       ${r.temas&&r.temas.length?`<div class="tags" style="margin-bottom:14px">${r.temas.map(t=>`<span class="tag tag-blue">${t}</span>`).join('')}</div>`:''}
-      ${r.abordado?`<div class="info-label">O que foi abordado</div><div class="info-text">${r.abordado}</div>`:''}
+      ${r.perguntas_respostas&&r.perguntas_respostas.length?`<div class="info-label">Perguntas e respostas</div>${r.perguntas_respostas.map(q=>`<div class="rq-row" style="background:#f8fafc"><div class="rq-q-top" style="margin-bottom:${q.r?'6px':'0'}"><div style="font-weight:700;color:#0f172a;font-size:13.5px">${q.p}</div></div>${q.r?`<div class="info-text">${q.r}</div>`:''}</div>`).join('')}`:''}
+      ${r.abordado?`<div class="info-label">${r.perguntas_respostas&&r.perguntas_respostas.length?'Resumo geral / outras observacoes':'O que foi abordado'}</div><div class="info-text">${r.abordado}</div>`:''}
       ${r.acoes?`<div class="info-label">Acoes combinadas</div><div class="info-text">${r.acoes}</div>`:''}
       ${r.proximos?`<div class="info-label">Proximos passos</div><div class="info-text">${r.proximos}</div>`:''}
       ${r.assinaturas&&r.assinaturas.length?`<div style="margin-top:12px"><button class="assin-badge" data-col="reunioes" data-id="${r.id}" onclick="verAssinaturas(this.dataset.col,this.dataset.id)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ${r.assinaturas.length} assinatura${r.assinaturas.length>1?'s':''}</button></div>`:''}
