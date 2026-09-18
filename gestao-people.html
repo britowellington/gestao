@@ -195,6 +195,9 @@ textarea.inp{resize:vertical;min-height:80px}
 .rot-q{margin-bottom:14px;padding-left:12px;border-left:3px solid #ccc}
 .rot-q-text{font-weight:700;color:#0f172a;font-size:14px;margin-bottom:4px}
 .rot-q-dica{font-size:13px;color:#64748b;line-height:1.5}
+.rot-exp{margin-bottom:10px;padding:10px 12px;border-radius:8px;background:#f8fafc;border:1px solid #eef2f7}
+.rot-exp-text{font-weight:700;color:#0f172a;font-size:13.5px;margin-bottom:3px}
+.rot-exp-dica{font-size:13px;color:#64748b;line-height:1.5}
 
 
 /* KANBAN */
@@ -1086,7 +1089,7 @@ const STATUS_LIST = [
   {key:'cancelada', label:'Cancelada',     cor:'#94a3b8', bg:'#f8fafc', icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'},
 ];
 const ROTEIROS = [
-  {tipo:'1:1 Inicial (Mapeamento)',cor:'#6366f1',objetivo:'Ouvir, criar vinculo e mapear o terreno. Sem agenda pesada — a escuta e o produto.',abertura:'Explique o proposito: voce quer entender como cada pessoa esta, o que esta funcionando e o que pode melhorar. Diga que e uma conversa, nao uma avaliacao.',perguntas:[{p:'O que esta funcionando bem aqui?',d:'Entenda o que a pessoa valoriza. Ouca sem interromper.'},{p:'O que te trava no dia a dia?',d:'Identifique bloqueios operacionais, relacionais ou de lideranca.'},{p:'O que voce mudaria se pudesse?',d:'Abre espaco para ideias e frustracoes sem julgamento.'}],encerramento:'Agradeca a abertura. Informe que voce vai registrar os pontos e retomar em breve. Isso cria compromisso.'},
+  {tipo:'1:1 Inicial (Mapeamento)',cor:'#6366f1',objetivo:'Ouvir, criar vinculo e mapear o terreno. Sem agenda pesada — a escuta e o produto.',abertura:'Explique o proposito: voce quer entender como cada pessoa esta, o que esta funcionando e o que pode melhorar. Diga que e uma conversa, nao uma avaliacao.',perguntas:[{p:'O que voce espera de mim como lider?',d:'Entenda o que a pessoa precisa da sua lideranca — direcao, apoio, autonomia.'},{p:'O que voce espera da empresa?',d:'Mapeia expectativas sobre crescimento, reconhecimento, condicoes de trabalho.'},{p:'O que esta funcionando bem aqui?',d:'Entenda o que a pessoa valoriza. Ouca sem interromper.'},{p:'O que te trava no dia a dia?',d:'Identifique bloqueios operacionais, relacionais ou de lideranca.'},{p:'O que voce mudaria se pudesse?',d:'Abre espaco para ideias e frustracoes sem julgamento.'}],minhasExpectativas:[{t:'Comunicacao aberta e direta',d:'Espero que me procure cedo quando algo travar — antes que vire problema, nao depois.'},{t:'Padrao de atendimento',d:'O aluno sente a energia que a equipe entrega. Isso nao e negociavel, independente do dia.'},{t:'Proatividade',d:'Trazer solucao junto com o problema. Eu apoio, mas nao quero ser o unico a enxergar o que precisa mudar.'},{t:'Postura com o time',d:'Respeito e colaboracao entre colegas, mesmo em desacordo. Divergencia se resolve com dialogo, nao com ruido.'}],encerramento:'Agradeca a abertura. Informe que voce vai registrar os pontos e retomar em breve. Isso cria compromisso.'},
   {tipo:'1:1 de Acompanhamento',cor:'#0ea5e9',objetivo:'Verificar como a pessoa esta, acompanhar acoes combinadas e fortalecer o vinculo continuo.',abertura:'Retome algo da conversa anterior. Mostrar que voce lembrou gera confianca e atencao genuina.',perguntas:[{p:'Como voce esta desde a nossa ultima conversa?',d:'Pergunta aberta. De espaco para o que vier — profissional ou pessoal.'},{p:'As acoes que combinamos avancaram? O que travou?',d:'Acompanhe sem cobrar. O objetivo e destravar, nao pressionar.'},{p:'Tem algo que voce precisa de mim agora?',d:'Mostra que voce esta disponivel e posiciona voce como apoio.'}],encerramento:'Defina 1 ou 2 proximos passos concretos. Anote e retome na proxima conversa.'},
   {tipo:'Feedback de Performance',cor:'#10b981',objetivo:'Reconhecer avancos, apontar pontos de desenvolvimento e alinhar expectativas com clareza e respeito.',abertura:'Contextualize o momento. Diga que o objetivo e desenvolvimento, nao punicao. Comece pedindo a autoavaliacao da pessoa.',perguntas:[{p:'Como voce avalia sua performance neste periodo?',d:'A autoavaliacao revela percepcao de si mesmo. Ouca antes de falar.'},{p:'Qual foi seu maior resultado? E seu maior desafio?',d:'Equilibra o positivo com o que precisa evoluir.'},{p:'O que voce faria diferente? Como posso te apoiar nisso?',d:'Direciona para acao futura e posiciona o gestor como parceiro.'}],encerramento:'Apresente sua visao de forma direta e respeitosa. Combine metas claras e um plano de acompanhamento.'},
   {tipo:'Alinhamento de Metas',cor:'#f59e0b',objetivo:'Garantir que a pessoa entenda o que se espera dela, por que, e como vai ser medido o sucesso.',abertura:'Explique o contexto das metas: de onde vieram, o que a academia esta buscando. Conecte o individual ao coletivo.',perguntas:[{p:'O que voce entendeu sobre as metas deste periodo?',d:'Verifica a compreensao real — nao assuma que todo mundo entendeu igual.'},{p:'O que te preocupa ou parece dificil de alcançar?',d:'Identifica obstaculos antecipadamente.'},{p:'O que voce precisa para chegar la?',d:'Abre espaco para pedir recursos, treinamento, clareza ou apoio.'}],encerramento:'Confirme as metas por escrito. Combine como e quando vao revisar o progresso juntos.'},
@@ -1711,7 +1714,7 @@ function renderRoteiros() {
           <div style="width:40px;height:40px;border-radius:10px;background:${r.cor}18;display:flex;align-items:center;justify-content:center;flex-shrink:0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${r.cor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
           </div>
-          <div><div style="font-weight:700;color:#0f172a;font-size:14px">${r.tipo}</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">${r.perguntas.length} perguntas-guia</div></div>
+          <div><div style="font-weight:700;color:#0f172a;font-size:14px">${r.tipo}</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">${r.perguntas.length} perguntas-guia${r.minhasExpectativas ? ' · ' + r.minhasExpectativas.length + ' expectativas' : ''}</div></div>
         </div>
         <span id="chev-rot-${i}">${SVG.chevD}</span>
       </div>
@@ -1724,6 +1727,10 @@ function renderRoteiros() {
         <div style="font-size:14px;color:#374151;line-height:1.55;margin-bottom:18px">${r.abertura}</div>
         <div class="info-label">Perguntas-guia</div>
         ${r.perguntas.map((p,j)=>`<div class="rot-q" style="border-left-color:${r.cor}"><div class="rot-q-text">${j+1}. ${p.p}</div><div class="rot-q-dica">${p.d}</div></div>`).join('')}
+        ${r.minhasExpectativas ? `
+        <div class="info-label">Minhas expectativas com voce</div>
+        ${r.minhasExpectativas.map(e=>`<div class="rot-exp" style="border-left:3px solid ${r.cor}"><div class="rot-exp-text">${e.t}</div><div class="rot-exp-dica">${e.d}</div></div>`).join('')}
+        ` : ''}
         <div class="info-label">Como encerrar</div>
         <div style="font-size:14px;color:#374151;line-height:1.55;padding-bottom:4px">${r.encerramento}</div>
       </div>
