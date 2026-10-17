@@ -135,6 +135,23 @@ textarea.inp{resize:vertical;min-height:80px}
 .btn-add{background:#0f172a;color:#fff;border:none;border-radius:10px;padding:13px 18px;font-size:15px;font-weight:700;white-space:nowrap}
 .btn-delete{background:none;border:none;color:#cbd5e1;padding:4px 8px}
 .btn-link{background:none;border:none;color:#ef4444;font-size:13px;display:flex;align-items:center;gap:4px;margin-top:14px;padding:0}
+.cv-hand{display:block;margin:0 auto 6px;max-width:300px;width:100%;height:auto}
+.cv-tip{cursor:pointer}
+.cv-prog{text-align:center;font-size:13px;font-weight:600;color:#475569;margin-bottom:12px}
+.cv-row{border:1.5px solid #e2e8f0;border-radius:10px;background:#fff;margin-bottom:8px;overflow:hidden}
+.cv-row.ok{border-color:#86efac;background:#f0fdf4}
+.cv-hd{display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer}
+.cv-let{width:28px;height:28px;border-radius:50%;background:#0d9488;color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cv-row.ok .cv-let{background:#16a34a}
+.cv-nm{font-weight:700;font-size:14px;color:#0f172a;flex:1}
+.cv-bd{display:none;padding:0 12px 12px 50px;font-size:13.5px;color:#374151;line-height:1.5}
+.cv-row.open .cv-bd{display:block}
+.cv-q{font-weight:600;margin-bottom:6px}
+.cv-fr{background:#f1f5f9;border-radius:8px;padding:8px 10px;margin-bottom:6px;color:#334155}
+.cv-dica{color:#64748b;font-size:12.5px;margin-bottom:8px}
+.cv-mark{border:1.5px solid #0d9488;background:#fff;color:#0d9488;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700}
+.cv-row.ok .cv-mark{background:#16a34a;border-color:#16a34a;color:#fff}
+.cv-aviso{background:#fff7ed;border:1.5px solid #fed7aa;color:#c2410c;border-radius:10px;padding:10px 12px;font-size:13px;margin:4px 0 14px}
 .btn-guide{display:flex;align-items:center;gap:5px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:7px 12px;margin-top:10px;font-size:13px;color:#4f46e5;font-weight:600}
 .btn-link-blue{background:none;border:none;color:#3b82f6;font-size:14px;padding:0}
 
@@ -307,6 +324,10 @@ textarea.inp{resize:vertical;min-height:80px}
       <div class="alert-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="alert-title red" id="d-atrasadas-txt"></span></div>
       <div class="tags" id="d-atrasadas-tags"></div>
     </div>
+    <div id="d-retomada-box" style="display:none;cursor:pointer" class="alert-box red" onclick="nav('historico')">
+      <div class="alert-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="alert-title red" id="d-retomada-txt"></span></div>
+      <div class="tags" id="d-retomada-tags"></div>
+    </div>
     <div id="d-sem-reuniao-box" style="display:none" class="alert-box">
       <div class="alert-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="alert-title">Sem reuniao ainda</span></div>
       <div class="tags" id="d-sem-reuniao-tags"></div>
@@ -430,6 +451,26 @@ textarea.inp{resize:vertical;min-height:80px}
       <label>Minhas expectativas com voce</label>
       <div id="reun-expect-list"></div>
       <button type="button" class="rq-add-btn" onclick="addReunExpect()">+ Adicionar expectativa</button>
+    </div>
+    <div class="field" id="cv-wrap" style="display:none">
+      <label>Preparo: a mao do VALOR</label>
+      <div id="cv-hand"></div>
+      <div class="cv-prog" id="cv-prog"></div>
+      <div id="cv-rows"></div>
+      <div class="cv-aviso" id="cv-aviso" style="display:none"></div>
+      <label style="margin-top:6px">Registro da conversa</label>
+      <div class="field-with-mic"><textarea class="inp textarea-mic" id="cv-fato" rows="2" placeholder="O fato, em uma frase, sem interpretar a intencao..."></textarea><button class="mic-btn" onclick="toggleMic('cv-fato',this)" title="Gravar audio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button></div>
+      <div class="mic-status" id="mic-status-cv-fato"><span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block"></span> Gravando... toque novamente para parar</div>
+      <div class="cv-dica" style="margin:4px 0 12px">Fato (Literal): o que voce viu e ouviu.</div>
+      <div class="field-with-mic"><textarea class="inp textarea-mic" id="cv-sent" rows="2" placeholder="Quando voce ___, eu me senti ___" ></textarea><button class="mic-btn" onclick="toggleMic('cv-sent',this)" title="Gravar audio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button></div>
+      <div class="mic-status" id="mic-status-cv-sent"><span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block"></span> Gravando... toque novamente para parar</div>
+      <div class="cv-dica" style="margin:4px 0 12px">Como me senti (Verdadeira), falando por mim e sobre um comportamento (Assertiva).</div>
+      <div class="field-with-mic"><textarea class="inp textarea-mic" id="cv-resp" rows="2" placeholder="Como a pessoa enxergou a situacao..."></textarea><button class="mic-btn" onclick="toggleMic('cv-resp',this)" title="Gravar audio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button></div>
+      <div class="mic-status" id="mic-status-cv-resp"><span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block"></span> Gravando... toque novamente para parar</div>
+      <div class="cv-dica" style="margin:4px 0 12px">Escuta: o que a pessoa respondeu.</div>
+      <label>Data de retomada</label>
+      <input type="date" class="inp" id="cv-retomada">
+      <div class="cv-dica" style="margin-top:4px">Quando voce vai olhar de novo. Gera aviso na tela Geral quando vencer.</div>
     </div>
     <div class="field">
       <label>Temas abordados</label>
@@ -1061,7 +1102,7 @@ const SVG = {
 };
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
-const TIPOS = ['Alinhamento de Expectativas','1:1 de Acompanhamento','Feedback de Performance','Alinhamento de Metas','Resolucao de Conflito','Reconhecimento','Outro'];
+const TIPOS = ['Alinhamento de Expectativas','1:1 de Acompanhamento','Feedback de Performance','Alinhamento de Metas','Resolucao de Conflito','Reconhecimento','Conversa de Valor','Outro'];
 const TEMAS_LIST = ['Motivacao','Desempenho','Relacionamento com equipe','Processos e rotina','Crescimento profissional','Saude / bem-estar','Sugestoes de melhoria','Feedback ao gestor'];
 const SETORES = ['Recepcao','Instrutores','Limpeza','Administrativo','Personal','Outro setor'];
 const SENTIMENTOS = [
@@ -1116,7 +1157,77 @@ const ROTEIROS = [
   {tipo:'Alinhamento de Metas',cor:'#f59e0b',objetivo:'Garantir que a pessoa entenda o que se espera dela, por que, e como vai ser medido o sucesso.',abertura:'Explique o contexto das metas: de onde vieram, o que a academia esta buscando. Conecte o individual ao coletivo.',perguntas:[{p:'O que voce entendeu sobre as metas deste periodo?',d:'Verifica a compreensao real — nao assuma que todo mundo entendeu igual.'},{p:'O que te preocupa ou parece dificil de alcançar?',d:'Identifica obstaculos antecipadamente.'},{p:'O que voce precisa para chegar la?',d:'Abre espaco para pedir recursos, treinamento, clareza ou apoio.'}],encerramento:'Confirme as metas por escrito. Combine como e quando vao revisar o progresso juntos.'},
   {tipo:'Resolucao de Conflito',cor:'#ef4444',objetivo:'Criar espaco seguro para ouvir os dois lados, entender a raiz do problema e construir uma saida juntos.',abertura:'Seja neutro. Nao tome partido antes de ouvir. Diga que seu objetivo e resolver, nao julgar.',perguntas:[{p:'Me conta o que aconteceu do seu ponto de vista.',d:'Ouca sem interromper. Deixe a pessoa terminar antes de qualquer comentario.'},{p:'Como voce se sentiu com isso? O que mais te incomodou?',d:'Valida a emocao sem necessariamente validar o comportamento.'},{p:'O que voce precisaria para conseguir trabalhar bem com essa situacao?',d:'Direciona para solucao.'}],encerramento:'Combine um proximo passo concreto. Se necessario, agende uma conversa com as partes juntas. Documente tudo.'},
   {tipo:'Reconhecimento',cor:'#8b5cf6',objetivo:'Reforcar comportamentos positivos de forma especifica, genuina e memoravel.',abertura:'Seja direto e especifico. Reconhecimento vago tem menos impacto do que reconhecimento preciso.',perguntas:[{p:'Voce sabe por que quis falar com voce hoje?',d:'Cria expectativa positiva e deixa a pessoa se situar no contexto.'},{p:'Como voce se sentiu quando fez/entregou isso?',d:'Conecta o reconhecimento a experiencia interna da pessoa.'},{p:'O que te ajudou a chegar nesse resultado?',d:'Valoriza o esforco e os recursos da pessoa, nao so o talento.'}],encerramento:'Reafirme o impacto daquele comportamento para a equipe e para a academia. Seja especifico e sincero.'},
+  {tipo:'Conversa de Valor',cor:'#0d9488',objetivo:'Resolver conflitos e alinhar expectativas cedo, para que as duas pessoas saiam melhores da conversa do que entraram. Metodo VALOR, de Roberto Tranjan (Metanoia).',abertura:'Diga que quer conversar para os dois sairem melhores. Va direto ao fato, sem rodeio e sem ataque pessoal. Fale por voce, nao em nome de terceiros.',perguntas:[{p:'Verdadeira: vou falar do que eu senti, por mim?',d:'Use "Quando voce ___, eu me senti ___". Sem fofoca, sem julgamento e sem falar pelos outros.'},{p:'Assertiva: sei qual comportamento quero tratar?',d:'Fale de uma situacao especifica, nao do jeito de ser da pessoa. "Naquela situacao voce agiu assim", e nao "voce e assim".'},{p:'Literal: tenho o fato concreto?',d:'Fatos objetivos, sem interpretar a intencao do outro e sem achismo.'},{p:'Oportuna: e o momento certo?',d:'Logo apos o ocorrido, antes de virar ressentimento. Nao na hora da raiva: espere a cabeca esfriar, sem deixar passar tempo demais.'},{p:'Relevante: isso importa e minha intencao e boa?',d:'Trate do que pesa na convivencia, no trabalho ou no resultado. A conversa tem que ser boa para voce e para o outro.'},{p:'Escuta: como voce enxergou essa situacao?',d:'Pergunte e ouca ate o fim. So feche o combinado depois de ouvir.'}],encerramento:'Combine o que muda a partir de agora, com acao, prazo e responsavel. Marque a data de retomada para confirmar se virou pratica.'},
 ];
+
+// ── CONVERSA DE VALOR (metodo VALOR) ──────────────────────────────────────────
+const CV_TIPO = 'Conversa de Valor';
+const CV_DEDOS = [
+  {k:'V', nome:'Verdadeira', q:'Vou falar do que eu senti, por mim, sem trazer terceiros?', f:'Quando voce ___, eu me senti ___.', d:'Sem fofoca, sem julgamento, sem falar em nome dos outros.'},
+  {k:'A', nome:'Assertiva', q:'Sei qual comportamento especifico quero tratar?', f:'Naquela situacao, voce agiu assim.', d:'Fale do comportamento, nao do jeito de ser da pessoa. Evite "voce e assim".'},
+  {k:'L', nome:'Literal', q:'Tenho o fato concreto, sem interpretar a intencao da pessoa?', f:'O que eu vi e ouvi foi ___.', d:'Fatos objetivos. Sem achismo e sem fantasia sobre o que o outro quis dizer.'},
+  {k:'O', nome:'Oportuna', q:'E o momento certo? Ainda esta fresco e eu estou de cabeca fria?', f:'', d:'Logo apos o ocorrido, antes de virar ressentimento. Nao na hora da raiva.'},
+  {k:'R', nome:'Relevante', q:'Isso importa para a convivencia ou o resultado? Minha intencao e boa para mim e para a pessoa?', f:'', d:'Evite picuinha. A conversa precisa ser boa para os dois lados.'},
+];
+let cvChecks = {}, cvAberto = '';
+
+function cvHandSvg() {
+  // k, base x, base y, comprimento, angulo
+  const F = [['V',96,176,66,-14],['A',127,168,104,-5],['L',158,164,120,0],['O',189,168,104,5],['R',214,204,74,52]];
+  const dedos = F.map(([k,x,y,len,a]) => {
+    const ok = !!cvChecks[k];
+    return `<g class="cv-tip" onclick="cvAbrir('${k}')" transform="translate(${x} ${y}) rotate(${a})">
+      <rect x="-15" y="${-len}" width="30" height="${len+16}" rx="15" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>
+      <circle cx="0" cy="${-len+17}" r="14" fill="${ok?'#16a34a':'#fff'}" stroke="${ok?'#16a34a':'#0d9488'}" stroke-width="2.5"/>
+      <text x="0" y="${-len+22}" text-anchor="middle" font-size="15" font-weight="800" fill="${ok?'#fff':'#0d9488'}" transform="rotate(${-a} 0 ${-len+17})" font-family="system-ui,sans-serif">${k}</text>
+    </g>`;
+  }).join('');
+  return `<svg class="cv-hand" viewBox="0 34 290 232" role="img" aria-label="Mao com os cinco criterios do VALOR">
+    <rect x="78" y="150" width="136" height="112" rx="44" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>
+    ${dedos}
+    <rect x="86" y="152" width="120" height="30" rx="12" fill="#f1f5f9"/>
+  </svg>`;
+}
+
+function renderCV() {
+  document.getElementById('cv-hand').innerHTML = cvHandSvg();
+  const n = CV_DEDOS.filter(d => cvChecks[d.k]).length;
+  document.getElementById('cv-prog').textContent = n + ' de 5 prontos';
+  document.getElementById('cv-rows').innerHTML = CV_DEDOS.map(d => `
+    <div class="cv-row${cvChecks[d.k]?' ok':''}${cvAberto===d.k?' open':''}" id="cv-row-${d.k}">
+      <div class="cv-hd" onclick="cvAbrir('${d.k}')"><div class="cv-let">${d.k}</div><div class="cv-nm">${d.nome}</div></div>
+      <div class="cv-bd">
+        <div class="cv-q">${d.q}</div>
+        ${d.f ? `<div class="cv-fr">${d.f}</div>` : ''}
+        <div class="cv-dica">${d.d}</div>
+        <button type="button" class="cv-mark" onclick="cvToggle('${d.k}')">${cvChecks[d.k] ? 'Pronto (toque para desmarcar)' : 'Marcar como pronto'}</button>
+      </div>
+    </div>`).join('');
+  const falta = CV_DEDOS.filter(d => !cvChecks[d.k]).map(d => d.nome);
+  const av = document.getElementById('cv-aviso');
+  if (n > 0 && falta.length) { av.style.display = ''; av.textContent = 'Ainda pendente: ' + falta.join(', ') + '. Se algum for "nao", ajuste antes de entrar na conversa.'; }
+  else av.style.display = 'none';
+}
+function cvAbrir(k) { cvAberto = (cvAberto === k) ? '' : k; renderCV(); const el = document.getElementById('cv-row-'+k); if (el && cvAberto === k) el.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+function cvToggle(k) { cvChecks[k] = !cvChecks[k]; renderCV(); }
+function cvAtivo() { return reunTipo === CV_TIPO; }
+function cvReset() {
+  cvChecks = {}; cvAberto = '';
+  ['cv-fato','cv-sent','cv-resp','cv-retomada'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('cv-wrap').style.display = 'none';
+}
+function cvVencida(r) {
+  return r.tipo === CV_TIPO && r.retomada && !(r.valor_check && r.valor_check.feita) && r.retomada <= today();
+}
+async function cvRetomadaFeita(id) {
+  const r = reunioes.find(x => String(x.id) === String(id));
+  if (!r) return;
+  r.valor_check = {...(r.valor_check||{}), feita: true};
+  save('gp_reunioes', reunioes);
+  if (!String(id).startsWith('local_')) await sbUpdate('reunioes', id, {valor_check: r.valor_check});
+  renderHistorico();
+}
+
 
 // ── UTILS ─────────────────────────────────────────────────────────────────────
 function avatar(nome, size=40) {
@@ -1157,6 +1268,7 @@ function initReunForm() {
   document.getElementById('reun-perguntas-wrap').style.display='none';
   document.getElementById('reun-expect-wrap').style.display='none';
   document.getElementById('reun-abordado-label').textContent='O que foi abordado';
+  cvReset();
   checkReunBtn();
 }
 
@@ -1175,7 +1287,10 @@ function setReunTipo(btn, tipo) {
   document.getElementById('reun-guide-hint').style.display = (t && t !== 'Outro') ? '' : 'none';
 
   const roteiro = ROTEIROS.find(r => r.tipo === t);
-  reunPerguntas = roteiro ? roteiro.perguntas.map(p => ({p: p.p, r: ''})) : [];
+  const ehCV = (t === CV_TIPO);
+  document.getElementById('cv-wrap').style.display = ehCV ? '' : 'none';
+  if (ehCV) { cvChecks = {}; cvAberto = ''; renderCV(); }
+  reunPerguntas = (roteiro && !ehCV) ? roteiro.perguntas.map(p => ({p: p.p, r: ''})) : [];
   renderReunPerguntas();
   document.getElementById('reun-perguntas-wrap').style.display = reunPerguntas.length ? '' : 'none';
 
@@ -1183,7 +1298,7 @@ function setReunTipo(btn, tipo) {
   renderReunExpect();
   document.getElementById('reun-expect-wrap').style.display = reunExpect.length ? '' : 'none';
 
-  document.getElementById('reun-abordado-label').textContent = reunPerguntas.length ? 'Resumo geral / outras observacoes (opcional)' : 'O que foi abordado';
+  document.getElementById('reun-abordado-label').textContent = (reunPerguntas.length || ehCV) ? 'Resumo geral / outras observacoes (opcional)' : 'O que foi abordado';
   checkReunBtn();
 }
 
@@ -1414,10 +1529,26 @@ async function salvarReuniao() {
   const colab = document.getElementById('reun-colab').value;
   const data = document.getElementById('reun-data').value;
   if (!colab || !reunTipo || !reunClima) return;
-  const perguntasRespostas = reunPerguntas.filter(q => q.p && q.p.trim()).map(q => ({p: q.p.trim(), r: q.r.trim()}));
+  let perguntasRespostas = reunPerguntas.filter(q => q.p && q.p.trim()).map(q => ({p: q.p.trim(), r: q.r.trim()}));
+  let cvExtra = {};
+  if (cvAtivo()) {
+    const v = id => document.getElementById(id).value.trim();
+    perguntasRespostas = [
+      {p: 'Fato (Literal)', r: v('cv-fato')},
+      {p: 'Como me senti (Verdadeira)', r: v('cv-sent')},
+      {p: 'O que a pessoa respondeu (Escuta)', r: v('cv-resp')},
+    ].filter(q => q.r);
+    cvExtra = { valor_check: {...cvChecks}, retomada: document.getElementById('cv-retomada').value || null };
+  }
   const expectativas = reunExpect.filter(e => e.t && e.t.trim()).map(e => ({t: e.t.trim(), d: (e.d||'').trim(), nota: (e.nota||'').trim()}));
-  const registro = { colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, perguntas_respostas: perguntasRespostas, expectativas: expectativas, assinaturas: [] };
+  const registro = { colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, perguntas_respostas: perguntasRespostas, expectativas: expectativas, assinaturas: [], ...cvExtra };
   let saved = await sbInsert('reunioes', registro);
+  // fallback 1: sem as colunas da Conversa de Valor ('retomada'/'valor_check'), a data vai junto no texto de proximos
+  if (!saved && cvAtivo()) {
+    const { valor_check, retomada, ...semCV } = registro;
+    if (retomada) semCV.proximos = (semCV.proximos ? semCV.proximos + ' | ' : '') + 'Retomada em ' + fmtDate(retomada);
+    saved = await sbInsert('reunioes', semCV);
+  }
   if (!saved) saved = await sbInsert('reunioes', {colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: registro.abordado, acoes: registro.acoes, proximos: registro.proximos, assinaturas: []}); // fallback se as colunas 'perguntas_respostas'/'expectativas' ainda nao existirem
   const regFinal = saved ? {...registro, id: saved.id} : {...registro, id: 'local_'+Date.now()};
   reunioes.unshift(regFinal);
@@ -1535,7 +1666,7 @@ function renderDashboardPilares() {
 
 function buildAtividadeRecente() {
   const itens = [];
-  reunioes.forEach(r => itens.push({ pilar: 'pessoas', tipo: 'reuniao', txt: '1:1 com ' + r.colaborador, data: r.data }));
+  reunioes.forEach(r => itens.push({ pilar: 'pessoas', tipo: 'reuniao', txt: (r.tipo === 'Conversa de Valor' ? 'Conversa de Valor com ' : '1:1 com ') + r.colaborador, data: r.data }));
   rapidos.forEach(r => itens.push({ pilar: r.pilar || 'pessoas', tipo: 'rapido', txt: (r.assunto || 'Registro rapido').slice(0, 44), data: r.data }));
   checklistExec.forEach(e => {
     const tipoLabel = e.tipo === 'limpeza' ? 'Limpeza' : 'Manutencao';
@@ -1573,6 +1704,14 @@ function renderDashboard() {
     document.getElementById('d-atrasadas-txt').textContent = atrasadas.length + (atrasadas.length>1 ? ' solicitacoes atrasadas' : ' solicitacao atrasada');
     document.getElementById('d-atrasadas-tags').innerHTML = atrasadas.map(s=>`<span class="tag tag-red">${s.assunto.slice(0,30)}${s.assunto.length>30?'...':''}</span>`).join('');
   } else ab.style.display='none';
+  // Retomadas vencidas (Conversa de Valor)
+  const vencCV = (reunioes||[]).filter(cvVencida);
+  const rvb = document.getElementById('d-retomada-box');
+  if (vencCV.length) {
+    rvb.style.display='';
+    document.getElementById('d-retomada-txt').textContent = vencCV.length + (vencCV.length>1 ? ' retomadas de Conversa de Valor' : ' retomada de Conversa de Valor');
+    document.getElementById('d-retomada-tags').innerHTML = vencCV.map(r=>`<span class="tag tag-red">${r.colaborador} · ${fmtDate(r.retomada)}</span>`).join('');
+  } else rvb.style.display='none';
   // Sem reuniao
   const semR = (colabs||[]).filter(c=>!(reunioes||[]).find(r=>r.colaborador===c));
   const srb = document.getElementById('d-sem-reuniao-box');
@@ -1680,6 +1819,8 @@ function renderReuniaoCard(r, expanded=false) {
       ${r.abordado?`<div class="info-label">${r.perguntas_respostas&&r.perguntas_respostas.length?'Resumo geral / outras observacoes':'O que foi abordado'}</div><div class="info-text">${r.abordado}</div>`:''}
       ${r.acoes?`<div class="info-label">Acoes combinadas</div><div class="info-text">${r.acoes}</div>`:''}
       ${r.proximos?`<div class="info-label">Proximos passos</div><div class="info-text">${r.proximos}</div>`:''}
+      ${r.tipo==='Conversa de Valor'&&r.valor_check?`<div class="info-label">Preparo VALOR</div><div class="tags">${CV_DEDOS.map(d=>`<span class="tag ${r.valor_check[d.k]?'tag-blue':'tag-orange'}">${d.nome}${r.valor_check[d.k]?'':' (pendente)'}</span>`).join('')}</div>`:''}
+      ${r.tipo==='Conversa de Valor'&&r.retomada?`<div class="info-label">Retomada</div><div class="info-text">${fmtDate(r.retomada)}${r.valor_check&&r.valor_check.feita?' · feita':''}</div>${cvVencida(r)?`<button class="cv-mark" style="margin-top:8px" data-id="${r.id}" onclick="cvRetomadaFeita(this.dataset.id)">Marcar retomada como feita</button>`:''}`:''}
       ${r.assinaturas&&r.assinaturas.length?`<div style="margin-top:12px"><button class="assin-badge" data-col="reunioes" data-id="${r.id}" onclick="verAssinaturas(this.dataset.col,this.dataset.id)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> ${r.assinaturas.length} assinatura${r.assinaturas.length>1?'s':''}</button></div>`:''}
       <button class="btn-link" data-id="${r.id}" onclick="delReuniao(this.dataset.id)">${SVG.trashRed} Excluir registro</button>
     </div>
