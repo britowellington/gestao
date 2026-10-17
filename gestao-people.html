@@ -301,6 +301,96 @@ textarea.inp{resize:vertical;min-height:80px}
 /* Misc */
 .hint{font-size:12px;color:#94a3b8;text-align:center;margin-top:10px}
 .icon-box{display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0}
+/* TEM Pessoas */
+.tp-tabs{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 16px;padding:0 16px 6px;scrollbar-width:none}
+.tp-tabs::-webkit-scrollbar{display:none}
+.tp-tab{flex:0 0 auto;padding:9px 14px;border:1.5px solid #e2e8f0;border-radius:20px;background:#fff;font-size:13px;font-weight:600;color:#475569}
+.tp-tab.on{background:#0f172a;border-color:#0f172a;color:#fff}
+.tp-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px}
+.tp-card h3{font-size:14px;font-weight:800;color:#0f172a;margin-bottom:8px}
+.tp-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tp-kpi{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px}
+.tp-kpi b{display:block;font-size:24px;font-weight:800;color:#0f172a;line-height:1.1}
+.tp-kpi span{display:block;font-size:12px;color:#475569;margin-top:4px}
+.tp-kpi small{display:block;font-size:11px;color:#64748b;margin-top:2px}
+.tp-note{font-size:12.5px;color:#475569;line-height:1.5}
+.tp-warn{background:#fff7ed;border:1.5px solid #fed7aa;color:#9a3412;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.5;margin-bottom:12px}
+.tp-info{background:#eef2ff;border:1.5px solid #c7d2fe;color:#3730a3;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.5;margin-bottom:12px}
+.tp-empty{text-align:center;padding:26px 16px;color:#475569;font-size:14px;line-height:1.55}
+.tp-empty b{display:block;color:#0f172a;font-size:16px;margin-bottom:6px}
+.tp-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:20px;padding:3px 9px;background:#f1f5f9;color:#334155;margin-right:4px}
+.tp-badge.ok{background:#dcfce7;color:#166534}
+.tp-badge.warn{background:#ffedd5;color:#9a3412}
+.tp-badge.blue{background:#e0e7ff;color:#3730a3}
+.tp-dim{margin-bottom:14px}
+.tp-dim-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:#0f172a;margin-bottom:5px}
+.tp-dim-h span{font-weight:600}
+.tp-dim-h b{font-weight:800;white-space:nowrap}
+.tp-dim-h small{font-weight:600;color:#64748b}
+.tp-bar{height:10px;background:#eef2f7;border-radius:6px;overflow:hidden;margin-bottom:4px}
+.tp-bar i{display:block;height:100%;background:#4f46e5;border-radius:6px}
+.tp-dist{display:flex;height:24px;border-radius:6px;overflow:hidden;margin:6px 0 4px}
+.tp-dist span{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;min-width:0}
+.tp-leg{font-size:11.5px;color:#475569;line-height:1.6}
+.tp-sel{margin-bottom:12px}
+.tp-sel label{display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px}
+.tp-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9}
+.tp-row:last-child{border-bottom:none}
+.tp-row-n{font-size:14px;font-weight:600;color:#0f172a}
+.tp-row-s{font-size:12px;color:#64748b;margin-top:2px}
+.tp-btn{border:1.5px solid #0f172a;background:#fff;color:#0f172a;border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700}
+.tp-btn.pri{background:#0f172a;color:#fff}
+.tp-btn.sm{padding:6px 10px;font-size:12px}
+.tp-btn.danger{border-color:#dc2626;color:#dc2626}
+.tp-btn.wa{border-color:#16a34a;color:#166534}
+.tp-btn:disabled{opacity:.45}
+.tp-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.tp-sint{border-left:4px solid #4f46e5;background:#f8fafc;border-radius:0 10px 10px 0;padding:10px 12px;margin-bottom:10px}
+.tp-sint.int{border-left-color:#0d9488}
+.tp-sint.rec{border-left-color:#d97706}
+.tp-sint h4{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#475569;margin-bottom:4px}
+.tp-sint p,.tp-sint li{font-size:13.5px;color:#0f172a;line-height:1.55}
+.tp-sint ul{padding-left:18px}
+.tp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tp-chip{border:1.5px solid #cbd5e1;background:#fff;color:#334155;border-radius:20px;padding:6px 11px;font-size:12.5px;font-weight:600}
+.tp-chip.on{background:#4f46e5;border-color:#4f46e5;color:#fff}
+.tp-com{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.tp-com p{font-size:14px;color:#0f172a;line-height:1.5;white-space:pre-wrap}
+.tp-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tp-tbl th{background:#f1f5f9;color:#334155;text-align:left;padding:7px 6px;font-weight:700}
+.tp-tbl td{padding:7px 6px;border-bottom:1px solid #f1f5f9;color:#0f172a}
+.tp-scroll{overflow-x:auto}
+.tp-det summary{cursor:pointer;font-size:13px;font-weight:700;color:#334155;padding:6px 0}
+.tp-form label{display:block;font-size:12px;font-weight:700;color:#475569;margin:12px 0 4px}
+.tp-chk{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f1f5f9;font-size:14px;color:#0f172a}
+.tp-chk input{width:20px;height:20px;flex:0 0 auto}
+/* pesquisa do colaborador */
+.tpp{max-width:480px;margin:0 auto;padding:18px 16px 40px}
+.tpp h1{font-size:21px;font-weight:800;color:#0f172a;letter-spacing:-.3px;line-height:1.25}
+.tpp .sub{font-size:13px;color:#475569;margin:4px 0 16px}
+.tpp-prog{position:sticky;top:0;background:#f8fafc;padding:10px 0 8px;z-index:2}
+.tpp-prog .t{font-size:12px;font-weight:700;color:#334155;margin-bottom:5px}
+.tpp-q{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px}
+.tpp-q.ok{border-color:#a5b4fc}
+.tpp-q .n{font-size:12px;font-weight:700;color:#4f46e5;margin-bottom:3px}
+.tpp-q .x{font-size:15px;font-weight:600;color:#0f172a;line-height:1.45;margin-bottom:12px}
+.tpp-esc{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.tpp-esc button{min-height:54px;border:1.5px solid #cbd5e1;border-radius:10px;background:#f8fafc;color:#0f172a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 2px}
+.tpp-esc button b{font-size:17px;font-weight:800}
+.tpp-esc button span{font-size:9.5px;line-height:1.15;color:#475569;text-align:center}
+.tpp-esc button[aria-pressed="true"]{background:#4f46e5;border-color:#4f46e5;color:#fff}
+.tpp-esc button[aria-pressed="true"] span{color:#e0e7ff}
+.tpp-na{margin-top:8px;width:100%;min-height:40px;border:1.5px dashed #cbd5e1;border-radius:10px;background:#fff;color:#334155;font-size:13px;font-weight:600}
+.tpp-na[aria-pressed="true"]{background:#334155;border-color:#334155;color:#fff;border-style:solid}
+.tpp textarea{width:100%;min-height:96px;padding:12px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:16px;color:#0f172a;resize:vertical}
+.tpp .cnt{font-size:11px;color:#64748b;text-align:right;margin-top:3px}
+.tpp .go{width:100%;min-height:50px;border:none;border-radius:12px;background:#0f172a;color:#fff;font-size:16px;font-weight:800;margin-top:6px}
+.tpp .go:disabled{opacity:.4}
+.tpp .back{width:100%;min-height:46px;border:1.5px solid #0f172a;border-radius:12px;background:#fff;color:#0f172a;font-size:15px;font-weight:700;margin-top:10px}
+.tpp .priv{background:#eef2ff;border:1.5px solid #c7d2fe;border-radius:12px;padding:12px 14px;font-size:13.5px;color:#312e81;line-height:1.55;margin:14px 0}
+.tpp .rv{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #f1f5f9;font-size:13.5px;color:#0f172a}
+.tpp .rv b{white-space:nowrap}
+@media print{.hdr,.bnav,#menu-mais,.tp-tabs,.tp-noprint{display:none!important}.main{padding:0}body{max-width:none}}
 </style>
 </head>
 <body>
@@ -707,6 +797,14 @@ textarea.inp{resize:vertical;min-height:80px}
   </div>
 
   <!-- HISTORICO -->
+  <!-- TEM PESSOAS -->
+  <div id="v-tempessoas" class="view">
+    <div class="page-title">TEM Pessoas</div>
+    <div class="page-sub">Indicador de Experiência e Engajamento do Colaborador</div>
+    <div class="tp-tabs" id="tp-tabs" role="tablist" aria-label="Seções do TEM Pessoas"></div>
+    <div id="tp-body"></div>
+  </div>
+
   <div id="v-historico" class="view">
     <div class="page-title">Historico</div>
     <div class="page-sub" id="hist-sub">0 reunioes registradas</div>
@@ -880,6 +978,16 @@ textarea.inp{resize:vertical;min-height:80px}
       <div class="mais-label">
         <div class="mais-title">Q12 Gallup</div>
         <div class="mais-sub">Avaliacao de engajamento da equipe</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <button class="mais-item" id="nav-tempessoas" onclick="navMais('tempessoas')">
+      <div class="mais-icon" style="background:#eef2ff">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="mais-label">
+        <div class="mais-title">TEM Pessoas</div>
+        <div class="mais-sub">Experiência e engajamento da equipe</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
@@ -1083,6 +1191,7 @@ function nav(id) {
   if (id === 'solicitacoes') { initSolicitForm(); renderKanban(); }
   if (id === 'feedbacks') renderFeedbacks();
   if (id === 'q12') initQ12();
+  if (id === 'tempessoas') tpInit();
   if (id === 'nova') initReunForm();
   window.scrollTo(0,0);
 }
@@ -3323,7 +3432,7 @@ try {
 }
 
 // Sync com Supabase em background
-syncFromSupabase().catch(e => console.error('Sync error:', e));
+if (!new URLSearchParams(window.location.search).get('tptoken')) syncFromSupabase().catch(e => console.error('Sync error:', e));
 
 // Q12 link publico
 (function() {
@@ -3469,6 +3578,1006 @@ if ('serviceWorker' in navigator) {
       .catch(function(err) { console.log('SW erro:', err); });
   });
 }
+</script>
+<!-- TEM PESSOAS: pesquisa do colaborador (link individual) -->
+<div id="modal-tp-publico" style="display:none;position:fixed;inset:0;z-index:310;background:#f8fafc;overflow-y:auto"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// TEM PESSOAS | Indicador de Experiência e Engajamento do Colaborador
+// Ferramenta interna de diagnóstico, sujeita a testes e aprimoramento.
+// Perguntas originais desta aplicação. Não é o Q12, nem material oficial da Gallup.
+// ═══════════════════════════════════════════════════════════════════════════════
+const TP_VERSAO = 'v1';            // muda quando perguntas, escala ou dimensões mudam
+const TP_CRITERIO = 'agregada-v1'; // setorial e executivo: média agregada das respostas válidas
+const TP_LIMITE_PADRAO = 5;
+const TP_LIMITE_PISO = 3;
+const TP_MIN_TEMA = 2;             // tema só aparece em relatório coletivo se 2+ pessoas citaram
+
+// Única fonte de verdade: perguntas, escala, dimensões e perguntas abertas.
+// O mapeamento pergunta -> dimensão vive só em "dimensoes".
+const TP_CONFIG = {
+  versao: TP_VERSAO,
+  instrucao: 'Pense na sua experiência de trabalho na TEM e indique o quanto você concorda com cada afirmação. Não existem respostas certas ou erradas. O objetivo é compreender sua experiência e identificar oportunidades de melhoria.',
+  escala: [
+    { v: 5, t: 'Concordo totalmente' },
+    { v: 4, t: 'Concordo' },
+    { v: 3, t: 'Nem concordo nem discordo' },
+    { v: 2, t: 'Discordo' },
+    { v: 1, t: 'Discordo totalmente' }
+  ],
+  perguntas: [
+    { id: 'p1',  rotulo: 'Clareza de expectativas',     texto: 'Sei claramente o que se espera de mim no desempenho das minhas funções.' },
+    { id: 'p2',  rotulo: 'Recursos e condições',        texto: 'Tenho os recursos, equipamentos e condições necessários para realizar bem meu trabalho.' },
+    { id: 'p3',  rotulo: 'Uso dos pontos fortes',       texto: 'Tenho oportunidades de utilizar minhas principais habilidades e competências no dia a dia.' },
+    { id: 'p4',  rotulo: 'Reconhecimento',              texto: 'Sinto que minhas contribuições e meus bons resultados são reconhecidos.' },
+    { id: 'p5',  rotulo: 'Atenção e respeito',          texto: 'Percebo que minha liderança se importa com as pessoas e as trata com respeito.' },
+    { id: 'p6',  rotulo: 'Desenvolvimento',             texto: 'Recebo oportunidades e orientações que contribuem para meu crescimento profissional.' },
+    { id: 'p7',  rotulo: 'Escuta e participação',       texto: 'Minhas opiniões e sugestões são ouvidas e consideradas quando pertinentes.' },
+    { id: 'p8',  rotulo: 'Propósito',                   texto: 'Entendo como meu trabalho contribui para a experiência dos alunos e os resultados da TEM.' },
+    { id: 'p9',  rotulo: 'Compromisso com a qualidade', texto: 'Meus colegas demonstram compromisso com a qualidade do trabalho que realizamos.' },
+    { id: 'p10', rotulo: 'Relacionamentos',             texto: 'Tenho relações profissionais respeitosas e colaborativas com as pessoas da equipe.' },
+    { id: 'p11', rotulo: 'Feedback e evolução',         texto: 'Recebo feedbacks que me ajudam a reconhecer acertos e melhorar meu desempenho.' },
+    { id: 'p12', rotulo: 'Oportunidades de crescimento',texto: 'Consigo enxergar possibilidades de evolução profissional dentro da TEM.' }
+  ],
+  dimensoes: [
+    { key: 'd1', nome: 'Clareza e condições de trabalho',          perguntas: ['p1', 'p2'] },
+    { key: 'd2', nome: 'Desenvolvimento e potencial profissional', perguntas: ['p3', 'p6'] },
+    { key: 'd3', nome: 'Reconhecimento e cuidado',                 perguntas: ['p4', 'p5'] },
+    { key: 'd4', nome: 'Liderança, escuta e feedback',             perguntas: ['p7', 'p11'] },
+    { key: 'd5', nome: 'Equipe e colaboração',                     perguntas: ['p9', 'p10'] },
+    { key: 'd6', nome: 'Propósito e crescimento na organização',   perguntas: ['p8', 'p12'] }
+  ],
+  abertas: [
+    { id: 'a1', rotulo: 'Fatores positivos', texto: 'O que mais ajuda você a realizar um bom trabalho na TEM atualmente?' },
+    { id: 'a2', rotulo: 'Dificuldades',      texto: 'Qual é a principal dificuldade que você enfrenta hoje para realizar seu trabalho da maneira que gostaria?' },
+    { id: 'a3', rotulo: 'Sugestões',         texto: 'Se você pudesse propor uma mudança na TEM para melhorar sua experiência de trabalho ou seu desenvolvimento profissional, qual seria?' }
+  ],
+  // Categorias iniciais para classificar comentários. Podem ser ajustadas, e novos temas surgem na classificação.
+  temas: ['Recursos e condições de trabalho', 'Comunicação e alinhamento', 'Reconhecimento', 'Liderança e apoio',
+          'Desenvolvimento profissional', 'Colaboração entre colegas', 'Processos e organização',
+          'Experiência do aluno', 'Sugestões de melhoria', 'Outros']
+};
+
+// TP-CALC-START  (bloco puro, sem DOM: é o trecho exercitado pelos testes)
+function tpValida(v) { return typeof v === 'number' && Number.isInteger(v) && v >= 1 && v <= 5; }
+function tpMedia(vals) {
+  const v = (vals || []).filter(tpValida);
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+}
+function tpValsPergunta(rs, qid) {
+  return (rs || []).map(r => (r && r.respostas) ? r.respostas[qid] : undefined).filter(tpValida);
+}
+function tpValsDim(rs, dim) {
+  let o = [];
+  dim.perguntas.forEach(q => { o = o.concat(tpValsPergunta(rs, q)); });
+  return o;
+}
+function tpValsTodos(rs, cfg) {
+  let o = [];
+  cfg.perguntas.forEach(p => { o = o.concat(tpValsPergunta(rs, p.id)); });
+  return o;
+}
+// Favoráveis = 4 e 5. Denominador = respostas numéricas válidas ("na" e ausentes ficam fora).
+function tpFav(vals) {
+  const v = (vals || []).filter(tpValida);
+  const fav = v.filter(x => x >= 4).length;
+  return { fav: fav, n: v.length, pct: v.length ? fav / v.length * 100 : null };
+}
+function tpDist(vals) {
+  const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  const v = (vals || []).filter(tpValida);
+  v.forEach(x => { counts[x]++; });
+  return { counts: counts, n: v.length };
+}
+// Resumo agregado (setorial e executivo): média das respostas válidas reunidas.
+function tpResumo(rs, cfg) {
+  const todos = tpValsTodos(rs, cfg);
+  return {
+    nRespondentes: (rs || []).length,
+    nValidas: todos.length,
+    media: tpMedia(todos),
+    fav: tpFav(todos),
+    dist: tpDist(todos),
+    dims: cfg.dimensoes.map(d => {
+      const v = tpValsDim(rs, d);
+      return { key: d.key, nome: d.nome, n: v.length, media: tpMedia(v), fav: tpFav(v), dist: tpDist(v) };
+    }),
+    perguntas: cfg.perguntas.map(p => {
+      const v = tpValsPergunta(rs, p.id);
+      return { id: p.id, rotulo: p.rotulo, n: v.length, media: tpMedia(v), fav: tpFav(v) };
+    })
+  };
+}
+// Resumo individual: média das perguntas respondidas pelo próprio colaborador.
+function tpResumoIndividual(r, cfg) {
+  const resp = (r && r.respostas) || {};
+  const todos = cfg.perguntas.map(p => resp[p.id]).filter(tpValida);
+  return {
+    nValidas: todos.length,
+    nRespondidas: cfg.perguntas.filter(p => resp[p.id] !== undefined && resp[p.id] !== null).length,
+    media: tpMedia(todos),
+    fav: tpFav(todos),
+    dims: cfg.dimensoes.map(d => {
+      const v = d.perguntas.map(q => resp[q]).filter(tpValida);
+      return { key: d.key, nome: d.nome, n: v.length, media: tpMedia(v), fav: tpFav(v) };
+    })
+  };
+}
+function tpParticipacao(enviados, elegiveis) { return elegiveis > 0 ? enviados / elegiveis * 100 : null; }
+function tpPodeExibir(n, limite) { return n >= limite; }
+function tpPodeComparar(a, b) {
+  return !!a && !!b && a.versao_questionario === b.versao_questionario && a.criterio === b.criterio;
+}
+function tpAtivas(rs) { return (rs || []).filter(r => !r.substituida); }
+function tpPorSetor(rs) {
+  const m = {};
+  (rs || []).forEach(r => { const s = r.setor || 'Sem setor'; (m[s] = m[s] || []).push(r); });
+  return m;
+}
+// Linha gravada em tp_respostas. No modo anônimo não leva nome nem horário, só a data.
+function tpMontaResposta(ciclo, link, respostas, abertas, hoje) {
+  const anon = ciclo.modo === 'anonima';
+  return {
+    ciclo_id: ciclo.id,
+    colaborador: anon ? null : link.colaborador,
+    setor: link.setor || null,
+    respostas: respostas,
+    abertas: abertas,
+    versao_questionario: ciclo.versao_questionario,
+    substituida: false,
+    criado_em: hoje
+  };
+}
+function tpDentroPeriodo(ciclo, hoje) {
+  return ciclo.status === 'aberto' && (!ciclo.inicio || hoje >= ciclo.inicio) && (!ciclo.fim || hoje <= ciclo.fim);
+}
+// Contagem de temas por pessoa (não por menção repetida). Tema com 1 pessoa não aparece nominalmente.
+function tpTemasContagem(rs, campo, minTema) {
+  const c = {};
+  (rs || []).forEach(r => {
+    const ts = (r.temas && r.temas[campo]) || [];
+    Array.from(new Set(ts)).forEach(t => { c[t] = (c[t] || 0) + 1; });
+  });
+  const lista = Object.keys(c).map(t => ({ tema: t, n: c[t] })).sort((a, b) => b.n - a.n || a.tema.localeCompare(b.tema));
+  return { frequentes: lista.filter(x => x.n >= minTema), unicos: lista.filter(x => x.n < minTema).length };
+}
+function tpFmt(n, casas) { return n === null || n === undefined ? '—' : n.toFixed(casas === undefined ? 2 : casas).replace('.', ','); }
+function tpPct(p) { return p === null || p === undefined ? '—' : Math.round(p) + '%'; }
+// TP-CALC-END
+
+// TP-SINTESE-START  (texto gerado por regras, sem IA: separa evidência, interpretação e recomendação)
+const TP_AVISO_PERCEPCAO = 'Este texto descreve percepções registradas em uma avaliação específica. Não diagnostica pessoas e não substitui a conversa e o julgamento da gestão.';
+
+function tpSinteseIndividual(res) {
+  if (!res || res.nValidas < 6) return { insuficiente: true, motivo: 'Poucas respostas numéricas válidas (menos de 6). Não há base para gerar uma síntese.' };
+  const dims = res.dims.filter(d => d.media !== null).sort((a, b) => b.media - a.media);
+  const evidencia = dims.map(d => d.nome + ': média ' + tpFmt(d.media) + ' (' + d.n + ' resposta' + (d.n > 1 ? 's' : '') + ' válida' + (d.n > 1 ? 's' : '') + ')');
+  const interpretacao = [], recomendacao = [];
+  if (dims.length >= 2) {
+    const alta = dims[0], baixa = dims[dims.length - 1];
+    if (alta.media - baixa.media >= 0.5) {
+      interpretacao.push('As respostas indicam percepção relativamente mais favorável em "' + alta.nome + '" e menos favorável em "' + baixa.nome + '" (diferença de ' + tpFmt(alta.media - baixa.media) + ' ponto).');
+      recomendacao.push('Conversar com o colaborador para compreender o que sustenta a percepção em "' + alta.nome + '" e quais fatores ou condições influenciam "' + baixa.nome + '".');
+    } else {
+      interpretacao.push('As respostas não mostram diferença relevante entre as dimensões (critério interno: menos de 0,5 ponto entre a mais alta e a mais baixa).');
+      recomendacao.push('Acompanhar nos próximos ciclos antes de definir ações.');
+    }
+  }
+  return { insuficiente: false, evidencia: evidencia, interpretacao: interpretacao, recomendacao: recomendacao };
+}
+
+// resumo = tpResumo(...) de um grupo; temas = {a2:{frequentes:[...]}, a3:{...}} (opcional)
+function tpSinteseColetiva(resumo, temas) {
+  const dims = resumo.dims.filter(d => d.fav.pct !== null).sort((a, b) => b.fav.pct - a.fav.pct || b.media - a.media);
+  if ((resumo.nRespondentes || 0) < TP_LIMITE_PISO || resumo.nValidas < 12 || dims.length < 2) return { insuficiente: true, motivo: 'Poucos dados para uma síntese confiável.' };
+  const alta = dims[0], baixa = dims[dims.length - 1];
+  const evidencia = dims.map(d => d.nome + ': ' + tpPct(d.fav.pct) + ' favoráveis (' + d.fav.fav + ' de ' + d.fav.n + ' respostas válidas), média ' + tpFmt(d.media));
+  const interpretacao = [], recomendacao = [];
+  if (alta.fav.pct - baixa.fav.pct >= 10) {
+    interpretacao.push('A favorabilidade foi relativamente maior em "' + alta.nome + '" (' + tpPct(alta.fav.pct) + ') e menor em "' + baixa.nome + '" (' + tpPct(baixa.fav.pct) + '). É uma leitura comparativa dentro deste grupo, não uma meta nem um padrão externo.');
+    recomendacao.push('Verificar com a equipe, antes de definir medidas, quais processos e condições estão ligados a "' + baixa.nome + '".');
+  } else {
+    interpretacao.push('Não há diferença relevante de favorabilidade entre as dimensões (critério interno: menos de 10 pontos percentuais).');
+    recomendacao.push('Manter o acompanhamento e usar os comentários para entender prioridades.');
+  }
+  const dif = temas && temas.a2 && temas.a2.frequentes && temas.a2.frequentes.length ? temas.a2.frequentes.slice(0, 3) : [];
+  if (dif.length) {
+    interpretacao.push('Nas dificuldades relatadas, os temas citados por mais pessoas foram: ' + dif.map(t => t.tema + ' (' + t.n + ')').join(', ') + '. Frequência de menções não equivale a importância do problema.');
+    recomendacao.push('Investigar esses temas na prática antes de tratá-los como causa de qualquer resultado.');
+  }
+  return { insuficiente: false, evidencia: evidencia, interpretacao: interpretacao, recomendacao: recomendacao };
+}
+// TP-SINTESE-END
+
+// ── TEM PESSOAS: estado, dados e utilitários ──────────────────────────────────
+// Respostas NÃO são guardadas no aparelho (nada de localStorage para este módulo).
+const TP_TABS = [['resumo','Resumo'],['individual','Individual'],['setorial','Setorial'],['executivo','Executivo'],['temas','Temas'],['acoes','Ações'],['ciclos','Ciclos'],['config','Config']];
+const TP_STATUS = { rascunho:'Rascunho', aberto:'Aberto', encerrado:'Encerrado', arquivado:'Arquivado' };
+const TP_ACAO_STATUS = { nao_iniciada:'Não iniciada', andamento:'Em andamento', concluida:'Concluída', cancelada:'Cancelada' };
+const TP_TABELAS = [
+  ['tp_ciclos','criado_em.desc'], ['tp_links','criado_em.asc'], ['tp_respostas','criado_em.asc'],
+  ['tp_setores','nome.asc'], ['tp_colab_setor',null], ['tp_acoes','criado_em.desc'], ['tp_auditoria','criado_em.desc&limit=60']
+];
+const tp = { carregando:false, erro:null, tela:'resumo', cicloSel:'', setorSel:'', indivSel:'', ciclos:[], links:[], respostas:[],
+  setores:[], colabSetor:{}, acoes:[], aud:[], form:null, cicloAberto:'', acaoForm:null, acaoFiltro:'', temasExtra:[], msg:'' };
+
+const tpEsc = s => escAttr(s);
+function tpHoje() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+function tpData(iso) { return iso ? String(iso).slice(0,10).split('-').reverse().join('/') : '—'; }
+function tpUuid(s) { return /^[0-9a-f-]{36}$/i.test(String(s || '')); }
+
+async function tpReq(method, table, qs, body, retornar) {
+  try {
+    const h = { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+    if (retornar) h.Prefer = 'return=representation';
+    const r = await fetch(SB_URL + '/rest/v1/' + table + (qs ? '?' + qs : ''), { method: method, headers: h, body: body === undefined ? undefined : JSON.stringify(body) });
+    const txt = await r.text();
+    let data = null; try { data = txt ? JSON.parse(txt) : null; } catch (e) {}
+    return { ok: r.ok, status: r.status, data: data };
+  } catch (e) { return { ok: false, status: 0, data: null }; }
+}
+async function tpAud(acao, detalhe) {
+  const r = await tpReq('POST', 'tp_auditoria', '', { acao: acao, detalhe: detalhe || '' }, true);
+  if (r.ok && r.data && r.data[0]) tp.aud.unshift(r.data[0]);
+}
+async function tpCarregar() {
+  tp.carregando = true; tpRender();
+  const res = await Promise.all(TP_TABELAS.map(([t, o]) => tpReq('GET', t, 'select=*' + (o ? '&order=' + o : ''))));
+  tp.erro = res.some(r => !r.ok) ? (res.some(r => r.status === 0) ? 'rede' : 'tabelas') : null;
+  const d = i => (res[i].ok && Array.isArray(res[i].data)) ? res[i].data : [];
+  tp.ciclos = d(0); tp.links = d(1); tp.respostas = d(2); tp.setores = d(3);
+  tp.colabSetor = {}; d(4).forEach(x => { tp.colabSetor[x.colaborador] = x.setor; });
+  tp.acoes = d(5); tp.aud = d(6);
+  tp.carregando = false; tpRender();
+}
+function tpInit() { tpRender(); tpCarregar(); }
+function tpIr(t) { tp.tela = t; tp.form = null; tp.acaoForm = null; tpRender(); window.scrollTo(0, 0); }
+function tpMsg(t) {
+  tp.msg = t; tpRender();
+  setTimeout(() => { tp.msg = ''; const el = document.querySelector('#tp-body .tp-info[role=status]'); if (el) el.remove(); }, 3500);
+}
+
+function tpRender() {
+  const tabs = document.getElementById('tp-tabs'); if (!tabs) return;
+  tabs.innerHTML = TP_TABS.map(([k, t]) => `<button class="tp-tab${tp.tela === k ? ' on' : ''}" role="tab" aria-selected="${tp.tela === k}" onclick="tpIr('${k}')">${t}</button>`).join('');
+  const body = document.getElementById('tp-body');
+  if (tp.carregando && !tp.ciclos.length && !tp.erro) { body.innerHTML = '<div class="tp-empty" role="status">Carregando…</div>'; return; }
+  if (tp.erro) { body.innerHTML = tpHtmlErro(); return; }
+  const f = { resumo: tpTelaResumo, individual: tpTelaIndividual, setorial: tpTelaSetorial, executivo: tpTelaExecutivo,
+              temas: tpTelaTemas, acoes: tpTelaAcoes, ciclos: tpTelaCiclos, config: tpTelaConfig }[tp.tela] || tpTelaResumo;
+  body.innerHTML = (tp.msg ? `<div class="tp-info" role="status">${tpEsc(tp.msg)}</div>` : '') + f();
+}
+function tpHtmlErro() {
+  if (tp.erro === 'rede') return `<div class="tp-empty"><b>Sem conexão com o banco</b>O módulo precisa de conexão, porque as respostas não ficam guardadas neste aparelho.<div class="tp-btns" style="justify-content:center"><button class="tp-btn pri" onclick="tpCarregar()">Tentar de novo</button></div></div>`;
+  return `<div class="tp-empty"><b>Falta criar as tabelas do TEM Pessoas</b>Abra o SQL Editor do Supabase, rode o arquivo <code>tem-pessoas-migracao.sql</code> e volte aqui. Nenhuma tabela existente do app é alterada.<div class="tp-btns" style="justify-content:center"><button class="tp-btn pri" onclick="tpCarregar()">Já rodei, tentar de novo</button></div></div>`;
+}
+
+// ── ciclos: seleção e estatísticas ────────────────────────────────────────────
+function tpOrdenaCiclos() { return tp.ciclos.slice().sort((a, b) => String(b.inicio || b.criado_em).localeCompare(String(a.inicio || a.criado_em))); }
+function tpCicloAtual() {
+  const l = tpOrdenaCiclos();
+  return l.find(x => x.id === tp.cicloSel) || l.find(x => x.status === 'aberto') || l.find(x => x.status === 'encerrado') || l.find(x => x.status === 'arquivado') || l[0] || null;
+}
+function tpCicloRelatorio() {
+  const c = tpCicloAtual();
+  if (c && c.status !== 'rascunho') return c;
+  return tpOrdenaCiclos().find(x => x.status !== 'rascunho') || null;
+}
+function tpSelCiclo(id) { tp.cicloSel = id; tp.setorSel = ''; tp.indivSel = ''; tpRender(); }
+function tpStats(c) {
+  const links = tp.links.filter(l => l.ciclo_id === c.id);
+  const rs = tpAtivas(tp.respostas.filter(r => r.ciclo_id === c.id));
+  const eleg = c.status === 'rascunho' ? (c.elegiveis || []).length : links.length;
+  const env = links.filter(l => l.respondido).length;
+  return { links: links, rs: rs, eleg: eleg, env: env, part: tpParticipacao(env, eleg), resumo: tpResumo(rs, TP_CONFIG), liberado: tpPodeExibir(rs.length, c.limite_min) };
+}
+function tpCicloAnterior(c) {
+  return tpOrdenaCiclos().find(x => x.id !== c.id && x.status !== 'rascunho' && String(x.inicio || x.criado_em) < String(c.inicio || c.criado_em)
+    && tpPodeComparar(x, c) && tpPodeExibir(tpAtivas(tp.respostas.filter(r => r.ciclo_id === x.id)).length, x.limite_min)) || null;
+}
+function tpSeletorCiclo() {
+  const at = tpCicloRelatorio();
+  const l = tpOrdenaCiclos().filter(c => c.status !== 'rascunho');
+  return `<div class="tp-sel"><label for="tp-sc">Ciclo</label><select class="inp" id="tp-sc" onchange="tpSelCiclo(this.value)">${l.map(c => `<option value="${c.id}"${at && at.id === c.id ? ' selected' : ''}>${tpEsc(c.nome)} · ${TP_STATUS[c.status]}</option>`).join('')}</select></div>`;
+}
+function tpCabCiclo(c) {
+  return `<div style="margin-bottom:12px"><span class="tp-badge ${c.status === 'aberto' ? 'ok' : 'blue'}">${TP_STATUS[c.status]}</span><span class="tp-badge">${c.modo === 'anonima' ? 'Anônima' : 'Identificada e confidencial'}</span><span class="tp-badge">${tpData(c.inicio)} a ${tpData(c.fim)}</span><span class="tp-badge">Mínimo ${c.limite_min} respostas</span>${c.publicado_em ? `<span class="tp-badge ok">Publicado em ${tpData(c.publicado_em)}</span>` : ''}</div>`;
+}
+function tpSemCiclo(msg) {
+  return `<div class="tp-empty"><b>${msg || 'Nenhuma avaliação com dados ainda'}</b>Para começar: cadastre os setores em Config, crie um ciclo, abra e envie os links aos colaboradores.<div class="tp-btns" style="justify-content:center"><button class="tp-btn pri" onclick="tpIr('ciclos')">Ir para Ciclos</button></div></div>`;
+}
+function tpOculto(c, n) {
+  return `<div class="tp-warn" role="status"><b>Resultados ocultos.</b> Há ${n} resposta${n === 1 ? '' : 's'} e o mínimo para exibir resultados agregados neste ciclo é ${c.limite_min}. Isso protege a identificação indireta.</div>`;
+}
+
+// ── componentes visuais ───────────────────────────────────────────────────────
+function tpLinhaDim(d, mostrarFav) {
+  if (d.media === null) return `<div class="tp-dim"><div class="tp-dim-h"><span>${tpEsc(d.nome)}</span><b><small>Sem dados suficientes</small></b></div></div>`;
+  return `<div class="tp-dim"><div class="tp-dim-h"><span>${tpEsc(d.nome)}</span><b>${tpFmt(d.media)} <small>/ 5</small></b></div>
+    <div class="tp-bar" role="img" aria-label="${tpEsc(d.nome)}: média ${tpFmt(d.media)} de 5"><i style="width:${(d.media / 5 * 100).toFixed(0)}%"></i></div>
+    ${mostrarFav === false ? '' : `<div class="tp-note">${tpPct(d.fav.pct)} favoráveis (${d.fav.fav} de ${d.fav.n} respostas válidas)</div>`}</div>`;
+}
+const TP_COR_DIST = ['#c7d2fe', '#a5b4fc', '#818cf8', '#4f46e5', '#3730a3'];
+function tpDistHtml(dist) {
+  if (!dist || !dist.n) return '<div class="tp-note">Sem respostas numéricas válidas.</div>';
+  const seg = [1, 2, 3, 4, 5].map(v => {
+    const n = dist.counts[v], p = n / dist.n * 100;
+    return n ? `<span style="width:${p}%;background:${TP_COR_DIST[v-1]};color:${v <= 2 ? '#1e1b4b' : '#fff'}">${p >= 9 ? n : ''}</span>` : '';
+  }).join('');
+  const leg = [5, 4, 3, 2, 1].map(v => `${v}: ${dist.counts[v]} (${Math.round(dist.counts[v] / dist.n * 100)}%)`).join(' · ');
+  return `<div class="tp-dist" role="img" aria-label="Distribuição das respostas de 1 a 5">${seg}</div><div class="tp-leg">${leg} · total ${dist.n}</div>`;
+}
+function tpKpi(valor, rotulo, sub) { return `<div class="tp-kpi"><b>${valor}</b><span>${rotulo}</span>${sub ? `<small>${sub}</small>` : ''}</div>`; }
+function tpBlocoSintese(s) {
+  if (!s) return '';
+  if (s.insuficiente) return `<div class="tp-warn">${tpEsc(s.motivo)}</div>`;
+  return `<div class="tp-sint"><h4>Evidência (o que foi respondido)</h4><ul>${s.evidencia.map(x => `<li>${tpEsc(x)}</li>`).join('')}</ul></div>
+    <div class="tp-sint int"><h4>Interpretação (o que o conjunto pode sugerir)</h4>${s.interpretacao.map(x => `<p>${tpEsc(x)}</p>`).join('')}</div>
+    <div class="tp-sint rec"><h4>Recomendação (ação possível)</h4>${s.recomendacao.map(x => `<p>${tpEsc(x)}</p>`).join('')}</div>
+    <div class="tp-note">${TP_AVISO_PERCEPCAO}</div>`;
+}
+function tpForcaOport(resumo) {
+  const dims = resumo.dims.filter(d => d.fav.pct !== null).sort((a, b) => b.fav.pct - a.fav.pct || b.media - a.media);
+  if (dims.length < 2) return { fortes: [], oport: [] };
+  const k = Math.min(2, Math.floor(dims.length / 2));
+  return { fortes: dims.slice(0, k), oport: dims.slice(-k).reverse() };
+}
+function tpListaDimsTxt(l) { return l.map(d => `<li>${tpEsc(d.nome)}: ${tpPct(d.fav.pct)} favoráveis (${d.fav.fav} de ${d.fav.n})</li>`).join(''); }
+const TP_COMO_CALCULAMOS = `<details class="tp-det tp-card"><summary>Como calculamos os indicadores</summary><div class="tp-note">
+<p><b>Escala:</b> 1 (discordo totalmente) a 5 (concordo totalmente). "Não sei avaliar / Não se aplica" e respostas ausentes ficam fora de todos os cálculos e nunca viram nota zero.</p>
+<p style="margin-top:6px"><b>Média de uma pergunta ou dimensão:</b> média aritmética das respostas numéricas válidas.</p>
+<p style="margin-top:6px"><b>Relatório individual:</b> média das perguntas respondidas pelo próprio colaborador.</p>
+<p style="margin-top:6px"><b>Setorial e executivo:</b> média agregada, ou seja, todas as respostas válidas do grupo reunidas (não é a média das médias individuais). O mesmo critério vale nas comparações entre ciclos.</p>
+<p style="margin-top:6px"><b>Favorabilidade:</b> respostas 4 ou 5 ÷ respostas numéricas válidas × 100. O denominador aparece junto.</p>
+<p style="margin-top:6px"><b>Participação:</b> colaboradores que enviaram ÷ elegíveis do ciclo × 100. O quadro de elegíveis é o conjunto de links do ciclo, congelado na abertura; ajustes depois disso ficam registrados na auditoria.</p>
+<p style="margin-top:6px"><b>Sem metas externas:</b> não há faixas "boas" ou "ruins" validadas nem benchmarks. A gestão define metas internas após a avaliação de referência.</p></div></details>`;
+
+// ── RESUMO ────────────────────────────────────────────────────────────────────
+function tpTelaResumo() {
+  const c = tpCicloAtual();
+  if (!c) return tpSemCiclo('Nenhuma avaliação criada ainda');
+  const st = tpStats(c);
+  const abertas = tp.acoes.filter(a => a.status === 'nao_iniciada' || a.status === 'andamento').length;
+  const seletor = tp.ciclos.length > 1 ? `<div class="tp-sel"><label for="tp-sc">Ciclo</label><select class="inp" id="tp-sc" onchange="tpSelCiclo(this.value)">${tpOrdenaCiclos().map(x => `<option value="${x.id}"${x.id === c.id ? ' selected' : ''}>${tpEsc(x.nome)} · ${TP_STATUS[x.status]}</option>`).join('')}</select></div>` : '';
+  let h = seletor + `<div class="tp-card"><h3>${tpEsc(c.nome)}</h3>${tpCabCiclo(c)}`;
+  h += `<div class="tp-kpis">${tpKpi(st.eleg, 'Colaboradores elegíveis')}${tpKpi(st.rs.length, 'Respostas recebidas')}${tpKpi(tpPct(st.part), 'Taxa de participação', st.env + ' de ' + st.eleg)}`;
+  h += st.liberado ? tpKpi(tpPct(st.resumo.fav.pct), 'Respostas favoráveis', st.resumo.fav.fav + ' de ' + st.resumo.fav.n + ' respostas válidas') : tpKpi('—', 'Respostas favoráveis', 'oculto até o mínimo de ' + c.limite_min);
+  h += `</div>`;
+  if (c.status === 'rascunho') h += `<div class="tp-info">Este ciclo ainda é um rascunho. Abra-o em Ciclos para enviar os links.</div>`;
+  else if (!st.rs.length) h += `<div class="tp-info">Ainda não há respostas. Envie os links em Ciclos e acompanhe a participação.</div>`;
+  else if (!st.liberado) h += tpOculto(c, st.rs.length);
+  h += `</div>`;
+  if (st.liberado) {
+    h += `<div class="tp-card"><h3>Pontuação média por dimensão</h3><div class="tp-note" style="margin-bottom:10px">Média geral: <b>${tpFmt(st.resumo.media)}</b> de 5, em ${st.resumo.nValidas} respostas válidas.</div>${st.resumo.dims.map(d => tpLinhaDim(d)).join('')}</div>`;
+    const fo = tpForcaOport(st.resumo);
+    if (fo.fortes.length) {
+      h += `<div class="tp-card"><h3>Pontos fortes e oportunidades</h3><div class="tp-note">Leitura relativa dentro deste ciclo, ordenada por favorabilidade. Não é meta nem padrão externo.</div>
+        <div class="tp-sint" style="margin-top:10px"><h4>Pontos fortes identificados</h4><ul>${tpListaDimsTxt(fo.fortes)}</ul></div>
+        <div class="tp-sint rec"><h4>Oportunidades de melhoria</h4><ul>${tpListaDimsTxt(fo.oport)}</ul></div></div>`;
+    }
+  }
+  const outros = tpOrdenaCiclos().filter(x => x.id !== c.id);
+  h += `<div class="tp-card"><h3>Acessos</h3><div class="tp-btns" style="margin-top:0">
+    ${c.modo === 'anonima' ? '' : `<button class="tp-btn" onclick="tpIr('individual')">Relatório individual</button>`}
+    <button class="tp-btn" onclick="tpIr('setorial')">Relatório setorial</button>
+    <button class="tp-btn" onclick="tpIr('executivo')">Painel executivo</button>
+    <button class="tp-btn" onclick="tpIr('acoes')">Planos de ação (${abertas} em aberto)</button>
+    <button class="tp-btn" onclick="tpIr('ciclos')">Ciclos</button>
+    <button class="tp-btn" onclick="tpIr('config')">Cadastro e configuração</button></div></div>`;
+  if (outros.length) h += `<div class="tp-card"><h3>Ciclos anteriores</h3>${outros.map(x => `<div class="tp-row"><div><div class="tp-row-n">${tpEsc(x.nome)}</div><div class="tp-row-s">${TP_STATUS[x.status]} · ${tpData(x.inicio)} a ${tpData(x.fim)}</div></div><button class="tp-btn sm" onclick="tpSelCiclo('${x.id}')">Abrir</button></div>`).join('')}</div>`;
+  h += TP_COMO_CALCULAMOS;
+  h += `<div class="tp-note" style="margin-top:6px">TEM Pessoas é uma ferramenta interna de diagnóstico, sujeita a testes e aprimoramento. Não é o Q12 nem material oficial da Gallup, e não deve ser usada para decisões disciplinares automáticas.</div>`;
+  return h;
+}
+
+// ── RELATÓRIO INDIVIDUAL ──────────────────────────────────────────────────────
+function tpTelaIndividual() {
+  const c = tpCicloRelatorio();
+  if (!c) return tpSemCiclo();
+  let h = tpSeletorCiclo() + tpCabCiclo(c);
+  if (c.modo === 'anonima') return h + `<div class="tp-info"><b>Ciclo anônimo.</b> As respostas não são ligadas a pessoas, então não existe relatório individual neste ciclo. Use o relatório setorial ou o painel executivo.</div>`;
+  const rs = tpAtivas(tp.respostas.filter(r => r.ciclo_id === c.id && r.colaborador));
+  if (!rs.length) return h + `<div class="tp-empty"><b>Sem respostas ainda</b>Quando os colaboradores responderem, o relatório individual aparece aqui.</div>`;
+  const nomes = rs.map(r => r.colaborador).sort((a, b) => a.localeCompare(b));
+  const sel = nomes.includes(tp.indivSel) ? tp.indivSel : '';
+  h += `<div class="tp-sel"><label for="tp-ind">Colaborador</label><select class="inp" id="tp-ind" onchange="tp.indivSel=this.value;tpRender()"><option value="">Selecione…</option>${nomes.map(n => `<option${n === sel ? ' selected' : ''}>${tpEsc(n)}</option>`).join('')}</select></div>`;
+  h += `<div class="tp-info tp-noprint">Acesso às respostas individuais restrito a quem a gestão autorizou: ${tpEsc(c.responsaveis)}.</div>`;
+  if (!sel) return h;
+  const r = rs.find(x => x.colaborador === sel);
+  const res = tpResumoIndividual(r, TP_CONFIG);
+  h += `<div class="tp-card"><h3>${tpEsc(sel)}</h3><div class="tp-note">Setor: ${tpEsc(r.setor || 'não informado')} · Ciclo: ${tpEsc(c.nome)} · Respondeu em ${tpData(r.criado_em)}</div>
+    <div class="tp-kpis" style="margin-top:12px">${tpKpi(res.nRespondidas + ' de 12', 'Perguntas respondidas', res.nValidas + ' com nota válida')}${tpKpi(res.media === null ? 'Sem dados suficientes' : tpFmt(res.media), 'Pontuação média geral', 'escala de 1 a 5')}${tpKpi(tpPct(res.fav.pct), 'Respostas favoráveis', res.fav.fav + ' de ' + res.fav.n + ' respostas válidas')}</div></div>`;
+  h += `<div class="tp-card"><h3>Seis dimensões</h3>${res.dims.map(d => tpLinhaDim(d)).join('')}</div>`;
+  h += `<div class="tp-card"><h3>Respostas abertas</h3>${TP_CONFIG.abertas.map(a => { const t = r.abertas && r.abertas[a.id]; return `<div class="tp-note" style="margin-top:8px"><b>${tpEsc(a.rotulo)}:</b> ${tpEsc(a.texto)}</div><div class="tp-com"><p>${t ? tpEsc(t) : '<i>Não respondeu.</i>'}</p></div>`; }).join('')}</div>`;
+  h += `<div class="tp-card"><h3>Síntese</h3>${tpBlocoSintese(tpSinteseIndividual(res))}</div>`;
+  // histórico do mesmo colaborador (apenas ciclos comparáveis)
+  const hist = tpOrdenaCiclos().filter(x => x.id !== c.id && x.status !== 'rascunho' && x.modo === 'identificada').map(x => {
+    const rr = tpAtivas(tp.respostas.filter(y => y.ciclo_id === x.id && y.colaborador === sel))[0];
+    return rr ? { c: x, res: tpResumoIndividual(rr, TP_CONFIG) } : null;
+  }).filter(Boolean);
+  if (hist.length) {
+    h += `<div class="tp-card"><h3>Histórico de avaliações</h3>` + hist.map(x => {
+      const comp = tpPodeComparar(x.c, c);
+      let delta = '';
+      if (comp && String(x.c.inicio || x.c.criado_em) < String(c.inicio || c.criado_em) && x.res.media !== null && res.media !== null) {
+        delta = '<div class="tp-note">Variação da média geral até o ciclo atual: ' + (res.media - x.res.media >= 0 ? '+' : '') + tpFmt(res.media - x.res.media) + '</div>';
+      }
+      return `<div class="tp-row" style="display:block"><div class="tp-row-n">${tpEsc(x.c.nome)}</div><div class="tp-row-s">Média geral ${tpFmt(x.res.media)} · ${tpPct(x.res.fav.pct)} favoráveis (${x.res.fav.fav} de ${x.res.fav.n})</div>${delta}${comp ? '' : '<div class="tp-note">Questionário ou critério diferente: evite comparação direta.</div>'}</div>`;
+    }).join('') + `</div>`;
+  }
+  h += `<div class="tp-btns tp-noprint"><button class="tp-btn pri" onclick="tpNovaAcao({escopo:'individual',colaborador:'${tpEsc(sel).replace(/'/g, '&#39;')}',ciclo_id:'${c.id}',origem:'Relatório individual: ${tpEsc(c.nome).replace(/'/g, '&#39;')}'})">Criar ação para este colaborador</button><button class="tp-btn" onclick="window.print()">Imprimir / salvar PDF</button></div>`;
+  h += `<div class="tp-note" style="margin-top:12px">${TP_AVISO_PERCEPCAO}</div>`;
+  return h;
+}
+
+// ── RELATÓRIO SETORIAL ────────────────────────────────────────────────────────
+function tpTemasHtml(rs) {
+  const out = TP_CONFIG.abertas.map(a => {
+    const t = tpTemasContagem(rs, a.id, TP_MIN_TEMA);
+    const classif = rs.filter(r => r.temas && r.temas[a.id] && r.temas[a.id].length).length;
+    if (!t.frequentes.length && !t.unicos) return '';
+    return `<div class="tp-note" style="margin-top:8px"><b>${tpEsc(a.rotulo)}</b> (${classif} comentário${classif === 1 ? '' : 's'} classificado${classif === 1 ? '' : 's'})</div>
+      <div class="tp-chips">${t.frequentes.map(x => `<span class="tp-badge blue">${tpEsc(x.tema)}: ${x.n} pessoas</span>`).join('')}${t.unicos ? `<span class="tp-badge">+ ${t.unicos} tema${t.unicos > 1 ? 's' : ''} citado${t.unicos > 1 ? 's' : ''} por uma pessoa</span>` : ''}</div>`;
+  }).join('');
+  if (!out) return '<div class="tp-note">Ainda sem comentários classificados. Use a aba Temas para classificar.</div>';
+  return out + `<div class="tp-note" style="margin-top:8px">Mostramos temas, não frases. Temas citados por apenas uma pessoa não são nomeados. Frequência de menções não equivale à importância do problema.</div>`;
+}
+function tpTemasObj(rs) { const o = {}; TP_CONFIG.abertas.forEach(a => { o[a.id] = tpTemasContagem(rs, a.id, TP_MIN_TEMA); }); return o; }
+
+function tpTelaSetorial() {
+  const c = tpCicloRelatorio();
+  if (!c) return tpSemCiclo();
+  let h = tpSeletorCiclo() + tpCabCiclo(c);
+  const st = tpStats(c);
+  const porR = tpPorSetor(st.rs);
+  const nomes = Array.from(new Set(st.links.map(l => l.setor || 'Sem setor').concat(st.rs.map(r => r.setor || 'Sem setor')))).sort((a, b) => a.localeCompare(b));
+  if (!nomes.length) return h + `<div class="tp-empty"><b>Sem dados por setor</b>Defina o setor de cada colaborador em Config antes de abrir um ciclo.</div>`;
+  const info = nomes.map(n => {
+    const rs = porR[n] || [];
+    const l = st.links.filter(x => (x.setor || 'Sem setor') === n);
+    return { nome: n, rs: rs, eleg: l.length, env: l.filter(x => x.respondido).length, part: tpParticipacao(l.filter(x => x.respondido).length, l.length), lib: tpPodeExibir(rs.length, c.limite_min), res: tpResumo(rs, TP_CONFIG) };
+  });
+  const liberados = info.filter(i => i.lib);
+  if (liberados.length >= 2) {
+    h += `<div class="tp-card"><h3>Comparação entre setores</h3><div class="tp-warn">Ordem alfabética, sem ranking. Média maior não significa liderança melhor nem equipe mais comprometida. Setores com menos de ${c.limite_min} respostas ficam de fora.</div>
+      <div class="tp-scroll"><table class="tp-tbl"><thead><tr><th>Setor</th><th>Resp.</th><th>Média</th><th>Fav.</th>${TP_CONFIG.dimensoes.map((d, i) => `<th title="${tpEsc(d.nome)}">D${i + 1}</th>`).join('')}</tr></thead><tbody>
+      ${liberados.map(i => `<tr><td>${tpEsc(i.nome)}</td><td>${i.rs.length}</td><td>${tpFmt(i.res.media)}</td><td>${tpPct(i.res.fav.pct)}</td>${i.res.dims.map(d => `<td>${tpFmt(d.media)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+      <div class="tp-note" style="margin-top:6px">${TP_CONFIG.dimensoes.map((d, i) => 'D' + (i + 1) + ' ' + tpEsc(d.nome)).join(' · ')}</div></div>`;
+  }
+  const sel = nomes.includes(tp.setorSel) ? tp.setorSel : '';
+  h += `<div class="tp-sel"><label for="tp-set">Setor</label><select class="inp" id="tp-set" onchange="tp.setorSel=this.value;tpRender()"><option value="">Todos os setores</option>${nomes.map(n => `<option${n === sel ? ' selected' : ''}>${tpEsc(n)}</option>`).join('')}</select></div>`;
+  const ant = tpCicloAnterior(c);
+  info.filter(i => !sel || i.nome === sel).forEach(i => {
+    h += `<div class="tp-card"><h3>${tpEsc(i.nome)}</h3>
+      <div class="tp-kpis" style="margin-bottom:8px">${tpKpi(i.eleg, 'Colaboradores elegíveis')}${tpKpi(i.rs.length, 'Respostas recebidas')}${tpKpi(tpPct(i.part), 'Participação', i.env + ' de ' + i.eleg)}${i.lib ? tpKpi(tpPct(i.res.fav.pct), 'Favoráveis', i.res.fav.fav + ' de ' + i.res.fav.n + ' válidas') : tpKpi('—', 'Favoráveis', 'oculto')}</div>`;
+    if (!i.lib) { h += tpOculto(c, i.rs.length) + `</div>`; return; }
+    h += `<div class="tp-note">Média geral <b>${tpFmt(i.res.media)}</b> de 5 em ${i.res.nValidas} respostas válidas.</div>`;
+    if (i.rs.length < c.limite_min + 3) h += `<div class="tp-warn" style="margin-top:8px">Amostra pequena (${i.rs.length} respostas). Leia com cautela.</div>`;
+    h += `<div style="margin-top:12px">${i.res.dims.map(d => tpLinhaDim(d)).join('')}</div><div class="tp-note"><b>Distribuição das respostas</b></div>${tpDistHtml(i.res.dist)}`;
+    if (ant) {
+      const ai = tpResumo(tpAtivas(tp.respostas.filter(r => r.ciclo_id === ant.id && (r.setor || 'Sem setor') === i.nome)), TP_CONFIG);
+      const antN = tpAtivas(tp.respostas.filter(r => r.ciclo_id === ant.id && (r.setor || 'Sem setor') === i.nome)).length;
+      if (tpPodeExibir(antN, ant.limite_min) && ai.media !== null && i.res.media !== null) {
+        h += `<div class="tp-note" style="margin-top:10px"><b>Comparação com ${tpEsc(ant.nome)}:</b> média ${tpFmt(ai.media)} → ${tpFmt(i.res.media)} (${i.res.media - ai.media >= 0 ? '+' : ''}${tpFmt(i.res.media - ai.media)}); favoráveis ${tpPct(ai.fav.pct)} → ${tpPct(i.res.fav.pct)}. Variação observada, sem afirmar causa.</div>`;
+      }
+    }
+    h += `<div style="margin-top:12px"><b style="font-size:13px">Temas nos comentários</b>${tpTemasHtml(i.rs)}</div>`;
+    h += `<div style="margin-top:12px"><b style="font-size:13px">Síntese</b>${tpBlocoSintese(tpSinteseColetiva(i.res, tpTemasObj(i.rs)))}</div>`;
+    h += `<div class="tp-btns tp-noprint"><button class="tp-btn pri sm" data-setor="${tpEsc(i.nome)}" data-ciclo="${c.id}" onclick="tpNovaAcao({escopo:'setorial',setor:this.dataset.setor,ciclo_id:this.dataset.ciclo,origem:'Relatório setorial'})">Criar ação setorial</button></div></div>`;
+  });
+  h += `<div class="tp-btns tp-noprint"><button class="tp-btn" onclick="window.print()">Imprimir / salvar PDF</button></div>`;
+  return h;
+}
+
+// ── PAINEL EXECUTIVO ──────────────────────────────────────────────────────────
+function tpTelaExecutivo() {
+  const c = tpCicloRelatorio();
+  if (!c) return tpSemCiclo();
+  let h = tpSeletorCiclo() + tpCabCiclo(c);
+  const st = tpStats(c);
+  h += `<div class="tp-kpis">${tpKpi(st.eleg, 'Colaboradores elegíveis')}${tpKpi(tpPct(st.part), 'Participação geral', st.env + ' de ' + st.eleg)}${st.liberado ? tpKpi(tpPct(st.resumo.fav.pct), 'Respostas favoráveis', st.resumo.fav.fav + ' de ' + st.resumo.fav.n + ' válidas') : tpKpi('—', 'Respostas favoráveis', 'oculto')}${st.liberado ? tpKpi(tpFmt(st.resumo.media), 'Média geral (1 a 5)') : tpKpi('—', 'Média geral')}</div>`;
+  if (!st.liberado) return h + tpOculto(c, st.rs.length);
+  h += `<div class="tp-card"><h3>Seis dimensões</h3>${st.resumo.dims.map(d => tpLinhaDim(d)).join('')}<div class="tp-note"><b>Distribuição geral das respostas</b></div>${tpDistHtml(st.resumo.dist)}</div>`;
+  const fo = tpForcaOport(st.resumo);
+  const temas = tpTemasObj(st.rs);
+  const acoesCiclo = tp.acoes;
+  const abertas = acoesCiclo.filter(a => a.status === 'nao_iniciada' || a.status === 'andamento');
+  const concl = acoesCiclo.filter(a => a.status === 'concluida').length;
+  // As cinco perguntas da direção: dado observado, interpretação e recomendação sempre separados
+  const dif = temas.a2.frequentes.slice(0, 3).map(t => t.tema + ' (' + t.n + ')').join(', ');
+  const forte = temas.a1.frequentes.slice(0, 3).map(t => t.tema + ' (' + t.n + ')').join(', ');
+  const itens = [
+    ['Como está a experiência dos colaboradores na TEM?',
+      `Participação de ${tpPct(st.part)}; média geral ${tpFmt(st.resumo.media)} de 5; ${tpPct(st.resumo.fav.pct)} de respostas favoráveis (${st.resumo.fav.fav} de ${st.resumo.fav.n}).`,
+      'As respostas descrevem percepções neste ciclo; ainda não há base para falar de tendência sem um segundo ciclo comparável.',
+      'Registrar este ciclo como referência e definir metas internas a partir dele.'],
+    ['Quais são os principais pontos fortes identificados?',
+      fo.fortes.length ? fo.fortes.map(d => d.nome + ' (' + tpPct(d.fav.pct) + ')').join('; ') + (forte ? '. Temas positivos nos comentários: ' + forte : '') : 'Dados insuficientes para ordenar dimensões.',
+      'Leitura relativa dentro deste ciclo, sem padrão externo.',
+      'Reconhecer e preservar as práticas ligadas a esses pontos.'],
+    ['Quais dificuldades merecem atenção?',
+      fo.oport.length ? fo.oport.map(d => d.nome + ' (' + tpPct(d.fav.pct) + ')').join('; ') + (dif ? '. Dificuldades mais citadas: ' + dif : '') : 'Dados insuficientes.',
+      'Quantidade de menções não mede gravidade. Uma opinião isolada não representa a equipe.',
+      'Ouvir as equipes e confirmar os fatos antes de definir medidas.'],
+    ['Quais setores ou processos precisam ser investigados?',
+      'Processos ligados às dimensões de menor favorabilidade acima. Setores com resultados liberados: ' + (Object.keys(tpPorSetor(st.rs)).filter(n => tpPodeExibir(tpPorSetor(st.rs)[n].length, c.limite_min)).join(', ') || 'nenhum ainda') + '.',
+      'Diferença entre setores não prova diferença de liderança ou de comprometimento.',
+      'Abrir o relatório setorial e priorizar a investigação por relevância, recorrência, viabilidade e impacto.'],
+    ['Quais ações devem ser priorizadas?',
+      `${abertas.length} ação(ões) em aberto e ${concl} concluída(s) registradas.`,
+      'Ação concluída não prova melhora nos indicadores; só um novo ciclo comparável permite observar variação.',
+      'A gestão escolhe poucas ações com responsável, prazo e critério de conclusão.']
+  ];
+  h += `<div class="tp-card"><h3>Síntese executiva</h3>${itens.map((x, i) => `<div style="margin-bottom:14px"><div style="font-weight:700;font-size:14px;color:#0f172a;margin-bottom:6px">${i + 1}. ${x[0]}</div>
+    <div class="tp-sint"><h4>Dado observado</h4><p>${tpEsc(x[1])}</p></div><div class="tp-sint int"><h4>Interpretação</h4><p>${tpEsc(x[2])}</p></div><div class="tp-sint rec"><h4>Recomendação</h4><p>${tpEsc(x[3])}</p></div></div>`).join('')}<div class="tp-note">${TP_AVISO_PERCEPCAO}</div></div>`;
+  h += `<div class="tp-card"><h3>Temas recorrentes nos comentários</h3>${tpTemasHtml(st.rs)}</div>`;
+  // evolução entre ciclos
+  const evo = tpOrdenaCiclos().filter(x => x.status !== 'rascunho').reverse().map(x => {
+    const s = tpStats(x); return { c: x, s: s };
+  }).filter(x => x.s.liberado);
+  if (evo.length) {
+    h += `<div class="tp-card"><h3>Evolução entre ciclos</h3>${evo.map((x, i) => {
+      const prev = i > 0 ? evo[i - 1] : null;
+      const comp = prev && tpPodeComparar(prev.c, x.c);
+      const delta = comp && prev.s.resumo.media !== null ? ' · variação da média ' + (x.s.resumo.media - prev.s.resumo.media >= 0 ? '+' : '') + tpFmt(x.s.resumo.media - prev.s.resumo.media) : '';
+      return `<div class="tp-row" style="display:block"><div class="tp-row-n">${tpEsc(x.c.nome)}</div><div class="tp-row-s">Média ${tpFmt(x.s.resumo.media)} · ${tpPct(x.s.resumo.fav.pct)} favoráveis · participação ${tpPct(x.s.part)}${delta}</div>
+        <div class="tp-bar" style="margin-top:6px" role="img" aria-label="Média ${tpFmt(x.s.resumo.media)} de 5"><i style="width:${(x.s.resumo.media / 5 * 100).toFixed(0)}%"></i></div>
+        ${prev && !comp ? '<div class="tp-note">Questionário ou critério mudou em relação ao ciclo anterior: não compare diretamente.</div>' : ''}</div>`;
+    }).join('')}<div class="tp-note">Só aparecem ciclos com respostas suficientes para exibição.</div></div>`;
+  }
+  h += `<div class="tp-card"><h3>Ações abertas</h3>${abertas.length ? abertas.map(a => `<div class="tp-row"><div><div class="tp-row-n">${tpEsc(a.titulo)}</div><div class="tp-row-s">${tpEsc(a.responsavel || 'sem responsável')} · prazo ${tpData(a.prazo)}${tpAcaoAtrasada(a) ? ' · <b style="color:#b91c1c">atrasada</b>' : ''}</div></div><span class="tp-badge">${TP_ACAO_STATUS[a.status]}</span></div>`).join('') : '<div class="tp-note">Nenhuma ação em aberto.</div>'}
+    <div class="tp-btns tp-noprint"><button class="tp-btn sm" onclick="tpIr('setorial')">Abrir relatórios setoriais</button><button class="tp-btn sm" onclick="tpIr('acoes')">Planos de ação</button><button class="tp-btn sm" onclick="window.print()">Imprimir / salvar PDF</button></div></div>`;
+  return h;
+}
+
+// ── TEMAS (classificação manual dos comentários) ─────────────────────────────
+function tpTodosTemas(rs) {
+  const s = new Set(TP_CONFIG.temas.concat(tp.temasExtra));
+  rs.forEach(r => Object.keys(r.temas || {}).forEach(k => (r.temas[k] || []).forEach(t => s.add(t))));
+  return Array.from(s);
+}
+function tpTelaTemas() {
+  const c = tpCicloRelatorio();
+  if (!c) return tpSemCiclo();
+  const st = tpStats(c);
+  let h = tpSeletorCiclo() + `<div class="tp-warn"><b>Leitura restrita à gestão.</b> Os comentários aparecem sem nome e em ordem alfabética, só para classificação. Relatórios coletivos mostram apenas temas, nunca frases. Não copie comentários para materiais coletivos.</div>`;
+  if (!st.rs.length) return h + `<div class="tp-empty"><b>Sem comentários</b>Os comentários aparecem aqui quando houver respostas.</div>`;
+  const temas = tpTodosTemas(st.rs);
+  h += `<div class="tp-form tp-card"><label for="tp-nt" style="margin-top:0">Novo tema</label><div style="display:flex;gap:8px"><input class="inp" id="tp-nt" placeholder="Ex.: Escala de horários" style="flex:1"><button class="tp-btn pri" onclick="tpNovoTema()">Adicionar</button></div><div class="tp-note" style="margin-top:6px">Os temas iniciais são só um ponto de partida. Um tema novo fica salvo quando você o usa em algum comentário.</div></div>`;
+  TP_CONFIG.abertas.forEach(a => {
+    const itens = st.rs.filter(r => r.abertas && r.abertas[a.id] && String(r.abertas[a.id]).trim()).sort((x, y) => String(x.abertas[a.id]).localeCompare(String(y.abertas[a.id])));
+    h += `<div class="tp-card"><h3>${tpEsc(a.rotulo)}</h3><div class="tp-note" style="margin-bottom:8px">${tpEsc(a.texto)}</div>`;
+    if (!itens.length) h += `<div class="tp-note">Nenhum comentário.</div>`;
+    itens.forEach(r => {
+      const ativos = (r.temas && r.temas[a.id]) || [];
+      h += `<div class="tp-com"><p>${tpEsc(r.abertas[a.id])}</p><div class="tp-chips">${temas.map(t => `<button class="tp-chip${ativos.includes(t) ? ' on' : ''}" aria-pressed="${ativos.includes(t)}" data-r="${r.id}" data-c="${a.id}" data-t="${tpEsc(t)}" onclick="tpToggleTema(this.dataset.r,this.dataset.c,this.dataset.t)">${tpEsc(t)}</button>`).join('')}</div></div>`;
+    });
+    h += `</div>`;
+  });
+  return h;
+}
+function tpNovoTema() {
+  const el = document.getElementById('tp-nt'); const v = (el.value || '').trim();
+  if (!v) return;
+  if (!tp.temasExtra.includes(v) && !TP_CONFIG.temas.includes(v)) tp.temasExtra.push(v);
+  tpRender();
+}
+async function tpToggleTema(respId, campo, tema) {
+  const r = tp.respostas.find(x => x.id === respId); if (!r) return;
+  const antes = JSON.parse(JSON.stringify(r.temas || {}));
+  const novo = JSON.parse(JSON.stringify(antes));
+  const l = new Set(novo[campo] || []);
+  if (l.has(tema)) l.delete(tema); else l.add(tema);
+  novo[campo] = Array.from(l);
+  r.temas = novo; tpRender();
+  const res = await tpReq('PATCH', 'tp_respostas', 'id=eq.' + respId, { temas: novo }, true);
+  if (!res.ok) { r.temas = antes; tpMsg('Não foi possível salvar a classificação.'); }
+}
+
+// ── PLANOS DE AÇÃO ────────────────────────────────────────────────────────────
+function tpAcaoAtrasada(a) { return !!a.prazo && (a.status === 'nao_iniciada' || a.status === 'andamento') && a.prazo < tpHoje(); }
+function tpNovaAcao(pre) {
+  tp.tela = 'acoes';
+  tp.acaoForm = Object.assign({ id: null, titulo: '', descricao: '', escopo: 'institucional', origem: '', setor: '', colaborador: '', ciclo_id: '', responsavel: '', prazo: '', status: 'nao_iniciada', criterio: '', resultado: '', nota: '' }, pre || {});
+  tpRender(); window.scrollTo(0, 0);
+}
+function tpEditarAcao(id) {
+  const a = tp.acoes.find(x => x.id === id); if (!a) return;
+  tp.acaoForm = Object.assign({}, a, { prazo: a.prazo || '', nota: '' }); tpRender(); window.scrollTo(0, 0);
+}
+function tpFA(campo, valor) { tp.acaoForm[campo] = valor; }
+async function tpSalvarAcao() {
+  const f = tp.acaoForm; if (!f) return;
+  if (!f.titulo.trim()) { tpMsg('Informe o título da ação.'); return; }
+  const upd = (f.atualizacoes || []).slice();
+  if ((f.nota || '').trim()) upd.push({ data: tpHoje(), texto: f.nota.trim() });
+  const row = { titulo: f.titulo.trim(), descricao: f.descricao || '', escopo: f.escopo, origem: f.origem || '', setor: f.setor || null, colaborador: f.colaborador || null,
+    ciclo_id: f.ciclo_id || null, responsavel: f.responsavel || '', prazo: f.prazo || null, status: f.status, criterio: f.criterio || '', resultado: f.resultado || '', atualizacoes: upd };
+  const r = f.id ? await tpReq('PATCH', 'tp_acoes', 'id=eq.' + f.id, row, true) : await tpReq('POST', 'tp_acoes', '', row, true);
+  const novo = r.ok && r.data ? (Array.isArray(r.data) ? r.data[0] : r.data) : null;
+  if (!novo) { tpMsg('Não foi possível salvar a ação.'); return; }
+  if (f.id) tp.acoes = tp.acoes.map(a => a.id === f.id ? novo : a); else tp.acoes.unshift(novo);
+  tp.acaoForm = null; tpMsg('Ação salva.');
+}
+async function tpStatusAcao(id, status) {
+  const a = tp.acoes.find(x => x.id === id); if (!a || a.status === status) return;
+  const upd = (a.atualizacoes || []).concat([{ data: tpHoje(), texto: 'Status alterado para: ' + TP_ACAO_STATUS[status] }]);
+  const r = await tpReq('PATCH', 'tp_acoes', 'id=eq.' + id, { status: status, atualizacoes: upd }, true);
+  if (r.ok && r.data && r.data[0]) { tp.acoes = tp.acoes.map(x => x.id === id ? r.data[0] : x); tpRender(); } else tpMsg('Não foi possível atualizar o status.');
+}
+function tpFormAcao() {
+  const f = tp.acaoForm;
+  const op = (obj, v) => Object.keys(obj).map(k => `<option value="${k}"${k === v ? ' selected' : ''}>${obj[k]}</option>`).join('');
+  return `<div class="tp-card tp-form"><h3>${f.id ? 'Editar ação' : 'Nova ação'}</h3>
+    ${f.origem ? `<div class="tp-note">Origem do diagnóstico: ${tpEsc(f.origem)}${f.colaborador ? ' · ' + tpEsc(f.colaborador) : ''}${f.setor ? ' · ' + tpEsc(f.setor) : ''}</div>` : ''}
+    <label for="af-t">Título *</label><input class="inp" id="af-t" value="${tpEsc(f.titulo)}" oninput="tpFA('titulo',this.value)">
+    <label for="af-d">Descrição</label><textarea class="inp" id="af-d" rows="3" oninput="tpFA('descricao',this.value)">${tpEsc(f.descricao)}</textarea>
+    <label for="af-e">Tipo</label><select class="inp" id="af-e" onchange="tpFA('escopo',this.value)">${op({ individual: 'Individual', setorial: 'Setorial', institucional: 'Institucional' }, f.escopo)}</select>
+    <label for="af-o">Origem do diagnóstico</label><input class="inp" id="af-o" value="${tpEsc(f.origem)}" placeholder="Ex.: dimensão de menor favorabilidade no ciclo X" oninput="tpFA('origem',this.value)">
+    <label for="af-s">Setor relacionado (opcional)</label><select class="inp" id="af-s" onchange="tpFA('setor',this.value)"><option value="">—</option>${tp.setores.map(s => `<option${s.nome === f.setor ? ' selected' : ''}>${tpEsc(s.nome)}</option>`).join('')}</select>
+    <label for="af-r">Responsável</label><input class="inp" id="af-r" value="${tpEsc(f.responsavel)}" oninput="tpFA('responsavel',this.value)">
+    <label for="af-p">Prazo</label><input class="inp" type="date" id="af-p" value="${tpEsc(f.prazo)}" oninput="tpFA('prazo',this.value)">
+    <label for="af-st">Status</label><select class="inp" id="af-st" onchange="tpFA('status',this.value)">${op(TP_ACAO_STATUS, f.status)}</select>
+    <label for="af-c">Critério de conclusão</label><textarea class="inp" id="af-c" rows="2" oninput="tpFA('criterio',this.value)">${tpEsc(f.criterio)}</textarea>
+    <label for="af-n">Registrar atualização</label><textarea class="inp" id="af-n" rows="2" placeholder="O que aconteceu desde a última atualização…" oninput="tpFA('nota',this.value)">${tpEsc(f.nota)}</textarea>
+    <label for="af-x">Resultado observado após a execução</label><textarea class="inp" id="af-x" rows="2" oninput="tpFA('resultado',this.value)">${tpEsc(f.resultado)}</textarea>
+    <div class="tp-note" style="margin-top:6px">Registre o que foi observado. Não afirme que a ação causou melhora nos indicadores sem evidência adequada.</div>
+    <div class="tp-btns"><button class="tp-btn pri" onclick="tpSalvarAcao()">Salvar ação</button><button class="tp-btn" onclick="tp.acaoForm=null;tpRender()">Cancelar</button></div></div>`;
+}
+function tpTelaAcoes() {
+  if (tp.acaoForm) return tpFormAcao();
+  const fil = tp.acaoFiltro;
+  const lista = tp.acoes.filter(a => !fil || a.status === fil);
+  let h = `<div class="tp-btns" style="margin:0 0 12px"><button class="tp-btn pri" onclick="tpNovaAcao()">+ Nova ação</button></div>
+    <div class="tp-chips" style="margin:0 0 12px"><button class="tp-chip${!fil ? ' on' : ''}" onclick="tp.acaoFiltro='';tpRender()">Todas (${tp.acoes.length})</button>${Object.keys(TP_ACAO_STATUS).map(k => `<button class="tp-chip${fil === k ? ' on' : ''}" onclick="tp.acaoFiltro='${k}';tpRender()">${TP_ACAO_STATUS[k]} (${tp.acoes.filter(a => a.status === k).length})</button>`).join('')}</div>`;
+  if (!lista.length) return h + `<div class="tp-empty"><b>Nenhuma ação${fil ? ' neste status' : ' registrada'}</b>As ações são decididas pela gestão a partir dos relatórios. Nenhuma resposta negativa vira tarefa automaticamente.</div>`;
+  h += lista.map(a => {
+    const ciclo = tp.ciclos.find(c => c.id === a.ciclo_id);
+    return `<div class="tp-card"><div style="display:flex;justify-content:space-between;gap:8px"><h3 style="margin:0">${tpEsc(a.titulo)}</h3>${tpAcaoAtrasada(a) ? '<span class="tp-badge warn">Atrasada</span>' : ''}</div>
+      <div class="tp-note" style="margin:6px 0">${a.escopo === 'individual' ? 'Individual' : a.escopo === 'setorial' ? 'Setorial' : 'Institucional'}${a.colaborador ? ' · ' + tpEsc(a.colaborador) : ''}${a.setor ? ' · ' + tpEsc(a.setor) : ''}${ciclo ? ' · ' + tpEsc(ciclo.nome) : ''}</div>
+      ${a.descricao ? `<div class="tp-note" style="color:#0f172a">${tpEsc(a.descricao)}</div>` : ''}
+      <div class="tp-note" style="margin-top:6px">Responsável: ${tpEsc(a.responsavel || '—')} · Criada em ${tpData(a.criado_em)} · Prazo ${tpData(a.prazo)}</div>
+      ${a.criterio ? `<div class="tp-note">Conclusão: ${tpEsc(a.criterio)}</div>` : ''}
+      ${a.resultado ? `<div class="tp-note"><b>Resultado observado:</b> ${tpEsc(a.resultado)}</div>` : ''}
+      ${(a.atualizacoes || []).length ? `<details class="tp-det"><summary>Atualizações (${a.atualizacoes.length})</summary>${a.atualizacoes.map(u => `<div class="tp-note">${tpData(u.data)}: ${tpEsc(u.texto)}</div>`).join('')}</details>` : ''}
+      <div class="tp-btns"><select class="inp" style="width:auto;padding:7px 10px;font-size:13px" aria-label="Status" onchange="tpStatusAcao('${a.id}',this.value)">${Object.keys(TP_ACAO_STATUS).map(k => `<option value="${k}"${k === a.status ? ' selected' : ''}>${TP_ACAO_STATUS[k]}</option>`).join('')}</select><button class="tp-btn sm" onclick="tpEditarAcao('${a.id}')">Editar</button></div></div>`;
+  }).join('');
+  return h;
+}
+
+// ── CICLOS ────────────────────────────────────────────────────────────────────
+function tpNovoCiclo() {
+  const sel = {}; (typeof colabs !== 'undefined' ? colabs : []).forEach(n => { sel[n] = true; });
+  tp.form = { id: null, nome: '', inicio: tpHoje(), fim: '', modo: 'identificada', limite_min: TP_LIMITE_PADRAO, responsaveis: 'Wellington Brito', retencao_meses: 24, sel: sel };
+  tpRender(); window.scrollTo(0, 0);
+}
+function tpEditarCiclo(id) {
+  const c = tp.ciclos.find(x => x.id === id); if (!c) return;
+  const sel = {}; (c.elegiveis || []).forEach(e => { sel[e.nome] = true; });
+  tp.form = { id: c.id, nome: c.nome, inicio: c.inicio || '', fim: c.fim || '', modo: c.modo, limite_min: c.limite_min, responsaveis: c.responsaveis, retencao_meses: c.retencao_meses, sel: sel };
+  tpRender(); window.scrollTo(0, 0);
+}
+function tpFC(campo, v) { tp.form[campo] = v; }
+function tpFCsel(nome, on) { tp.form.sel[nome] = on; }
+async function tpSalvarCiclo() {
+  const f = tp.form; if (!f) return;
+  const nomes = Object.keys(f.sel).filter(n => f.sel[n]);
+  const lim = parseInt(f.limite_min, 10);
+  if (!f.nome.trim()) { tpMsg('Dê um nome ao ciclo.'); return; }
+  if (!f.inicio || !f.fim || f.fim < f.inicio) { tpMsg('Confira as datas: o encerramento não pode ser antes da abertura.'); return; }
+  if (!(lim >= TP_LIMITE_PISO)) { tpMsg('O mínimo de respostas para divulgação não pode ser menor que ' + TP_LIMITE_PISO + '.'); return; }
+  if (!nomes.length) { tpMsg('Selecione ao menos um colaborador elegível.'); return; }
+  const row = { nome: f.nome.trim(), inicio: f.inicio, fim: f.fim, modo: f.modo, limite_min: lim, responsaveis: f.responsaveis.trim() || 'Wellington Brito',
+    retencao_meses: parseInt(f.retencao_meses, 10) || 24, elegiveis: nomes.map(n => ({ nome: n, setor: tp.colabSetor[n] || '' })) };
+  if (!f.id) { row.versao_questionario = TP_VERSAO; row.criterio = TP_CRITERIO; row.status = 'rascunho'; }
+  const r = f.id ? await tpReq('PATCH', 'tp_ciclos', 'id=eq.' + f.id, row, true) : await tpReq('POST', 'tp_ciclos', '', row, true);
+  const novo = r.ok && r.data ? (Array.isArray(r.data) ? r.data[0] : r.data) : null;
+  if (!novo) { tpMsg('Não foi possível salvar o ciclo.'); return; }
+  tp.ciclos = f.id ? tp.ciclos.map(c => c.id === f.id ? novo : c) : [novo].concat(tp.ciclos);
+  tp.cicloSel = novo.id; tp.cicloAberto = novo.id; tp.form = null;
+  await tpAud(f.id ? 'ciclo_editado' : 'ciclo_criado', novo.nome);
+  tpMsg('Ciclo salvo como rascunho.');
+}
+async function tpMudarStatus(id, status, extra) {
+  const r = await tpReq('PATCH', 'tp_ciclos', 'id=eq.' + id, Object.assign({ status: status }, extra || {}), true);
+  if (r.ok && r.data && r.data[0]) { tp.ciclos = tp.ciclos.map(c => c.id === id ? r.data[0] : c); return r.data[0]; }
+  return null;
+}
+async function tpAbrirCiclo(id) {
+  const c = tp.ciclos.find(x => x.id === id); if (!c) return;
+  const eleg = c.elegiveis || [];
+  if (!eleg.length) { tpMsg('Sem colaboradores elegíveis neste ciclo.'); return; }
+  const semSetor = eleg.filter(e => !e.setor).length;
+  if (!confirm('Abrir o ciclo "' + c.nome + '"?\n\nSerão gerados ' + eleg.length + ' links individuais e o quadro de elegíveis fica congelado.' + (semSetor ? '\n\nAtenção: ' + semSetor + ' pessoa(s) sem setor entrarão como "Sem setor".' : ''))) return;
+  const linhas = eleg.map(e => ({ ciclo_id: id, colaborador: e.nome, setor: e.setor || null }));
+  const r = await tpReq('POST', 'tp_links', '', linhas, true);
+  if (!r.ok || !Array.isArray(r.data)) { tpMsg('Não foi possível gerar os links. Nada foi aberto.'); return; }
+  tp.links = tp.links.concat(r.data);
+  const novo = await tpMudarStatus(id, 'aberto');
+  if (!novo) { tpMsg('Links criados, mas o ciclo não abriu. Tente abrir de novo.'); tpRender(); return; }
+  await tpAud('ciclo_aberto', c.nome + ' · ' + eleg.length + ' elegíveis · modo ' + c.modo);
+  tp.cicloAberto = id; tpMsg('Ciclo aberto. Envie os links aos colaboradores.');
+}
+async function tpEncerrarCiclo(id) {
+  const c = tp.ciclos.find(x => x.id === id); if (!c || !confirm('Encerrar o ciclo "' + c.nome + '"? Novas respostas não serão aceitas.')) return;
+  if (await tpMudarStatus(id, 'encerrado')) { await tpAud('ciclo_encerrado', c.nome); tpMsg('Ciclo encerrado.'); } else tpMsg('Não foi possível encerrar.');
+}
+async function tpArquivarCiclo(id) {
+  const c = tp.ciclos.find(x => x.id === id); if (!c || !confirm('Arquivar "' + c.nome + '"? Os resultados continuam acessíveis para consulta.')) return;
+  if (await tpMudarStatus(id, 'arquivado')) { await tpAud('ciclo_arquivado', c.nome); tpMsg('Ciclo arquivado.'); } else tpMsg('Não foi possível arquivar.');
+}
+async function tpPublicarCiclo(id) {
+  const c = tp.ciclos.find(x => x.id === id); if (!c) return;
+  const r = await tpReq('PATCH', 'tp_ciclos', 'id=eq.' + id, { publicado_em: tpHoje() }, true);
+  if (r.ok && r.data && r.data[0]) { tp.ciclos = tp.ciclos.map(x => x.id === id ? r.data[0] : x); await tpAud('resultados_publicados', c.nome); tpMsg('Data de publicação registrada.'); } else tpMsg('Não foi possível registrar.');
+}
+async function tpAlterarFim(id) {
+  const v = (document.getElementById('tp-fim-' + id) || {}).value; const c = tp.ciclos.find(x => x.id === id);
+  if (!v || !c || v < c.inicio) { tpMsg('Data inválida.'); return; }
+  const r = await tpReq('PATCH', 'tp_ciclos', 'id=eq.' + id, { fim: v }, true);
+  if (r.ok && r.data && r.data[0]) { tp.ciclos = tp.ciclos.map(x => x.id === id ? r.data[0] : x); await tpAud('prazo_alterado', c.nome + ' → ' + v); tpMsg('Data de encerramento atualizada.'); } else tpMsg('Não foi possível atualizar.');
+}
+async function tpExcluirRascunho(id) {
+  const c = tp.ciclos.find(x => x.id === id); if (!c || c.status !== 'rascunho' || !confirm('Excluir o rascunho "' + c.nome + '"?')) return;
+  const r = await tpReq('DELETE', 'tp_ciclos', 'id=eq.' + id);
+  if (r.ok) { tp.ciclos = tp.ciclos.filter(x => x.id !== id); await tpAud('rascunho_excluido', c.nome); tpMsg('Rascunho excluído.'); } else tpMsg('Não foi possível excluir.');
+}
+async function tpExcluirRespostas(id) {
+  const c = tp.ciclos.find(x => x.id === id); if (!c) return;
+  if (!confirm('EXCLUIR TODAS as respostas do ciclo "' + c.nome + '"?\n\nIsso não pode ser desfeito. Use para cumprir a política de retenção.')) return;
+  if (!confirm('Confirma de novo: apagar definitivamente as respostas e os comentários deste ciclo?')) return;
+  const r = await tpReq('DELETE', 'tp_respostas', 'ciclo_id=eq.' + id);
+  if (r.ok) {
+    tp.respostas = tp.respostas.filter(x => x.ciclo_id !== id);
+    await tpAud('respostas_excluidas', c.nome); tpMsg('Respostas do ciclo excluídas.');
+  } else tpMsg('Não foi possível excluir.');
+}
+function tpMaisMeses(iso, m) {
+  const d = new Date(iso + 'T00:00:00'); d.setMonth(d.getMonth() + m);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function tpLinkUrl(token) { return window.location.href.split('?')[0].split('#')[0] + '?tptoken=' + token; }
+function tpTextoConvite(c, l) {
+  const priv = c.modo === 'anonima' ? 'A pesquisa é anônima: as respostas não são ligadas ao seu nome.' : 'Suas respostas serão identificadas e vistas só por ' + c.responsaveis + '.';
+  return 'Olá, ' + l.colaborador + '! Estamos fazendo a pesquisa TEM Pessoas (12 perguntas e 3 opcionais, cerca de 2 a 3 minutos). ' + priv + ' Responda até ' + tpData(c.fim) + ': ' + tpLinkUrl(l.token);
+}
+function tpEnviarWhats(linkId) {
+  const l = tp.links.find(x => x.id === linkId); const c = l && tp.ciclos.find(x => x.id === l.ciclo_id); if (!c) return;
+  const meta = (typeof colabsMeta !== 'undefined' && colabsMeta[l.colaborador]) || {};
+  let fone = String(meta.whatsapp || '').replace(/\D/g, '');
+  if (fone && fone.length <= 11) fone = '55' + fone;
+  window.open('https://wa.me/' + fone + '?text=' + encodeURIComponent(tpTextoConvite(c, l)), '_blank');
+}
+async function tpCopiarLink(linkId) {
+  const l = tp.links.find(x => x.id === linkId); const c = l && tp.ciclos.find(x => x.id === l.ciclo_id); if (!c) return;
+  try { await navigator.clipboard.writeText(tpTextoConvite(c, l)); tpMsg('Convite copiado.'); } catch (e) { window.prompt('Copie o convite:', tpTextoConvite(c, l)); }
+}
+async function tpLiberarReenvio(linkId) {
+  const l = tp.links.find(x => x.id === linkId); const c = l && tp.ciclos.find(x => x.id === l.ciclo_id);
+  if (!c || c.modo !== 'identificada' || c.status !== 'aberto') { tpMsg('Reabertura só vale para ciclo aberto e identificado.'); return; }
+  if (!confirm('Liberar novo envio para ' + l.colaborador + '?\n\nA resposta atual fica marcada como substituída (não entra mais nos cálculos) e a ação é registrada na auditoria.')) return;
+  const r1 = await tpReq('PATCH', 'tp_respostas', 'ciclo_id=eq.' + c.id + '&colaborador=eq.' + encodeURIComponent(l.colaborador) + '&substituida=eq.false', { substituida: true }, true);
+  if (!r1.ok) { tpMsg('Não foi possível substituir a resposta.'); return; }
+  const r2 = await tpReq('PATCH', 'tp_links', 'id=eq.' + l.id, { respondido: false, respondido_em: null }, true);
+  if (!r2.ok) { tpMsg('Resposta substituída, mas o link não foi liberado. Tente de novo.'); return; }
+  (r1.data || []).forEach(x => { const i = tp.respostas.findIndex(y => y.id === x.id); if (i >= 0) tp.respostas[i] = x; });
+  tp.links = tp.links.map(x => x.id === l.id ? (r2.data && r2.data[0] ? r2.data[0] : Object.assign({}, x, { respondido: false, respondido_em: null })) : x);
+  await tpAud('reenvio_liberado', c.nome + ' · ' + l.colaborador);
+  tpMsg('Novo envio liberado.');
+}
+async function tpRemoverElegivel(linkId) {
+  const l = tp.links.find(x => x.id === linkId); const c = l && tp.ciclos.find(x => x.id === l.ciclo_id);
+  if (!l || l.respondido || !confirm('Remover ' + l.colaborador + ' do quadro de elegíveis? O link deixa de funcionar e a ação fica na auditoria.')) return;
+  const r = await tpReq('DELETE', 'tp_links', 'id=eq.' + linkId);
+  if (r.ok) { tp.links = tp.links.filter(x => x.id !== linkId); await tpAud('elegivel_removido', c.nome + ' · ' + l.colaborador); tpMsg('Removido.'); } else tpMsg('Não foi possível remover.');
+}
+async function tpAdicionarElegivel(cicloId) {
+  const v = (document.getElementById('tp-add-' + cicloId) || {}).value; const c = tp.ciclos.find(x => x.id === cicloId);
+  if (!v || !c) return;
+  const r = await tpReq('POST', 'tp_links', '', { ciclo_id: cicloId, colaborador: v, setor: tp.colabSetor[v] || null }, true);
+  if (r.ok && r.data && r.data[0]) { tp.links.push(r.data[0]); await tpAud('elegivel_adicionado', c.nome + ' · ' + v); tpMsg('Colaborador adicionado ao ciclo.'); } else tpMsg('Não foi possível adicionar (já está no ciclo?).');
+}
+function tpFormCiclo() {
+  const f = tp.form; const nomes = typeof colabs !== 'undefined' ? colabs : [];
+  return `<div class="tp-card tp-form"><h3>${f.id ? 'Editar rascunho' : 'Novo ciclo de avaliação'}</h3>
+    <label for="cf-n">Nome do ciclo *</label><input class="inp" id="cf-n" value="${tpEsc(f.nome)}" placeholder="Ex.: Avaliação de referência 2026" oninput="tpFC('nome',this.value)">
+    <label for="cf-i">Abertura *</label><input class="inp" type="date" id="cf-i" value="${tpEsc(f.inicio)}" oninput="tpFC('inicio',this.value)">
+    <label for="cf-f">Encerramento *</label><input class="inp" type="date" id="cf-f" value="${tpEsc(f.fim)}" oninput="tpFC('fim',this.value)">
+    <label>Modalidade</label>
+    <div class="tp-chk"><input type="radio" name="cf-m" id="cf-m1" ${f.modo === 'identificada' ? 'checked' : ''} onchange="tpFC('modo','identificada')"><label for="cf-m1" style="margin:0;font-weight:600">Identificada e confidencial (gera relatório individual)</label></div>
+    <div class="tp-chk"><input type="radio" name="cf-m" id="cf-m2" ${f.modo === 'anonima' ? 'checked' : ''} onchange="tpFC('modo','anonima')"><label for="cf-m2" style="margin:0;font-weight:600">Anônima (só análises agregadas)</label></div>
+    <div class="tp-note">No modo anônimo as respostas não levam nome e só guardam a data. A gestão ainda vê quem já respondeu (participação), mas não o que cada um respondeu. Não é garantia absoluta: em grupos pequenos a identificação indireta é possível, por isso há o mínimo abaixo.</div>
+    <label for="cf-l">Mínimo de respostas para exibir resultados agregados (mínimo ${TP_LIMITE_PISO})</label><input class="inp" type="number" min="${TP_LIMITE_PISO}" id="cf-l" value="${tpEsc(f.limite_min)}" oninput="tpFC('limite_min',this.value)">
+    <label for="cf-r">Quem pode acessar as respostas (aparece para o colaborador)</label><input class="inp" id="cf-r" value="${tpEsc(f.responsaveis)}" oninput="tpFC('responsaveis',this.value)">
+    <label for="cf-t">Retenção dos dados (meses)</label><input class="inp" type="number" min="1" id="cf-t" value="${tpEsc(f.retencao_meses)}" oninput="tpFC('retencao_meses',this.value)">
+    <label>Colaboradores elegíveis</label>
+    ${nomes.length ? nomes.map((n, i) => `<div class="tp-chk"><input type="checkbox" id="cf-e${i}" ${f.sel[n] ? 'checked' : ''} data-n="${tpEsc(n)}" onchange="tpFCsel(this.dataset.n,this.checked)"><label for="cf-e${i}" style="margin:0;font-weight:600;flex:1">${tpEsc(n)}</label><span class="tp-note">${tpEsc(tp.colabSetor[n] || 'sem setor')}</span></div>`).join('') : '<div class="tp-warn">Cadastre colaboradores primeiro.</div>'}
+    <div class="tp-note" style="margin-top:6px">O setor vem de Config. Ele é copiado para o link no momento da abertura.</div>
+    <div class="tp-btns"><button class="tp-btn pri" onclick="tpSalvarCiclo()">Salvar rascunho</button><button class="tp-btn" onclick="tp.form=null;tpRender()">Cancelar</button></div></div>`;
+}
+function tpDetalheCiclo(c) {
+  const st = tpStats(c);
+  let h = `<div class="tp-card"><h3>${tpEsc(c.nome)}</h3>${tpCabCiclo(c)}
+    <div class="tp-note">Quem acessa as respostas: ${tpEsc(c.responsaveis)}. Retenção: ${c.retencao_meses} meses${c.fim ? ' (revisar ou excluir após ' + tpData(tpMaisMeses(c.fim, c.retencao_meses)) + ')' : ''}. Questionário ${c.versao_questionario}.</div>
+    <div class="tp-kpis" style="margin-top:12px">${tpKpi(st.eleg, 'Elegíveis')}${tpKpi(st.env, 'Responderam', tpPct(st.part))}</div>`;
+  if (c.status === 'aberto' && c.fim < tpHoje()) h += `<div class="tp-warn">O prazo deste ciclo já passou e os links não aceitam mais respostas. Encerre o ciclo quando quiser fechar os resultados.</div>`;
+  h += `<div class="tp-btns">`;
+  if (c.status === 'rascunho') h += `<button class="tp-btn pri" onclick="tpAbrirCiclo('${c.id}')">Abrir ciclo e gerar links</button><button class="tp-btn" onclick="tpEditarCiclo('${c.id}')">Editar</button><button class="tp-btn danger" onclick="tpExcluirRascunho('${c.id}')">Excluir</button>`;
+  if (c.status === 'aberto') h += `<button class="tp-btn pri" onclick="tpEncerrarCiclo('${c.id}')">Encerrar ciclo</button>`;
+  if (c.status === 'encerrado') h += `<button class="tp-btn" onclick="tpPublicarCiclo('${c.id}')">${c.publicado_em ? 'Atualizar data de publicação' : 'Registrar publicação dos resultados'}</button><button class="tp-btn" onclick="tpArquivarCiclo('${c.id}')">Arquivar</button>`;
+  if (c.status === 'encerrado' || c.status === 'arquivado') h += `<button class="tp-btn danger" onclick="tpExcluirRespostas('${c.id}')">Excluir respostas (retenção)</button>`;
+  h += `</div>`;
+  if (c.status === 'aberto') h += `<label class="tp-note" for="tp-fim-${c.id}" style="display:block;margin-top:12px"><b>Alterar data de encerramento</b></label><div style="display:flex;gap:8px"><input class="inp" type="date" id="tp-fim-${c.id}" value="${tpEsc(c.fim)}"><button class="tp-btn" onclick="tpAlterarFim('${c.id}')">Salvar</button></div>`;
+  h += `</div>`;
+  if (c.status !== 'rascunho') {
+    const fora = tp.links.filter(l => l.ciclo_id === c.id);
+    const disp = (typeof colabs !== 'undefined' ? colabs : []).filter(n => !fora.some(l => l.colaborador === n));
+    h += `<div class="tp-card"><h3>Participação e links</h3>`;
+    if (c.modo === 'anonima') h += `<div class="tp-note" style="margin-bottom:8px">Ciclo anônimo: você vê quem respondeu, mas não o que cada pessoa respondeu.</div>`;
+    h += fora.map(l => `<div class="tp-row" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><div><div class="tp-row-n">${tpEsc(l.colaborador)}</div><div class="tp-row-s">${tpEsc(l.setor || 'Sem setor')}</div></div><span class="tp-badge ${l.respondido ? 'ok' : 'warn'}">${l.respondido ? 'Respondeu' : 'Pendente'}</span></div>
+      <div class="tp-btns">${c.status === 'aberto' && !l.respondido ? `<button class="tp-btn sm wa" onclick="tpEnviarWhats('${l.id}')">WhatsApp</button><button class="tp-btn sm" onclick="tpCopiarLink('${l.id}')">Copiar convite</button>` : ''}${c.status === 'aberto' && l.respondido && c.modo === 'identificada' ? `<button class="tp-btn sm" onclick="tpLiberarReenvio('${l.id}')">Liberar novo envio</button>` : ''}${!l.respondido && c.status !== 'arquivado' ? `<button class="tp-btn sm danger" onclick="tpRemoverElegivel('${l.id}')">Remover</button>` : ''}</div></div>`).join('') || '<div class="tp-note">Sem links.</div>';
+    if (c.status === 'aberto' && disp.length) h += `<div class="tp-form"><label for="tp-add-${c.id}">Adicionar colaborador ao ciclo</label><div style="display:flex;gap:8px"><select class="inp" id="tp-add-${c.id}">${disp.map(n => `<option>${tpEsc(n)}</option>`).join('')}</select><button class="tp-btn" onclick="tpAdicionarElegivel('${c.id}')">Adicionar</button></div></div>`;
+    h += `</div>`;
+  }
+  return h;
+}
+function tpTelaCiclos() {
+  if (tp.form) return tpFormCiclo();
+  const l = tpOrdenaCiclos();
+  let h = `<div class="tp-btns" style="margin:0 0 12px"><button class="tp-btn pri" onclick="tpNovoCiclo()">+ Novo ciclo</button></div>`;
+  if (!l.length) return h + `<div class="tp-empty"><b>Nenhum ciclo ainda</b>Crie o primeiro ciclo, defina datas e modalidade, escolha os elegíveis e abra para gerar os links individuais.</div>`;
+  const aberto = l.find(x => x.id === tp.cicloAberto) || l[0];
+  h += `<div class="tp-sel"><label for="tp-cc">Ciclo</label><select class="inp" id="tp-cc" onchange="tp.cicloAberto=this.value;tpRender()">${l.map(c => `<option value="${c.id}"${c.id === aberto.id ? ' selected' : ''}>${tpEsc(c.nome)} · ${TP_STATUS[c.status]}</option>`).join('')}</select></div>`;
+  return h + tpDetalheCiclo(aberto);
+}
+
+// ── CONFIGURAÇÃO ──────────────────────────────────────────────────────────────
+const TP_SUGESTOES_SETOR = ['Musculação', 'Natação', 'Aulas coletivas', 'Recepção', 'Manutenção', 'Administrativo'];
+async function tpAddSetor(nome) {
+  const v = String(nome || '').trim(); if (!v) return;
+  if (tp.setores.some(s => s.nome.toLowerCase() === v.toLowerCase())) { tpMsg('Esse setor já existe.'); return; }
+  const r = await tpReq('POST', 'tp_setores', '', { nome: v }, true);
+  if (r.ok && r.data && r.data[0]) { tp.setores.push(r.data[0]); tp.setores.sort((a, b) => a.nome.localeCompare(b.nome)); await tpAud('setor_criado', v); tpRender(); } else tpMsg('Não foi possível criar o setor.');
+}
+async function tpDelSetor(id) {
+  const s = tp.setores.find(x => x.id === id); if (!s) return;
+  const emUso = Object.values(tp.colabSetor).includes(s.nome) || tp.links.some(l => l.setor === s.nome);
+  if (emUso) { tpMsg('Há colaboradores ou ciclos usando este setor. Reatribua antes de excluir.'); return; }
+  if (!confirm('Excluir o setor "' + s.nome + '"?')) return;
+  const r = await tpReq('DELETE', 'tp_setores', 'id=eq.' + id);
+  if (r.ok) { tp.setores = tp.setores.filter(x => x.id !== id); await tpAud('setor_excluido', s.nome); tpRender(); } else tpMsg('Não foi possível excluir.');
+}
+async function tpSetorColab(nome, setor) {
+  const existe = Object.prototype.hasOwnProperty.call(tp.colabSetor, nome);
+  const r = existe ? await tpReq('PATCH', 'tp_colab_setor', 'colaborador=eq.' + encodeURIComponent(nome), { setor: setor || null }, true)
+                   : await tpReq('POST', 'tp_colab_setor', '', { colaborador: nome, setor: setor || null }, true);
+  if (r.ok) tp.colabSetor[nome] = setor || null; else { tpMsg('Não foi possível salvar o setor.'); tpRender(); }
+}
+function tpTelaConfig() {
+  const nomes = typeof colabs !== 'undefined' ? colabs : [];
+  let h = `<div class="tp-card"><h3>Setores</h3><div class="tp-note" style="margin-bottom:8px">A lista é livre: use só os setores que existem na TEM.</div>
+    ${tp.setores.map(s => `<div class="tp-row"><div class="tp-row-n">${tpEsc(s.nome)}</div><button class="tp-btn sm danger" onclick="tpDelSetor('${s.id}')">Excluir</button></div>`).join('') || '<div class="tp-note">Nenhum setor cadastrado.</div>'}
+    <div class="tp-form"><label for="tp-ns">Novo setor</label><div style="display:flex;gap:8px"><input class="inp" id="tp-ns" placeholder="Nome do setor" onkeydown="if(event.key==='Enter')tpAddSetor(this.value)"><button class="tp-btn pri" onclick="tpAddSetor(document.getElementById('tp-ns').value)">Adicionar</button></div></div>
+    <div class="tp-chips">${TP_SUGESTOES_SETOR.filter(n => !tp.setores.some(s => s.nome.toLowerCase() === n.toLowerCase())).map(n => `<button class="tp-chip" data-n="${tpEsc(n)}" onclick="tpAddSetor(this.dataset.n)">+ ${tpEsc(n)}</button>`).join('')}</div></div>`;
+  h += `<div class="tp-card"><h3>Setor de cada colaborador</h3>${nomes.length ? nomes.map((n, i) => `<div class="tp-row"><label class="tp-row-n" for="cs-${i}">${tpEsc(n)}</label><select class="inp" id="cs-${i}" style="width:55%" data-n="${tpEsc(n)}" onchange="tpSetorColab(this.dataset.n,this.value)"><option value="">Sem setor</option>${tp.setores.map(s => `<option${tp.colabSetor[n] === s.nome ? ' selected' : ''}>${tpEsc(s.nome)}</option>`).join('')}</select></div>`).join('') : '<div class="tp-note">Cadastre colaboradores no app para atribuir setores.</div>'}</div>`;
+  h += `<div class="tp-card"><h3>Sobre o instrumento</h3><div class="tp-note">TEM Pessoas é uma ferramenta interna de diagnóstico, sujeita a testes e aprimoramento. As perguntas são desta aplicação e as seis dimensões são categorias internas de análise. Não é o Q12, não é uma versão validada da Gallup e não usa benchmarks externos. Não use os resultados para diagnosticar personalidade, saúde mental ou motivação, nem para decisões disciplinares automáticas.</div></div>`;
+  h += `<details class="tp-det tp-card"><summary>Questionário (versão ${TP_VERSAO})</summary><div class="tp-note"><p>${tpEsc(TP_CONFIG.instrucao)}</p>${TP_CONFIG.dimensoes.map(d => `<p style="margin-top:8px"><b>${tpEsc(d.nome)}</b></p>${d.perguntas.map(q => { const p = TP_CONFIG.perguntas.find(x => x.id === q); return `<p>${p.id.replace('p', '')}. ${tpEsc(p.texto)}</p>`; }).join('')}`).join('')}<p style="margin-top:8px"><b>Abertas (opcionais)</b></p>${TP_CONFIG.abertas.map(a => `<p>${tpEsc(a.texto)}</p>`).join('')}<p style="margin-top:8px">Para alterar perguntas ou dimensões, edite <code>TP_CONFIG</code> no código e aumente <code>TP_VERSAO</code>. Ciclos com versões diferentes não são comparados diretamente.</p></div></details>`;
+  h += TP_COMO_CALCULAMOS;
+  h += `<div class="tp-card"><h3>Registro de auditoria</h3>${tp.aud.length ? tp.aud.slice(0, 30).map(a => `<div class="tp-row" style="display:block"><div class="tp-row-n" style="font-size:13px">${tpEsc(a.acao.replace(/_/g, ' '))}</div><div class="tp-row-s">${tpEsc(a.detalhe || '')} · ${tpData(a.criado_em)}</div></div>`).join('') : '<div class="tp-note">Sem registros ainda.</div>'}</div>`;
+  return h;
+}
+
+// ── PESQUISA DO COLABORADOR (link individual ?tptoken=...) ────────────────────
+let tpPub = null;
+
+async function tpAbrirPublico(token) {
+  const el = document.getElementById('modal-tp-publico'); if (!el) return;
+  el.style.display = 'block';
+  tpPub = { token: token, etapa: 'carregando', resp: {}, abertas: {}, link: null, ciclo: null, msg: '', enviando: false };
+  tpPubRender();
+  if (!tpUuid(token)) { tpPub.etapa = 'erro'; tpPub.msg = 'Este link não é válido. Peça um novo link a quem enviou.'; return tpPubRender(); }
+  const L = await tpReq('GET', 'tp_links', 'select=*&token=eq.' + token);
+  if (!L.ok) { tpPub.etapa = 'erro'; tpPub.msg = 'Não foi possível carregar a pesquisa agora. Verifique sua conexão e tente de novo.'; return tpPubRender(); }
+  const link = Array.isArray(L.data) ? L.data[0] : null;
+  if (!link) { tpPub.etapa = 'erro'; tpPub.msg = 'Link inválido ou removido. Peça um novo link a quem enviou.'; return tpPubRender(); }
+  const C = await tpReq('GET', 'tp_ciclos', 'select=*&id=eq.' + link.ciclo_id);
+  const ciclo = C.ok && Array.isArray(C.data) ? C.data[0] : null;
+  if (!ciclo) { tpPub.etapa = 'erro'; tpPub.msg = 'Não foi possível carregar a pesquisa agora. Tente de novo.'; return tpPubRender(); }
+  tpPub.link = link; tpPub.ciclo = ciclo;
+  if (link.respondido) tpPub.etapa = 'jaRespondeu';
+  else if (!tpDentroPeriodo(ciclo, tpHoje())) { tpPub.etapa = 'erro'; tpPub.msg = ciclo.status === 'aberto' ? 'Esta pesquisa está fora do período de respostas (' + tpData(ciclo.inicio) + ' a ' + tpData(ciclo.fim) + ').' : 'Esta pesquisa não está aberta para respostas.'; }
+  else tpPub.etapa = 'intro';
+  tpPubRender();
+}
+function tpPubFaltam() { return TP_CONFIG.perguntas.filter(p => tpPub.resp[p.id] === undefined).length; }
+function tpPubRender() {
+  const el = document.getElementById('modal-tp-publico'); if (!el || !tpPub) return;
+  const p = tpPub; const c = p.ciclo; let h = '<div class="tpp">';
+  const titulo = '<h1>TEM Pessoas</h1><div class="sub">Indicador de Experiência e Engajamento do Colaborador</div>';
+  if (p.etapa === 'carregando') h += titulo + '<div role="status" class="sub">Carregando…</div>';
+  else if (p.etapa === 'erro') h += titulo + `<div class="priv" role="alert">${tpEsc(p.msg)}</div>${p.link ? '' : '<button class="back" onclick="tpAbrirPublico(tpPub.token)">Tentar de novo</button>'}`;
+  else if (p.etapa === 'jaRespondeu') h += titulo + '<div class="priv" role="status"><b>Suas respostas já foram recebidas.</b> Obrigado por participar! Cada pessoa responde uma única vez por ciclo.</div>';
+  else if (p.etapa === 'fim') h += titulo + `<div class="priv" role="status"><b>Respostas recebidas. Obrigado!</b><br>Sua participação ajuda a TEM a entender a experiência de trabalho e a priorizar melhorias. ${c.modo === 'anonima' ? 'Suas respostas não são ligadas ao seu nome.' : 'Suas respostas serão vistas apenas por ' + tpEsc(c.responsaveis) + '.'} Você pode fechar esta página.</div>`;
+  else if (p.etapa === 'intro') {
+    h += titulo + `<p class="sub" style="color:#0f172a;font-size:14px;line-height:1.55">Olá, ${tpEsc(p.link.colaborador)}!</p><p style="font-size:14.5px;line-height:1.6;color:#0f172a">${tpEsc(TP_CONFIG.instrucao)}</p>
+      <div class="priv"><b>Antes de começar</b><br>${c.modo === 'anonima'
+        ? 'Esta pesquisa é <b>anônima</b>: suas respostas não são ligadas ao seu nome e só aparecem em análises de grupo, com um mínimo de ' + c.limite_min + ' respostas. Quem organiza a pesquisa vê apenas se você já respondeu, não o que respondeu. Comentários podem revelar quem você é se citarem detalhes pessoais, então escreva com isso em mente.'
+        : 'Esta pesquisa é <b>identificada e confidencial</b>: suas respostas ficam ligadas ao seu nome e podem ser vistas por <b>' + tpEsc(c.responsaveis) + '</b>, para acompanhar sua experiência e planejar ações de melhoria. Em relatórios de grupo, só aparecem resultados com pelo menos ' + c.limite_min + ' respostas. Os dados não são usados para decisões disciplinares automáticas.'}
+        <br><br>São 12 afirmações e 3 perguntas opcionais, cerca de 2 a 3 minutos. Você pode escolher "Não sei avaliar / Não se aplica". Os dados são tratados conforme a LGPD e mantidos por ${c.retencao_meses} meses.</div>
+      <button class="go" onclick="tpPub.etapa='perguntas';tpPubRender();window.scrollTo(0,0)">Começar</button>`;
+  } else if (p.etapa === 'perguntas') {
+    const resp = TP_CONFIG.perguntas.length - tpPubFaltam();
+    h += `<div class="tpp-prog"><div class="t" id="tpp-prog-t">${resp} de ${TP_CONFIG.perguntas.length} respondidas</div><div class="tp-bar" role="progressbar" aria-valuemin="0" aria-valuemax="12" aria-valuenow="${resp}"><i id="tpp-prog-b" style="width:${resp / 12 * 100}%"></i></div></div>`;
+    h += TP_CONFIG.perguntas.map((q, i) => `<div class="tpp-q${p.resp[q.id] !== undefined ? ' ok' : ''}" id="tpq-${q.id}" role="group" aria-labelledby="tpl-${q.id}"><div class="n">Afirmação ${i + 1} de 12</div><div class="x" id="tpl-${q.id}">${tpEsc(q.texto)}</div>
+      <div class="tpp-esc">${[1, 2, 3, 4, 5].map(v => { const e = TP_CONFIG.escala.find(z => z.v === v); return `<button type="button" aria-pressed="${p.resp[q.id] === v}" data-q="${q.id}" data-v="${v}" onclick="tpPubResp(this.dataset.q,+this.dataset.v)" aria-label="${v}, ${tpEsc(e.t)}"><b>${v}</b><span>${tpEsc(e.t)}</span></button>`; }).join('')}</div>
+      <button type="button" class="tpp-na" aria-pressed="${p.resp[q.id] === 'na'}" data-q="${q.id}" onclick="tpPubResp(this.dataset.q,'na')">Não sei avaliar / Não se aplica</button></div>`).join('');
+    h += `<div class="tpp-q"><div class="n">Opcional</div><div class="x">Suas palavras ajudam a entender o que os números não mostram. Responder é opcional. Evite citar nomes de pessoas.</div></div>`;
+    h += TP_CONFIG.abertas.map(a => `<div class="tpp-q"><label class="x" for="tpa-${a.id}" style="display:block">${tpEsc(a.texto)} <span style="font-weight:500;color:#64748b">(opcional)</span></label><textarea id="tpa-${a.id}" maxlength="600" oninput="tpPubAberta('${a.id}',this.value)">${tpEsc(p.abertas[a.id] || '')}</textarea><div class="cnt" id="tpc-${a.id}">${(p.abertas[a.id] || '').length}/600</div></div>`).join('');
+    h += `<div class="priv" id="tpp-aviso" ${tpPubFaltam() ? '' : 'style="display:none"'} role="status">Faltam <b id="tpp-falta">${tpPubFaltam()}</b> afirmação(ões). Em cada uma, escolha de 1 a 5 ou "Não sei avaliar / Não se aplica".</div>
+      <button class="go" id="tpp-rev" ${tpPubFaltam() ? 'disabled' : ''} onclick="tpPub.etapa='revisao';tpPubRender();window.scrollTo(0,0)">Revisar respostas</button>`;
+  } else if (p.etapa === 'revisao') {
+    h += titulo + `<h1 style="font-size:17px;margin-top:6px">Revise antes de enviar</h1><div class="sub">Depois de enviar, não é possível responder de novo neste ciclo.</div>`;
+    h += TP_CONFIG.perguntas.map((q, i) => { const v = p.resp[q.id]; const e = TP_CONFIG.escala.find(z => z.v === v); return `<div class="rv"><span>${i + 1}. ${tpEsc(q.rotulo)}</span><b>${v === 'na' ? 'N/A' : v + ' · ' + tpEsc(e ? e.t : '')}</b></div>`; }).join('');
+    h += TP_CONFIG.abertas.map(a => `<div style="margin-top:12px"><div class="sub" style="margin:0"><b>${tpEsc(a.rotulo)}</b></div><div style="font-size:14px;color:#0f172a;white-space:pre-wrap">${p.abertas[a.id] && p.abertas[a.id].trim() ? tpEsc(p.abertas[a.id]) : '<i style="color:#64748b">Sem resposta</i>'}</div></div>`).join('');
+    h += `${p.msg ? `<div class="priv" role="alert" style="background:#fef2f2;border-color:#fecaca;color:#991b1b">${tpEsc(p.msg)}</div>` : ''}<button class="go" ${p.enviando ? 'disabled' : ''} onclick="tpPubEnviar()">${p.enviando ? 'Enviando…' : 'Enviar respostas'}</button><button class="back" onclick="tpPub.etapa='perguntas';tpPubRender();window.scrollTo(0,0)">Voltar e editar</button>`;
+  }
+  el.innerHTML = h + '</div>';
+}
+function tpPubResp(q, v) {
+  tpPub.resp[q] = v;
+  const box = document.getElementById('tpq-' + q);
+  if (box) {
+    box.classList.add('ok');
+    box.querySelectorAll('.tpp-esc button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.v === v)));
+    box.querySelector('.tpp-na').setAttribute('aria-pressed', String(v === 'na'));
+  }
+  const falta = tpPubFaltam(), resp = TP_CONFIG.perguntas.length - falta;
+  const t = document.getElementById('tpp-prog-t'); if (t) t.textContent = resp + ' de ' + TP_CONFIG.perguntas.length + ' respondidas';
+  const b = document.getElementById('tpp-prog-b'); if (b) b.style.width = (resp / 12 * 100) + '%';
+  const f = document.getElementById('tpp-falta'); if (f) f.textContent = falta;
+  const av = document.getElementById('tpp-aviso'); if (av) av.style.display = falta ? '' : 'none';
+  const rv = document.getElementById('tpp-rev'); if (rv) rv.disabled = falta > 0;
+}
+function tpPubAberta(id, v) {
+  tpPub.abertas[id] = v;
+  const c = document.getElementById('tpc-' + id); if (c) c.textContent = v.length + '/600';
+}
+async function tpPubEnviar() {
+  const p = tpPub; if (!p || p.enviando) return;
+  if (tpPubFaltam()) { p.etapa = 'perguntas'; return tpPubRender(); }
+  p.enviando = true; p.msg = ''; tpPubRender();
+  const hoje = tpHoje();
+  // Revalida o ciclo (pode ter encerrado enquanto a pessoa respondia)
+  const C = await tpReq('GET', 'tp_ciclos', 'select=*&id=eq.' + p.link.ciclo_id);
+  const ciclo = C.ok && Array.isArray(C.data) ? C.data[0] : null;
+  if (!ciclo) { p.enviando = false; p.msg = 'Sem conexão. Suas respostas continuam na tela: tente enviar de novo.'; return tpPubRender(); }
+  if (!tpDentroPeriodo(ciclo, hoje)) { p.enviando = false; p.etapa = 'erro'; p.msg = 'A pesquisa foi encerrada antes do envio. Suas respostas não foram registradas.'; return tpPubRender(); }
+  // 1) "reserva" atômica do link: só passa quem encontra respondido=false
+  const claim = await tpReq('PATCH', 'tp_links', 'token=eq.' + p.token + '&respondido=eq.false', { respondido: true, respondido_em: hoje }, true);
+  if (!claim.ok) { p.enviando = false; p.msg = 'Não foi possível enviar agora. Suas respostas continuam na tela: tente de novo.'; return tpPubRender(); }
+  if (!Array.isArray(claim.data) || !claim.data.length) { p.enviando = false; p.etapa = 'jaRespondeu'; return tpPubRender(); }
+  // 2) grava as respostas (sem nome no modo anônimo)
+  const abertas = {};
+  TP_CONFIG.abertas.forEach(a => { const t = (p.abertas[a.id] || '').trim(); if (t) abertas[a.id] = t.slice(0, 600); });
+  const row = tpMontaResposta(ciclo, p.link, Object.assign({}, p.resp), abertas, hoje);
+  const ins = await tpReq('POST', 'tp_respostas', '', row, false);
+  if (!ins.ok) {
+    await tpReq('PATCH', 'tp_links', 'token=eq.' + p.token, { respondido: false, respondido_em: null }, false); // desfaz a reserva
+    p.enviando = false; p.msg = 'Não foi possível registrar suas respostas. Elas continuam na tela: tente de novo.'; return tpPubRender();
+  }
+  p.enviando = false; p.etapa = 'fim'; p.resp = {}; p.abertas = {}; p.ciclo = ciclo;
+  tpPubRender(); window.scrollTo(0, 0);
+}
+
+// Entrada pelo link individual
+(function () {
+  try {
+    const t = new URLSearchParams(window.location.search).get('tptoken');
+    if (t) tpAbrirPublico(t);
+  } catch (e) { console.error('TEM Pessoas link error:', e); }
+})();
+
 </script>
 </body>
 </html>
