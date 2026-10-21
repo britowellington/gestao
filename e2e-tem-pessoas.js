@@ -215,12 +215,17 @@ async function responder(ctx, token, nome, valores, coment, opts) {
   check('setorial: Recepção (2 respostas) oculta por mínimo de 5', set.includes('Resultados ocultos') && set.includes('Recepção'));
   check('setorial: Musculação (6) exibida com distribuição', set.includes('Musculação') && set.includes('Distribuição das respostas'));
   check('setorial: tabela comparativa só aparece com 2+ setores liberados (aqui só 1)', !set.includes('Comparação entre setores'));
+  check('setorial: leitura por camada, da base para o topo, com as 4 camadas', set.includes('Leitura por camada') && ['1. Básicas', '2. Individuais', '3. Coletivas', '4. Crescimento'].every(t => set.includes(t)) && set.indexOf('1. Básicas') < set.indexOf('4. Crescimento'));
+  check('setorial: síntese por camada separa evidência, interpretação e recomendação', set.includes('Síntese por camada'));
+  check('setorial: camadas não aparecem para setor oculto (Recepção tem só o aviso)', (set.match(/Leitura por camada/g) || []).length === 1);
   await adm.screenshot({ path: path.join(__dirname, 'shots', '08-setorial.png'), fullPage: true });
 
   await adm.click('.tp-tab:has-text("Executivo")'); await adm.waitForTimeout(200);
   const ex = await adm.textContent('#tp-body');
   check('executivo: cinco perguntas da direção respondidas', ['Como está a experiência', 'pontos fortes', 'dificuldades merecem atenção', 'setores ou processos', 'ações devem ser priorizadas'].every(t => ex.includes(t)));
   check('executivo: dado observado, interpretação e recomendação', ex.includes('Dado observado') && ex.includes('Interpretação') && ex.includes('Recomendação'));
+  check('executivo: card de leitura por camada com as 4 camadas e aviso de que a ordem não prova causa', ex.includes('Leitura por camada') && ['1. Básicas', '2. Individuais', '3. Coletivas', '4. Crescimento'].every(t => ex.includes(t)) && ex.includes('não prova') );
+  check('executivo: não existe índice geral de engajamento', !/índice (geral )?de engajamento/i.test(ex));
   await adm.screenshot({ path: path.join(__dirname, 'shots', '09-executivo.png'), fullPage: true });
 
   // 7. temas

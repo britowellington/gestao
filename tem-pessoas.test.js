@@ -16,7 +16,7 @@ function bloco(ini, fim) {
 }
 const cfgSrc = html.slice(html.indexOf('const TP_VERSAO'), html.indexOf('// TP-CALC-START'));
 const code = cfgSrc + bloco('// TP-CALC-START', '// TP-CALC-END') + bloco('// TP-SINTESE-START', '// TP-SINTESE-END');
-const ctx = {}; vm.createContext(ctx); vm.runInContext(code + '\nthis.X={TP_CONFIG,TP_VERSAO,TP_CRITERIO,TP_MIN_TEMA,tpValida,tpMedia,tpFav,tpDist,tpResumo,tpResumoIndividual,tpParticipacao,tpPodeExibir,tpPodeComparar,tpAtivas,tpPorSetor,tpMontaResposta,tpDentroPeriodo,tpTemasContagem,tpFmt,tpPct,tpSinteseIndividual,tpSinteseColetiva,tpValsPergunta,TP_LIMITE_PISO};', ctx);
+const ctx = {}; vm.createContext(ctx); vm.runInContext(code + '\nthis.X={TP_CONFIG,TP_VERSAO,TP_CRITERIO,TP_MIN_TEMA,tpValida,tpMedia,tpFav,tpDist,tpResumo,tpResumoIndividual,tpParticipacao,tpPodeExibir,tpPodeComparar,tpAtivas,tpPorSetor,tpMontaResposta,tpDentroPeriodo,tpTemasContagem,tpFmt,tpPct,tpSinteseIndividual,tpSinteseColetiva,tpSinteseCamadas,tpValsPergunta,TP_LIMITE_PISO,TP_MIN_VALIDAS_CAMADA};', ctx);
 const X = ctx.X;
 const cfg = X.TP_CONFIG;
 const R = (o) => ({ respostas: o });
@@ -155,4 +155,73 @@ test('texto das perguntas igual ao especificado', () => {
   assert.equal(cfg.perguntas[0].texto, 'Sei claramente o que se espera de mim no desempenho das minhas funções.');
   assert.equal(cfg.perguntas[11].texto, 'Consigo enxergar possibilidades de evolução profissional dentro da TEM.');
   assert.equal(cfg.abertas[1].texto, 'Qual é a principal dificuldade que você enfrenta hoje para realizar seu trabalho da maneira que gostaria?');
+});
+
+// ── Leitura por camada (hierarquia do engajamento) ────────────────────────────
+const grupo = (n, vals) => { const rs = []; for (let i = 0; i < n; i++) { const o = todos(4); Object.keys(vals).forEach(k => { o[k] = vals[k]; }); rs.push(R(o)); } return rs; };
+
+test('camadas: 4 camadas, cada pergunta em exatamente uma, no agrupamento definido', () => {
+  assert.equal(cfg.camadas.length, 4);
+  const m = {}; cfg.camadas.forEach(k => { m[k.key] = k.perguntas.join(','); });
+  assert.deepEqual(m, { c1: 'p1,p2', c2: 'p3,p4,p5,p6', c3: 'p7,p8,p9,p10', c4: 'p11,p12' });
+  assert.deepEqual(Array.from(cfg.camadas.map(k => k.nome)), ['Básicas', 'Individuais', 'Coletivas', 'Crescimento']);
+  const cont = {}; cfg.camadas.forEach(k => k.perguntas.forEach(q => { cont[q] = (cont[q] || 0) + 1; }));
+  cfg.perguntas.forEach(p => assert.equal(cont[p.id], 1, p.id));
+});
+test('camadas: média agregada das respostas válidas reunidas, "na" fora, nunca zero', () => {
+  const b = todos('na'); b.p1 = 1;
+  const r = X.tpResumo([R(todos(5)), R(b)], cfg);
+  const c1 = r.camadas.find(k => k.key === 'c1');
+  assert.equal(c1.n, 3); assert.equal(+c1.media.toFixed(4), +((5 + 5 + 1) / 3).toFixed(4));
+  assert.equal(c1.fav.n, 3); assert.equal(c1.fav.fav, 2);
+  const soNa = X.tpResumo([R(todos('na'))], cfg);
+  soNa.camadas.forEach(k => { assert.equal(k.media, null); assert.equal(k.n, 0); });
+});
+test('camadas: não alteram a média geral nem as dimensões (mesmos dados, outra leitura)', () => {
+  const rs = grupo(6, { p1: 2, p2: 3, p11: 5 });
+  const r = X.tpResumo(rs, cfg);
+  const somaCamadas = r.camadas.reduce((a, k) => a + k.n, 0);
+  assert.equal(somaCamadas, r.nValidas);
+  const somaDims = r.dims.reduce((a, d) => a + d.n, 0);
+  assert.equal(somaDims, r.nValidas);
+});
+test('síntese por camada: sem base com poucos respondentes ou camadas com poucas respostas válidas', () => {
+  assert.equal(X.tpSinteseCamadas(X.tpResumo(grupo(2, {}), cfg)).insuficiente, true);
+  // 3 respondentes: Básicas teria 6 válidas (ok); mas só 1 camada com dados se as demais forem "na"
+  const base = {}; cfg.perguntas.forEach(p => { base[p.id] = 'na'; }); base.p1 = 4; base.p2 = 4;
+  const rs = []; for (let i = 0; i < 6; i++) rs.push(R(Object.assign({}, base)));
+  assert.equal(X.tpSinteseCamadas(X.tpResumo(rs, cfg)).insuficiente, true);
+});
+test('síntese por camada: camada com poucas respostas válidas é marcada como insuficiente na evidência', () => {
+  const rs = grupo(3, {});
+  const res = X.tpResumo(rs, cfg); // Básicas e Crescimento: 6 válidas cada (3 x 2), mínimo 6
+  const s = X.tpSinteseCamadas(res);
+  assert.equal(s.insuficiente, false);
+  const rs2 = grupo(3, {}); rs2.forEach(r => { r.respostas.p2 = 'na'; });  // Básicas cai para 3 válidas
+  const s2 = X.tpSinteseCamadas(X.tpResumo(rs2, cfg));
+  assert.ok(s2.evidencia.some(t => t.startsWith('Básicas: dados insuficientes')));
+});
+test('síntese por camada: destaca a primeira camada da base para o topo bem abaixo da mais favorável', () => {
+  // Básicas 2 (baixa), Individuais 4, Coletivas 5, Crescimento 3 (também baixa): foco deve ser Básicas
+  const rs = grupo(6, { p1: 2, p2: 2, p7: 5, p8: 5, p9: 5, p10: 5, p11: 3, p12: 3 });
+  const s = X.tpSinteseCamadas(X.tpResumo(rs, cfg));
+  assert.equal(s.insuficiente, false);
+  assert.ok(s.interpretacao[0].includes('"Básicas"'));
+  assert.ok(s.interpretacao.some(t => t.includes('Também ficaram abaixo') && t.includes('Crescimento')));
+  assert.ok(s.recomendacao[0].includes('"Básicas"') && s.recomendacao[0].includes('Clareza de expectativas'));
+});
+test('síntese por camada: sem diferença relevante, sem foco e sem afirmação causal', () => {
+  const s = X.tpSinteseCamadas(X.tpResumo(grupo(6, {}), cfg));
+  assert.equal(s.insuficiente, false);
+  assert.ok(s.interpretacao[0].includes('Não há diferença relevante'));
+  const alta = X.tpSinteseCamadas(X.tpResumo(grupo(6, { p1: 1, p2: 1 }), cfg));
+  const txt = JSON.stringify(alta).toLowerCase();
+  ['porque', 'causado', 'por causa', 'melhor liderança', 'culpa'].forEach(p => assert.equal(txt.includes(p), false, p));
+  assert.ok(txt.includes('não prova'));
+});
+test('síntese por camada: favorabilidade usa denominador de respostas válidas', () => {
+  const rs = grupo(6, { p1: 5, p2: 'na' });
+  const res = X.tpResumo(rs, cfg);
+  const c1 = res.camadas[0];
+  assert.equal(c1.n, 6); assert.equal(c1.fav.pct, 100);
 });

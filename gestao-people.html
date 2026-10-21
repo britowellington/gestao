@@ -3586,16 +3586,19 @@ if ('serviceWorker' in navigator) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // TEM PESSOAS | Indicador de Experiência e Engajamento do Colaborador
 // Ferramenta interna de diagnóstico, sujeita a testes e aprimoramento.
-// Perguntas originais desta aplicação. Não é o Q12, nem material oficial da Gallup.
+// Inspirado nos temas do Q12 da Gallup (referência de origem), com redação própria e adaptada à TEM.
+// Não é o instrumento oficial, não é validado pela Gallup e não usa benchmarks externos.
 // ═══════════════════════════════════════════════════════════════════════════════
-const TP_VERSAO = 'v1';            // muda quando perguntas, escala ou dimensões mudam
+const TP_VERSAO = 'v1';            // muda quando perguntas, escala, dimensões ou camadas mudam
 const TP_CRITERIO = 'agregada-v1'; // setorial e executivo: média agregada das respostas válidas
 const TP_LIMITE_PADRAO = 5;
 const TP_LIMITE_PISO = 3;
 const TP_MIN_TEMA = 2;             // tema só aparece em relatório coletivo se 2+ pessoas citaram
+const TP_MIN_VALIDAS_CAMADA = 6;   // camada com menos respostas válidas que isso aparece como "sem dados suficientes"
 
 // Única fonte de verdade: perguntas, escala, dimensões e perguntas abertas.
-// O mapeamento pergunta -> dimensão vive só em "dimensoes".
+// O mapeamento pergunta -> dimensão vive só em "dimensoes", e pergunta -> camada só em "camadas".
+// Camadas são uma segunda leitura dos mesmos dados (hierarquia do engajamento), da base para o topo.
 const TP_CONFIG = {
   versao: TP_VERSAO,
   instrucao: 'Pense na sua experiência de trabalho na TEM e indique o quanto você concorda com cada afirmação. Não existem respostas certas ou erradas. O objetivo é compreender sua experiência e identificar oportunidades de melhoria.',
@@ -3627,6 +3630,12 @@ const TP_CONFIG = {
     { key: 'd4', nome: 'Liderança, escuta e feedback',             perguntas: ['p7', 'p11'] },
     { key: 'd5', nome: 'Equipe e colaboração',                     perguntas: ['p9', 'p10'] },
     { key: 'd6', nome: 'Propósito e crescimento na organização',   perguntas: ['p8', 'p12'] }
+  ],
+  camadas: [
+    { key: 'c1', nome: 'Básicas',     descricao: 'Clareza do que se espera e recursos para trabalhar bem',                 perguntas: ['p1', 'p2'] },
+    { key: 'c2', nome: 'Individuais', descricao: 'Uso dos pontos fortes, reconhecimento, cuidado e desenvolvimento',       perguntas: ['p3', 'p4', 'p5', 'p6'] },
+    { key: 'c3', nome: 'Coletivas',   descricao: 'Escuta, propósito, compromisso com a qualidade e relações na equipe',    perguntas: ['p7', 'p8', 'p9', 'p10'] },
+    { key: 'c4', nome: 'Crescimento', descricao: 'Feedback que ajuda a evoluir e possibilidades de crescimento na TEM',    perguntas: ['p11', 'p12'] }
   ],
   abertas: [
     { id: 'a1', rotulo: 'Fatores positivos', texto: 'O que mais ajuda você a realizar um bom trabalho na TEM atualmente?' },
@@ -3682,6 +3691,12 @@ function tpResumo(rs, cfg) {
     dims: cfg.dimensoes.map(d => {
       const v = tpValsDim(rs, d);
       return { key: d.key, nome: d.nome, n: v.length, media: tpMedia(v), fav: tpFav(v), dist: tpDist(v) };
+    }),
+    // Mesmo cálculo agregado, só agrupado por camada (da base para o topo).
+    camadas: (cfg.camadas || []).map(k => {
+      const v = tpValsDim(rs, k);
+      return { key: k.key, nome: k.nome, descricao: k.descricao, n: v.length, media: tpMedia(v), fav: tpFav(v), dist: tpDist(v),
+        rotulos: k.perguntas.map(q => { const p = cfg.perguntas.find(x => x.id === q); return p ? p.rotulo : q; }) };
     }),
     perguntas: cfg.perguntas.map(p => {
       const v = tpValsPergunta(rs, p.id);
@@ -3785,6 +3800,30 @@ function tpSinteseColetiva(resumo, temas) {
   if (dif.length) {
     interpretacao.push('Nas dificuldades relatadas, os temas citados por mais pessoas foram: ' + dif.map(t => t.tema + ' (' + t.n + ')').join(', ') + '. Frequência de menções não equivale a importância do problema.');
     recomendacao.push('Investigar esses temas na prática antes de tratá-los como causa de qualquer resultado.');
+  }
+  return { insuficiente: false, evidencia: evidencia, interpretacao: interpretacao, recomendacao: recomendacao };
+}
+
+// Leitura por camada: da base para o topo. A ordem é uma lógica de leitura, não prova de que uma camada explica outra.
+function tpSinteseCamadas(resumo) {
+  const todas = (resumo && resumo.camadas) || [];
+  const ok = todas.filter(k => k.fav.pct !== null && k.n >= TP_MIN_VALIDAS_CAMADA);
+  if ((resumo.nRespondentes || 0) < TP_LIMITE_PISO || ok.length < 2) return { insuficiente: true, motivo: 'Poucos dados para uma leitura por camada confiável.' };
+  const evidencia = todas.map(k => ok.indexOf(k) >= 0
+    ? k.nome + ': ' + tpPct(k.fav.pct) + ' favoráveis (' + k.fav.fav + ' de ' + k.fav.n + ' respostas válidas), média ' + tpFmt(k.media)
+    : k.nome + ': dados insuficientes (' + k.n + ' respostas válidas, mínimo ' + TP_MIN_VALIDAS_CAMADA + ')');
+  const maior = Math.max.apply(null, ok.map(k => k.fav.pct));
+  const abaixo = ok.filter(k => maior - k.fav.pct >= 10);   // mantém a ordem da base para o topo
+  const interpretacao = [], recomendacao = [];
+  if (!abaixo.length) {
+    interpretacao.push('Não há diferença relevante de favorabilidade entre as camadas (critério interno: menos de 10 pontos percentuais).');
+    recomendacao.push('Manter o acompanhamento e observar nos próximos ciclos.');
+  } else {
+    const foco = abaixo[0];
+    interpretacao.push('Lendo da base para o topo, a primeira camada com favorabilidade relevantemente menor que a mais favorável foi "' + foco.nome + '" (' + tpPct(foco.fav.pct) + ', contra ' + tpPct(maior) + ' na camada mais favorável). É uma leitura comparativa dentro deste grupo, não uma meta nem um padrão externo.');
+    if (abaixo.length > 1) interpretacao.push('Também ficaram abaixo: ' + abaixo.slice(1).map(k => k.nome + ' (' + tpPct(k.fav.pct) + ')').join(', ') + '.');
+    interpretacao.push('A ordem das camadas é uma lógica de leitura inspirada na hierarquia do engajamento. Ela não prova que uma camada explica a outra.');
+    recomendacao.push('Verificar com a equipe, antes de olhar as camadas acima, o que está ligado a "' + foco.nome + '" (' + foco.rotulos.join(', ') + ').');
   }
   return { insuficiente: false, evidencia: evidencia, interpretacao: interpretacao, recomendacao: recomendacao };
 }
@@ -3908,6 +3947,15 @@ function tpDistHtml(dist) {
   const leg = [5, 4, 3, 2, 1].map(v => `${v}: ${dist.counts[v]} (${Math.round(dist.counts[v] / dist.n * 100)}%)`).join(' · ');
   return `<div class="tp-dist" role="img" aria-label="Distribuição das respostas de 1 a 5">${seg}</div><div class="tp-leg">${leg} · total ${dist.n}</div>`;
 }
+// Leitura por camada (da base para o topo). Mesmo cálculo agregado, só agrupado de outra forma.
+function tpCamadasHtml(res) {
+  const ks = (res && res.camadas) || [];
+  if (!ks.length) return '';
+  return `<div class="tp-note"><b>Leitura por camada</b>, da base para o topo</div>` + ks.map((k, i) => {
+    const suf = k.n >= TP_MIN_VALIDAS_CAMADA;
+    return `<div>${tpLinhaDim({ nome: (i + 1) + '. ' + k.nome, media: suf ? k.media : null, fav: k.fav })}<div class="tp-note">${tpEsc(k.descricao)}</div></div>`;
+  }).join('') + `<div class="tp-note" style="margin-top:6px">As camadas Básicas e Crescimento têm só 2 afirmações cada e variam mais com poucas respostas. A ordem é uma lógica de leitura, não prova de causa.</div>`;
+}
 function tpKpi(valor, rotulo, sub) { return `<div class="tp-kpi"><b>${valor}</b><span>${rotulo}</span>${sub ? `<small>${sub}</small>` : ''}</div>`; }
 function tpBlocoSintese(s) {
   if (!s) return '';
@@ -3930,6 +3978,7 @@ const TP_COMO_CALCULAMOS = `<details class="tp-det tp-card"><summary>Como calcul
 <p style="margin-top:6px"><b>Relatório individual:</b> média das perguntas respondidas pelo próprio colaborador.</p>
 <p style="margin-top:6px"><b>Setorial e executivo:</b> média agregada, ou seja, todas as respostas válidas do grupo reunidas (não é a média das médias individuais). O mesmo critério vale nas comparações entre ciclos.</p>
 <p style="margin-top:6px"><b>Favorabilidade:</b> respostas 4 ou 5 ÷ respostas numéricas válidas × 100. O denominador aparece junto.</p>
+<p style="margin-top:6px"><b>Leitura por camada:</b> agrupa as afirmações em Básicas (1 e 2), Individuais (3 a 6), Coletivas (7 a 10) e Crescimento (11 e 12), inspirada na hierarquia do engajamento. Usa o mesmo cálculo agregado e não gera índice geral. Uma camada com menos de ${TP_MIN_VALIDAS_CAMADA} respostas válidas aparece como "sem dados suficientes". Mudar o agrupamento exige aumentar a versão do questionário.</p>
 <p style="margin-top:6px"><b>Participação:</b> colaboradores que enviaram ÷ elegíveis do ciclo × 100. O quadro de elegíveis é o conjunto de links do ciclo, congelado na abertura; ajustes depois disso ficam registrados na auditoria.</p>
 <p style="margin-top:6px"><b>Sem metas externas:</b> não há faixas "boas" ou "ruins" validadas nem benchmarks. A gestão define metas internas após a avaliação de referência.</p></div></details>`;
 
@@ -3967,7 +4016,7 @@ function tpTelaResumo() {
     <button class="tp-btn" onclick="tpIr('config')">Cadastro e configuração</button></div></div>`;
   if (outros.length) h += `<div class="tp-card"><h3>Ciclos anteriores</h3>${outros.map(x => `<div class="tp-row"><div><div class="tp-row-n">${tpEsc(x.nome)}</div><div class="tp-row-s">${TP_STATUS[x.status]} · ${tpData(x.inicio)} a ${tpData(x.fim)}</div></div><button class="tp-btn sm" onclick="tpSelCiclo('${x.id}')">Abrir</button></div>`).join('')}</div>`;
   h += TP_COMO_CALCULAMOS;
-  h += `<div class="tp-note" style="margin-top:6px">TEM Pessoas é uma ferramenta interna de diagnóstico, sujeita a testes e aprimoramento. Não é o Q12 nem material oficial da Gallup, e não deve ser usada para decisões disciplinares automáticas.</div>`;
+  h += `<div class="tp-note" style="margin-top:6px">TEM Pessoas é uma ferramenta interna de diagnóstico, sujeita a testes e aprimoramento. Inspirada nos temas do Q12 da Gallup, com redação própria, não é o instrumento oficial nem validada pela Gallup, e não deve ser usada para decisões disciplinares automáticas.</div>`;
   return h;
 }
 
@@ -4055,6 +4104,7 @@ function tpTelaSetorial() {
     h += `<div class="tp-note">Média geral <b>${tpFmt(i.res.media)}</b> de 5 em ${i.res.nValidas} respostas válidas.</div>`;
     if (i.rs.length < c.limite_min + 3) h += `<div class="tp-warn" style="margin-top:8px">Amostra pequena (${i.rs.length} respostas). Leia com cautela.</div>`;
     h += `<div style="margin-top:12px">${i.res.dims.map(d => tpLinhaDim(d)).join('')}</div><div class="tp-note"><b>Distribuição das respostas</b></div>${tpDistHtml(i.res.dist)}`;
+    h += `<div style="margin-top:12px">${tpCamadasHtml(i.res)}</div><div style="margin-top:8px"><b style="font-size:13px">Síntese por camada</b>${tpBlocoSintese(tpSinteseCamadas(i.res))}</div>`;
     if (ant) {
       const ai = tpResumo(tpAtivas(tp.respostas.filter(r => r.ciclo_id === ant.id && (r.setor || 'Sem setor') === i.nome)), TP_CONFIG);
       const antN = tpAtivas(tp.respostas.filter(r => r.ciclo_id === ant.id && (r.setor || 'Sem setor') === i.nome)).length;
@@ -4079,6 +4129,7 @@ function tpTelaExecutivo() {
   h += `<div class="tp-kpis">${tpKpi(st.eleg, 'Colaboradores elegíveis')}${tpKpi(tpPct(st.part), 'Participação geral', st.env + ' de ' + st.eleg)}${st.liberado ? tpKpi(tpPct(st.resumo.fav.pct), 'Respostas favoráveis', st.resumo.fav.fav + ' de ' + st.resumo.fav.n + ' válidas') : tpKpi('—', 'Respostas favoráveis', 'oculto')}${st.liberado ? tpKpi(tpFmt(st.resumo.media), 'Média geral (1 a 5)') : tpKpi('—', 'Média geral')}</div>`;
   if (!st.liberado) return h + tpOculto(c, st.rs.length);
   h += `<div class="tp-card"><h3>Seis dimensões</h3>${st.resumo.dims.map(d => tpLinhaDim(d)).join('')}<div class="tp-note"><b>Distribuição geral das respostas</b></div>${tpDistHtml(st.resumo.dist)}</div>`;
+  h += `<div class="tp-card"><h3>Leitura por camada</h3>${tpCamadasHtml(st.resumo)}${tpBlocoSintese(tpSinteseCamadas(st.resumo))}</div>`;
   const fo = tpForcaOport(st.resumo);
   const temas = tpTemasObj(st.rs);
   const acoesCiclo = tp.acoes;
@@ -4461,7 +4512,7 @@ function tpTelaConfig() {
     <div class="tp-form"><label for="tp-ns">Novo setor</label><div style="display:flex;gap:8px"><input class="inp" id="tp-ns" placeholder="Nome do setor" onkeydown="if(event.key==='Enter')tpAddSetor(this.value)"><button class="tp-btn pri" onclick="tpAddSetor(document.getElementById('tp-ns').value)">Adicionar</button></div></div>
     <div class="tp-chips">${TP_SUGESTOES_SETOR.filter(n => !tp.setores.some(s => s.nome.toLowerCase() === n.toLowerCase())).map(n => `<button class="tp-chip" data-n="${tpEsc(n)}" onclick="tpAddSetor(this.dataset.n)">+ ${tpEsc(n)}</button>`).join('')}</div></div>`;
   h += `<div class="tp-card"><h3>Setor de cada colaborador</h3>${nomes.length ? nomes.map((n, i) => `<div class="tp-row"><label class="tp-row-n" for="cs-${i}">${tpEsc(n)}</label><select class="inp" id="cs-${i}" style="width:55%" data-n="${tpEsc(n)}" onchange="tpSetorColab(this.dataset.n,this.value)"><option value="">Sem setor</option>${tp.setores.map(s => `<option${tp.colabSetor[n] === s.nome ? ' selected' : ''}>${tpEsc(s.nome)}</option>`).join('')}</select></div>`).join('') : '<div class="tp-note">Cadastre colaboradores no app para atribuir setores.</div>'}</div>`;
-  h += `<div class="tp-card"><h3>Sobre o instrumento</h3><div class="tp-note">TEM Pessoas é uma ferramenta interna de diagnóstico, sujeita a testes e aprimoramento. As perguntas são desta aplicação e as seis dimensões são categorias internas de análise. Não é o Q12, não é uma versão validada da Gallup e não usa benchmarks externos. Não use os resultados para diagnosticar personalidade, saúde mental ou motivação, nem para decisões disciplinares automáticas.</div></div>`;
+  h += `<div class="tp-card"><h3>Sobre o instrumento</h3><div class="tp-note">TEM Pessoas é uma ferramenta interna de diagnóstico, sujeita a testes e aprimoramento. As perguntas têm redação própria, inspiradas nos temas do Q12 da Gallup, e as seis dimensões e as quatro camadas são categorias internas de análise. Não é o instrumento oficial, não é uma versão validada pela Gallup e não usa benchmarks externos. Não use os resultados para diagnosticar personalidade, saúde mental ou motivação, nem para decisões disciplinares automáticas.</div></div>`;
   h += `<details class="tp-det tp-card"><summary>Questionário (versão ${TP_VERSAO})</summary><div class="tp-note"><p>${tpEsc(TP_CONFIG.instrucao)}</p>${TP_CONFIG.dimensoes.map(d => `<p style="margin-top:8px"><b>${tpEsc(d.nome)}</b></p>${d.perguntas.map(q => { const p = TP_CONFIG.perguntas.find(x => x.id === q); return `<p>${p.id.replace('p', '')}. ${tpEsc(p.texto)}</p>`; }).join('')}`).join('')}<p style="margin-top:8px"><b>Abertas (opcionais)</b></p>${TP_CONFIG.abertas.map(a => `<p>${tpEsc(a.texto)}</p>`).join('')}<p style="margin-top:8px">Para alterar perguntas ou dimensões, edite <code>TP_CONFIG</code> no código e aumente <code>TP_VERSAO</code>. Ciclos com versões diferentes não são comparados diretamente.</p></div></details>`;
   h += TP_COMO_CALCULAMOS;
   h += `<div class="tp-card"><h3>Registro de auditoria</h3>${tp.aud.length ? tp.aud.slice(0, 30).map(a => `<div class="tp-row" style="display:block"><div class="tp-row-n" style="font-size:13px">${tpEsc(a.acao.replace(/_/g, ' '))}</div><div class="tp-row-s">${tpEsc(a.detalhe || '')} · ${tpData(a.criado_em)}</div></div>`).join('') : '<div class="tp-note">Sem registros ainda.</div>'}</div>`;
