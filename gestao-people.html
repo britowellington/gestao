@@ -4693,9 +4693,23 @@ function vaArr(v) {
 function vaNorm(r) {
   r = r || {};
   return Object.assign({}, r, {
-    gosta: String(r.gosta || ''), melhorar: String(r.melhorar || ''),
+    gosta: String(r.gosta || ''), melhorar: String(r.melhorar || ''), loja: String(r.loja || '').replace(/\s+/g, ' ').trim(),
     gosta_areas: vaArr(r.gosta_areas), melhorar_areas: vaArr(r.melhorar_areas)
   });
+}
+// Loja: texto livre (Loja 1, Loja 2...). A comparação ignora maiúsculas, acentos e espaços repetidos.
+function vaLojaLimpa(s) { return String(s || '').replace(/\s+/g, ' ').trim(); }
+function vaLojaKey(s) { return vaLojaLimpa(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+function vaLojas(rows) {
+  const m = {};
+  rows.forEach(r => {
+    const k = vaLojaKey(r.loja); if (!m[k]) m[k] = { n: 0, formas: {} };
+    m[k].n++; const f = vaLojaLimpa(r.loja); m[k].formas[f] = (m[k].formas[f] || 0) + 1;
+  });
+  return Object.keys(m).map(k => {
+    const o = m[k]; const forma = Object.keys(o.formas).sort((a, b) => o.formas[b] - o.formas[a] || a.localeCompare(b, 'pt'))[0];
+    return { key: k, label: k ? forma : 'Sem loja informada', n: o.n };
+  }).sort((a, b) => a.label.localeCompare(b.label, 'pt', { numeric: true }));
 }
 function vaUTC(iso) { const p = String(iso).split('-'); return Date.UTC(+p[0], +p[1] - 1, +p[2]); }
 function vaDiasEntre(a, b) { return Math.round((vaUTC(b) - vaUTC(a)) / 86400000); }
@@ -4718,9 +4732,10 @@ function vaContar(rows, campo) {
     .sort((x, y) => y.n - x.n || x.area.localeCompare(y.area, 'pt'));
 }
 function vaTop(rows) { const c = vaContar(rows, 'melhorar_areas'); return c.length ? { area: c[0].area, n: c[0].n } : null; }
-function vaGrupos(rows, chave, lista) {
+function vaGrupos(rows, chave, lista, getter) {
+  const ler = getter || (r => r[chave]);
   return lista.map(o => {
-    const g = rows.filter(r => r[chave] === o.key); const suf = g.length >= VA_CONFIG.minCorte;
+    const g = rows.filter(r => ler(r) === o.key); const suf = g.length >= VA_CONFIG.minCorte;
     return { key: o.key, label: o.label, n: g.length, suficiente: suf, top: suf ? vaTop(g) : null };
   });
 }
@@ -4737,6 +4752,7 @@ function vaResumo(rows, meta, hoje) {
     gosta: vaContar(rows, 'gosta_areas'), melhorar: vaContar(rows, 'melhorar_areas'),
     nada: rows.filter(r => r.melhorar_areas.indexOf(VA_CONFIG.nada) >= 0).length,
     tempos: vaGrupos(rows, 'tempo', VA_CONFIG.tempos), horarios: vaGrupos(rows, 'horario', VA_CONFIG.horarios),
+    lojas: vaGrupos(rows, 'loja', vaLojas(rows).map(l => ({ key: l.key, label: l.label })), r => vaLojaKey(r.loja)),
     semanas: Object.keys(sem).sort().map(s => ({ semana: s, n: sem[s] }))
   };
 }
@@ -4752,17 +4768,20 @@ function vaSintese(res) {
     const dif = [];
     res.tempos.forEach(g => { if (g.top && g.top.area !== top.area) dif.push('Com ' + g.label.toLowerCase() + ' de academia (' + g.n + ' conversas), o ponto mais citado foi ' + g.top.area + '.'); });
     res.horarios.forEach(g => { if (g.top && g.top.area !== top.area) dif.push('No horário ' + g.label.toLowerCase() + ' (' + g.n + ' conversas), o ponto mais citado foi ' + g.top.area + '.'); });
-    const comDados = res.tempos.concat(res.horarios).filter(g => g.suficiente).length;
+    const lojas = res.lojas.length > 1 ? res.lojas : [];
+    lojas.forEach(g => { if (g.top && g.top.area !== top.area) dif.push(g.label + ' (' + g.n + ' conversas): o ponto mais citado foi ' + g.top.area + '.'); });
+    const comDados = res.tempos.concat(res.horarios, lojas).filter(g => g.suficiente).length;
     if (dif.length) dif.forEach(x => out.push(x));
     else if (comDados) out.push('O ponto mais citado é o mesmo em todos os grupos com dados suficientes.');
   }
-  if (res.tempos.concat(res.horarios).some(g => g.n > 0 && !g.suficiente)) out.push('Grupos com menos de ' + VA_CONFIG.minCorte + ' conversas não mostram detalhe.');
+  if (res.tempos.concat(res.horarios, res.lojas.length > 1 ? res.lojas : []).some(g => g.n > 0 && !g.suficiente)) out.push('Grupos com menos de ' + VA_CONFIG.minCorte + ' conversas não mostram detalhe.');
   out.push('Leitura direcional: as conversas não formam uma amostra aleatória.');
   return out;
 }
 function vaTextoResumo(res, rotulo) {
   const L = ['Voz do Aluno | ' + rotulo, ''];
   vaSintese(res).forEach(s => L.push(s));
+  if (res.total && res.lojas.length > 1) L.push('', 'Conversas por loja: ' + res.lojas.map(g => g.label + ' (' + g.n + ')').join(', '));
   if (res.total) {
     L.push('', 'O que mais gostam:');
     res.gosta.slice(0, 5).forEach(x => L.push('- ' + x.area + ': ' + x.n + ' (' + x.pct + '%)'));
@@ -4774,7 +4793,19 @@ function vaTextoResumo(res, rotulo) {
 // VA-CORE-END
 // ── VOZ DO ALUNO (interface) ──────────────────────────────────────────────────
 let vaRows = load('gp_voz_aluno').map(vaNorm);
-let vaTab = 'registrar', vaPeriodo = 30, vaUlt = null;
+let vaTab = 'registrar', vaPeriodo = 30, vaUlt = null, vaLojaFiltro = null;
+function vaLojaAtual() { try { return vaLojaLimpa(localStorage.getItem('gp_va_loja') || ''); } catch (e) { return ''; } }
+function vaSetLoja(v) {
+  v = vaLojaLimpa(v).slice(0, 40);
+  try { localStorage.setItem('gp_va_loja', v); } catch (e) { }
+  vaAtualizarContador();
+}
+function vaLojaRapida(v) { const i = document.getElementById('va-loja'); if (i) i.value = v; vaSetLoja(v); document.querySelectorAll('#va-loja-chips .chip-btn').forEach(b => b.classList.toggle('on', vaLojaKey(b.dataset.l) === vaLojaKey(v))); }
+function vaLojasConhecidas() {
+  const m = {}; vaRows.forEach(r => { if (vaLojaLimpa(r.loja)) m[vaLojaKey(r.loja)] = m[vaLojaKey(r.loja)] || vaLojaLimpa(r.loja); });
+  const a = vaLojaAtual(); if (a) m[vaLojaKey(a)] = m[vaLojaKey(a)] || a;
+  return Object.keys(m).map(k => m[k]).sort((x, y) => x.localeCompare(y, 'pt', { numeric: true }));
+}
 const vaZero = () => ({ gosta: '', melhorar: '', gostaAreas: [], melhorarAreas: [], tempo: '', horario: '' });
 let vaForm = vaZero();
 const vaEsc = s => escAttr(s);
@@ -4821,8 +4852,14 @@ function vaChipsCtx(campo, lista) {
     `<button class="chip-btn${vaForm[campo] === o.key ? ' on' : ''}" data-k="${o.key}" onclick="vaSetCtx('${campo}','${o.key}')">${vaEsc(o.label)}</button>`).join('') + '</div>';
 }
 function vaFormHtml() {
+  const lojaAtual = vaLojaAtual(); const conhecidas = vaLojasConhecidas();
   return `
   <div id="va-success" class="success" style="display:none"></div>
+  <div class="field"><label>Loja</label>
+    <input class="inp" id="va-loja" type="text" maxlength="40" value="${vaEsc(lojaAtual)}" placeholder="Ex.: Loja 1" onchange="vaSetLoja(this.value);vaRender()" autocomplete="off">
+    <div id="va-loja-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">${conhecidas.map(l => `<button class="chip-btn${vaLojaKey(l) === vaLojaKey(lojaAtual) ? ' on' : ''}" data-l="${vaEsc(l)}" onclick="vaLojaRapida(this.dataset.l);vaRender()">${vaEsc(l)}</button>`).join('')}</div>
+    <div class="hint" style="margin-top:6px">Fica salva neste aparelho. Mude quando trocar de loja.</div>
+  </div>
   <div class="card" style="padding:14px 16px" id="va-hoje-box"></div>
   <div class="field">
     <label>O que você mais gosta na academia, e por quê?</label>
@@ -4866,14 +4903,14 @@ function vaChecarBtn() {
 }
 function vaAtualizarContador() {
   const box = document.getElementById('va-hoje-box'); if (!box) return;
-  const n = vaRows.filter(r => r.data === vaHoje()).length; const meta = vaMeta();
+  const loja = vaLojaAtual(); const n = vaRows.filter(r => r.data === vaHoje() && (!loja || vaLojaKey(r.loja) === vaLojaKey(loja))).length; const meta = vaMeta();
   const pct = Math.min(100, Math.round(100 * n / meta));
-  box.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;color:#0f172a"><b id="va-hoje-n" style="font-size:22px">${n}</b> de <b id="va-hoje-meta">${meta}</b> conversas hoje</div><button class="chip-btn" onclick="vaAjustarMeta()">Ajustar meta</button></div><div class="va-bar"><i style="width:${pct}%"></i></div>`;
+  box.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;color:#0f172a"><b id="va-hoje-n" style="font-size:22px">${n}</b> de <b id="va-hoje-meta">${meta}</b> conversas hoje${loja ? ' · ' + vaEsc(loja) : ''}</div><button class="chip-btn" onclick="vaAjustarMeta()">Ajustar meta</button></div><div class="va-bar"><i style="width:${pct}%"></i></div>`;
 }
 async function vaSalvar() {
   vaLerForm(); if (!vaPodeSalvar()) return;
   const btn = document.getElementById('va-save-btn'); if (btn) btn.disabled = true;
-  const rec = { data: vaHoje(), tempo: vaForm.tempo, horario: vaForm.horario, gosta: vaForm.gosta.trim(), gosta_areas: vaForm.gostaAreas.slice(), melhorar: vaForm.melhorar.trim(), melhorar_areas: vaForm.melhorarAreas.slice() };
+  const rec = { data: vaHoje(), loja: vaLojaLimpa(document.getElementById('va-loja') ? document.getElementById('va-loja').value : vaLojaAtual()), tempo: vaForm.tempo, horario: vaForm.horario, gosta: vaForm.gosta.trim(), gosta_areas: vaForm.gostaAreas.slice(), melhorar: vaForm.melhorar.trim(), melhorar_areas: vaForm.melhorarAreas.slice() };
   let saved = null; try { saved = await sbInsert('voz_aluno', rec); } catch (e) { saved = null; }
   const row = saved ? Object.assign({}, rec, { id: saved.id, criado_em: saved.criado_em }) : Object.assign({}, rec, { id: 'local_' + Date.now(), criado_em: new Date().toISOString() });
   vaRows.unshift(vaNorm(row)); save('gp_voz_aluno', vaRows);
@@ -4904,7 +4941,9 @@ async function vaSync() {
 }
 
 // ── relatório ────────────────────────────────────────────────────────────────
-function vaRotulo() { return vaPeriodo ? 'últimos ' + vaPeriodo + ' dias' : 'todo o período'; }
+function vaRotulo() { return (vaPeriodo ? 'últimos ' + vaPeriodo + ' dias' : 'todo o período') + (vaLojaFiltro !== null && vaLojaFiltro !== undefined ? ' · ' + (vaLojasTodas().find(l => l.key === vaLojaFiltro) || { label: 'loja' }).label : ''); }
+function vaLojasTodas() { return vaLojas(vaFiltrar(vaRows, vaPeriodo, vaHoje())); }
+function vaSetLojaFiltro(k) { vaLojaFiltro = k === '*' ? null : k; vaRender(); }
 function vaSetPeriodo(d) { vaPeriodo = d; vaRender(); }
 function vaLinhaRank(x, i, campo, acoes) {
   return `<div class="va-rank"><div class="va-rank-top"><span>${vaEsc(x.area)}</span><b>${x.n} (${x.pct}%)</b></div><div class="va-bar"><i style="width:${x.pct}%"></i></div>` +
@@ -4917,16 +4956,21 @@ function vaGrupoHtml(g) {
   return `<div class="va-row"><span>${vaEsc(g.label)}</span><span style="text-align:right"><b>${g.n}</b> · ${det}</span></div>`;
 }
 function vaRelatorioHtml() {
-  const hoje = vaHoje(); const rows = vaFiltrar(vaRows, vaPeriodo, hoje); const res = vaResumo(rows, vaMeta(), hoje);
+  const hoje = vaHoje(); const doPeriodo = vaFiltrar(vaRows, vaPeriodo, hoje);
+  const lojasP = vaLojas(doPeriodo);
+  if (vaLojaFiltro !== null && !lojasP.some(l => l.key === vaLojaFiltro)) vaLojaFiltro = null;
+  const rows = vaLojaFiltro === null ? doPeriodo : doPeriodo.filter(r => vaLojaKey(r.loja) === vaLojaFiltro); const res = vaResumo(rows, vaMeta(), hoje);
   vaUlt = { res: res, rows: rows };
   const chips = [[7, '7 dias'], [30, '30 dias'], [0, 'Tudo']].map(([d, l]) => `<button class="chip-btn${vaPeriodo === d ? ' on' : ''}" onclick="vaSetPeriodo(${d})">${l}</button>`).join('');
   let h = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">${chips}</div>`;
+  if (lojasP.length > 1) h += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="chip-btn${vaLojaFiltro === null ? ' on' : ''}" onclick="vaSetLojaFiltro('*')">Todas as lojas</button>` + lojasP.map(l => `<button class="chip-btn${vaLojaFiltro === l.key ? ' on' : ''}" data-k="${vaEsc(l.key)}" onclick="vaSetLojaFiltro(this.dataset.k)">${vaEsc(l.label)} (${l.n})</button>`).join('') + '</div>';
   if (!res.total) return h + '<div class="empty"><div>Ainda não há conversas neste período.</div></div>';
   h += `<div class="va-kpis"><div class="va-kpi"><b>${res.total}</b><span>conversas</span></div><div class="va-kpi"><b>${res.dias}</b><span>dias com conversa</span></div><div class="va-kpi"><b>${String(res.mediaDia).replace('.', ',')}</b><span>média por dia</span></div><div class="va-kpi"><b>${res.diasMeta}</b><span>dias na meta de ${res.meta}</span></div></div>`;
   h += `<div class="sec-title">Síntese</div><div class="card va-sint" style="padding:14px 16px">${vaSintese(res).map(s => `<p>${vaEsc(s)}</p>`).join('')}</div>`;
   h += `<div class="sec-title">O que mais gostam</div>` + (res.gosta.length ? res.gosta.map((x, i) => vaLinhaRank(x, i, 'gosta', false)).join('') : '<div class="hint">Nenhuma área marcada.</div>');
   h += `<div class="sec-title">O que precisa melhorar</div>` + (res.melhorar.length ? res.melhorar.map((x, i) => vaLinhaRank(x, i, 'melhorar', true)).join('') : '<div class="hint">Nenhuma área marcada.</div>');
   if (res.nada) h += `<div class="hint" style="margin-bottom:8px">${res.nada} ${res.nada === 1 ? 'aluno disse' : 'alunos disseram'} que não há nada a melhorar.</div>`;
+  if (vaLojaFiltro === null && res.lojas.length > 1) h += `<div class="sec-title">Por loja</div><div class="card" style="padding:4px 16px">${res.lojas.map(vaGrupoHtml).join('')}</div>`;
   h += `<div class="sec-title">Por tempo de academia</div><div class="card" style="padding:4px 16px">${res.tempos.map(vaGrupoHtml).join('')}</div>`;
   h += `<div class="sec-title">Por horário</div><div class="card" style="padding:4px 16px">${res.horarios.map(vaGrupoHtml).join('')}</div>`;
   const maxS = Math.max.apply(null, res.semanas.map(s => s.n));
@@ -4962,7 +5006,7 @@ function vaConversasHtml() {
   const lista = vaRows.slice(0, 60);
   return `<div class="sec-title" style="margin-top:0">${vaRows.length} ${vaRows.length === 1 ? 'conversa' : 'conversas'}</div>` + lista.map(r => {
     const tags = (a, cor) => a.length ? '<div class="tags" style="margin-top:6px">' + a.map(x => `<span class="tag ${cor}">${vaEsc(x)}</span>`).join('') + '</div>' : '';
-    return `<div class="fb-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;color:#64748b">${fmtDate(r.data)} · ${vaEsc(vaLabel(VA_CONFIG.tempos, r.tempo))} · ${vaEsc(vaLabel(VA_CONFIG.horarios, r.horario))}</span><button data-id="${vaEsc(String(r.id))}" onclick="vaExcluir(this.dataset.id)" style="background:none;border:none;cursor:pointer;padding:2px" title="Excluir">${SVG.trash}</button></div>` +
+    return `<div class="fb-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;color:#64748b">${fmtDate(r.data)}${r.loja ? ' · ' + vaEsc(r.loja) : ''} · ${vaEsc(vaLabel(VA_CONFIG.tempos, r.tempo))} · ${vaEsc(vaLabel(VA_CONFIG.horarios, r.horario))}</span><button data-id="${vaEsc(String(r.id))}" onclick="vaExcluir(this.dataset.id)" style="background:none;border:none;cursor:pointer;padding:2px" title="Excluir">${SVG.trash}</button></div>` +
       (r.gosta || r.gosta_areas.length ? `<div style="font-size:12px;font-weight:700;color:#16a34a">Gosta</div><div style="font-size:14px;color:#374151;line-height:1.5">${vaEsc(r.gosta)}</div>${tags(r.gosta_areas, 'tag-blue')}` : '') +
       (r.melhorar || r.melhorar_areas.length ? `<div style="font-size:12px;font-weight:700;color:#d97706;margin-top:10px">Melhorar</div><div style="font-size:14px;color:#374151;line-height:1.5">${vaEsc(r.melhorar)}</div>${tags(r.melhorar_areas, 'tag-blue')}` : '') + '</div>';
   }).join('') + (vaRows.length > 60 ? '<div class="hint" style="margin-bottom:28px">Mostrando as 60 mais recentes. O relatório considera todas.</div>' : '');
