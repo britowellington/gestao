@@ -554,6 +554,8 @@ textarea.inp{resize:vertical;min-height:80px}
     </div>
     <div class="field" id="reun-expect-wrap" style="display:none">
       <label>Minhas expectativas com voce</label>
+      <div class="hint" style="margin:0 0 6px">Função</div>
+      <div class="tags" id="reun-funcao-chips" style="margin-bottom:12px"></div>
       <div id="reun-expect-list"></div>
       <button type="button" class="rq-add-btn" onclick="addReunExpect()">+ Adicionar expectativa</button>
     </div>
@@ -862,7 +864,9 @@ textarea.inp{resize:vertical;min-height:80px}
       <label>WhatsApp</label>
       <input class="inp" id="novo-colab-whats" type="tel" placeholder="(11) 91234-5678">
       <label>E-mail</label>
-      <input class="inp" id="novo-colab-email" type="email" placeholder="nome@exemplo.com" onkeydown="if(event.key==='Enter')addColab()">
+      <input class="inp" id="novo-colab-email" type="email" placeholder="nome@exemplo.com">
+      <label>Função</label>
+      <select class="inp" id="novo-colab-funcao" onkeydown="if(event.key==='Enter')addColab()"></select>
       <button class="btn-add" onclick="addColab()">Adicionar</button>
     </div>
     <div id="colab-list"></div>
@@ -1121,9 +1125,10 @@ async function sbDelete(table, id) {
 // Busca colaboradores com whatsapp/email; se as colunas ainda nao existirem
 // no banco (antes de rodar o SQL de migracao), cai de volta para so o nome.
 async function sbGetColaboradores() {
-  const r = await fetch(`${SB_URL}/rest/v1/colaboradores?select=nome,whatsapp,email&order=nome.asc`, {
-    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
-  });
+  const h = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+  let r = await fetch(`${SB_URL}/rest/v1/colaboradores?select=nome,whatsapp,email,funcao&order=nome.asc`, { headers: h });
+  if (r.ok) return await r.json();
+  r = await fetch(`${SB_URL}/rest/v1/colaboradores?select=nome,whatsapp,email&order=nome.asc`, { headers: h });
   if (r.ok) return await r.json();
   return await sbGet('colaboradores', '&select=nome&order=nome.asc');
 }
@@ -1166,8 +1171,9 @@ async function syncFromSupabase() {
     ]);
     reunioes      = rc.map(r => ({...r, id: r.id, temas: r.temas||[], assinaturas: r.assinaturas||[]}));
     colabs        = cl.map(c => c.nome);
+    const metaAnt = colabsMeta || {};
     colabsMeta    = {};
-    cl.forEach(c => { colabsMeta[c.nome] = { whatsapp: c.whatsapp || '', email: c.email || '' }; });
+    cl.forEach(c => { colabsMeta[c.nome] = { whatsapp: c.whatsapp || '', email: c.email || '', funcao: ('funcao' in c) ? (c.funcao || '') : ((metaAnt[c.nome] || {}).funcao || '') }; });
     rapidos       = rp.map(r => ({...r, assinaturas: r.assinaturas||[]}));
     solicitacoes  = sl;
     feedbacks     = fb.map(f => ({...f, areas: f.areas||[]}));
@@ -1405,7 +1411,7 @@ function initReunForm() {
   const cg = document.getElementById('reun-clima-grid');
   cg.innerHTML = SENTIMENTOS.map(s=>`<button class="clima-btn" onclick="setClima(this,'${s.label}','${s.cor}')" style="color:${s.cor}">${s.icon}<span>${s.label}</span></button>`).join('');
   // Reset
-  reunTipo=''; reunTemas=[]; reunClima=''; reunPerguntas=[]; reunExpect=[];
+  reunTipo=''; reunTemas=[]; reunClima=''; reunPerguntas=[]; reunExpect=[]; reunFuncao='';
   ['reun-abordado','reun-acoes','reun-proximos'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('reun-guide-hint').style.display='none';
   document.getElementById('reun-perguntas-wrap').style.display='none';
@@ -1437,7 +1443,9 @@ function setReunTipo(btn, tipo) {
   renderReunPerguntas();
   document.getElementById('reun-perguntas-wrap').style.display = reunPerguntas.length ? '' : 'none';
 
-  reunExpect = (roteiro && roteiro.minhasExpectativas) ? roteiro.minhasExpectativas.map(e => ({t: e.t, d: e.d, nota: ''})) : [];
+  reunFuncao = (roteiro && roteiro.minhasExpectativas) ? fxFuncaoDe(document.getElementById('reun-colab').value) : '';
+  reunExpect = (roteiro && roteiro.minhasExpectativas) ? (fxExpectativas(reunFuncao) || roteiro.minhasExpectativas.map(e => ({t: e.t, d: e.d, nota: ''}))) : [];
+  fxRenderChips();
   renderReunExpect();
   document.getElementById('reun-expect-wrap').style.display = reunExpect.length ? '' : 'none';
 
@@ -1684,8 +1692,10 @@ async function salvarReuniao() {
     cvExtra = { valor_check: {...cvChecks}, retomada: document.getElementById('cv-retomada').value || null };
   }
   const expectativas = reunExpect.filter(e => e.t && e.t.trim()).map(e => ({t: e.t.trim(), d: (e.d||'').trim(), nota: (e.nota||'').trim()}));
-  const registro = { colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, perguntas_respostas: perguntasRespostas, expectativas: expectativas, assinaturas: [], ...cvExtra };
+  const registro = { colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, perguntas_respostas: perguntasRespostas, expectativas: expectativas, funcao: (expectativas.length && reunFuncao) ? reunFuncao : null, assinaturas: [], ...cvExtra };
   let saved = await sbInsert('reunioes', registro);
+  // fallback 0: coluna 'funcao' ainda nao existe em reunioes
+  if (!saved && registro.funcao !== undefined) { const { funcao: _f, ...semF } = registro; saved = await sbInsert('reunioes', semF); if (!saved && cvAtivo()) { const { valor_check: _v, retomada: _r, ...semFCV } = semF; saved = await sbInsert('reunioes', semFCV); } }
   // fallback 1: sem as colunas da Conversa de Valor ('retomada'/'valor_check'), a data vai junto no texto de proximos
   if (!saved && cvAtivo()) {
     const { valor_check, retomada, ...semCV } = registro;
@@ -1696,6 +1706,7 @@ async function salvarReuniao() {
   const regFinal = saved ? {...registro, id: saved.id} : {...registro, id: 'local_'+Date.now()};
   reunioes.unshift(regFinal);
   save('gp_reunioes', reunioes);
+  const fxK = regFinal.funcao; await fxPosSalvar(colab, fxK);
   initReunForm();
   abrirAssinatura(regFinal.id, 'reunioes', [colab], () => { nav('historico'); });
 }
@@ -1958,7 +1969,7 @@ function renderReuniaoCard(r, expanded=false) {
     <div class="card-body${expanded?' open':''}" id="${bodyId}">
       ${r.temas&&r.temas.length?`<div class="tags" style="margin-bottom:14px">${r.temas.map(t=>`<span class="tag tag-blue">${t}</span>`).join('')}</div>`:''}
       ${r.perguntas_respostas&&r.perguntas_respostas.length?`<div class="info-label">Perguntas e respostas</div>${r.perguntas_respostas.map(q=>`<div class="rq-row" style="background:#f8fafc"><div class="rq-q-top" style="margin-bottom:${q.r?'6px':'0'}"><div style="font-weight:700;color:#0f172a;font-size:13.5px">${q.p}</div></div>${q.r?`<div class="info-text">${q.r}</div>`:''}</div>`).join('')}`:''}
-      ${r.expectativas&&r.expectativas.length?`<div class="info-label">Minhas expectativas registradas</div>${r.expectativas.map(e=>`<div class="rq-exp-row"><div class="rq-exp-title">${e.t}</div>${e.d?`<div class="rq-exp-dica" style="color:#64748b">${e.d}</div>`:''}${e.nota?`<div class="info-text" style="margin-top:4px">${e.nota}</div>`:''}</div>`).join('')}`:''}
+      ${r.expectativas&&r.expectativas.length?`<div class="info-label">Minhas expectativas registradas${r.funcao&&fxLabel(r.funcao)?' · '+fxLabel(r.funcao):''}</div>${r.expectativas.map(e=>`<div class="rq-exp-row"><div class="rq-exp-title">${e.t}</div>${e.d?`<div class="rq-exp-dica" style="color:#64748b">${e.d}</div>`:''}${e.nota?`<div class="info-text" style="margin-top:4px">${e.nota}</div>`:''}</div>`).join('')}`:''}
       ${r.abordado?`<div class="info-label">${r.perguntas_respostas&&r.perguntas_respostas.length?'Resumo geral / outras observacoes':'O que foi abordado'}</div><div class="info-text">${r.abordado}</div>`:''}
       ${r.acoes?`<div class="info-label">Acoes combinadas</div><div class="info-text">${r.acoes}</div>`:''}
       ${r.proximos?`<div class="info-label">Proximos passos</div><div class="info-text">${r.proximos}</div>`:''}
@@ -2062,6 +2073,7 @@ function renderHistorico() {
 }
 
 function renderColabs() {
+  const fsel = document.getElementById('novo-colab-funcao'); if (fsel && !fsel.options.length) fsel.innerHTML = fxOptions('');
   document.getElementById('equipe-sub').textContent = colabs.length + ' colaboradores';
   document.getElementById('colab-empty').style.display = colabs.length ? 'none' : '';
   document.getElementById('colab-list').innerHTML = colabs.map(function(c) {
@@ -2075,7 +2087,7 @@ function renderColabs() {
     const nomeAttr = c.replace(/"/g,'&quot;');
     return '<div class="colab-item">'
       + avatar(c,40)
-      + '<div style="flex:1"><div class="colab-name">'+c+'</div><div class="colab-meta">'+(qtd===1?'1 reuniao registrada':qtd+' reunioes registradas')+'</div>'+contatos+'</div>'
+      + '<div style="flex:1"><div class="colab-name">'+c+'</div>'+(fxFuncaoDe(c)?'<div class="colab-meta" style="color:#4f46e5;font-weight:600">'+fxLabel(fxFuncaoDe(c))+'</div>':'')+'<div class="colab-meta">'+(qtd===1?'1 reuniao registrada':qtd+' reunioes registradas')+'</div>'+contatos+'</div>'
       + badge
       + '<div class="colab-actions">'
       + '<button class="btn-edit" data-nome="'+nomeAttr+'" onclick="abrirEditarColab(this.dataset.nome)">'+SVG.edit+'</button>'
@@ -2153,16 +2165,18 @@ async function addColab() {
   const nome  = inpNome.value.trim();
   const whats = inpWhats.value.trim();
   const email = inpEmail.value.trim();
+  const funcao = document.getElementById('novo-colab-funcao').value;
   if (!nome || colabs.includes(nome)) return;
-  const inserted = await sbInsert('colaboradores', { nome, whatsapp: whats || null, email: email || null });
+  let inserted = await sbInsert('colaboradores', { nome, whatsapp: whats || null, email: email || null, funcao: funcao || null });
+  if (!inserted) inserted = await sbInsert('colaboradores', { nome, whatsapp: whats || null, email: email || null }); // sem a coluna funcao ainda
   if (!inserted) await sbInsert('colaboradores', { nome }); // fallback se as colunas ainda nao existirem
   colabs = [...colabs, nome].sort();
   save('gp_colabs', colabs);
-  if (whats || email) {
-    colabsMeta[nome] = { whatsapp: whats, email: email };
+  if (whats || email || funcao) {
+    colabsMeta[nome] = { whatsapp: whats, email: email, funcao: funcao };
     saveColabsMeta();
   }
-  inpNome.value=''; inpWhats.value=''; inpEmail.value='';
+  inpNome.value=''; inpWhats.value=''; inpEmail.value=''; document.getElementById('novo-colab-funcao').value='';
   renderColabs();
 }
 
@@ -2185,6 +2199,7 @@ function abrirEditarColab(nome) {
   document.getElementById('edit-colab-nome').value  = nome;
   document.getElementById('edit-colab-whats').value = meta.whatsapp || '';
   document.getElementById('edit-colab-email').value = meta.email || '';
+  document.getElementById('edit-colab-funcao').innerHTML = fxOptions(fxFuncaoDe(nome));
   document.getElementById('modal-editar-colab').style.display = 'flex';
 }
 
@@ -2199,7 +2214,16 @@ async function salvarEditarColab() {
   const nomeNovo  = document.getElementById('edit-colab-nome').value.trim();
   const whats     = document.getElementById('edit-colab-whats').value.trim();
   const email     = document.getElementById('edit-colab-email').value.trim();
+  const funcao    = document.getElementById('edit-colab-funcao').value;
   if (!nomeNovo) return;
+  const patchColab = async (nomeBusca, extra) => {
+    const url = `${SB_URL}/rest/v1/colaboradores?nome=eq.${encodeURIComponent(nomeBusca)}`;
+    const hd = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+    try {
+      let r = await fetch(url, { method: 'PATCH', headers: hd, body: JSON.stringify(Object.assign({ whatsapp: whats || null, email: email || null, funcao: funcao || null }, extra)) });
+      if (!r.ok) r = await fetch(url, { method: 'PATCH', headers: hd, body: JSON.stringify(Object.assign({ whatsapp: whats || null, email: email || null }, extra)) });
+    } catch (e) { }
+  };
   if (nomeNovo !== nomeAntigo && colabs.includes(nomeNovo)) {
     alert('Ja existe um colaborador com esse nome.');
     return;
@@ -2207,11 +2231,7 @@ async function salvarEditarColab() {
 
   if (nomeNovo !== nomeAntigo) {
     // Atualiza no Supabase (nao ha coluna de rename direta pelo esquema atual, entao ajusta via nome)
-    await fetch(`${SB_URL}/rest/v1/colaboradores?nome=eq.${encodeURIComponent(nomeAntigo)}`, {
-      method: 'PATCH',
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome: nomeNovo, whatsapp: whats || null, email: email || null })
-    }).catch(()=>{});
+    await patchColab(nomeAntigo, { nome: nomeNovo });
 
     // Atualiza a lista local de colaboradores
     colabs = colabs.map(c => c === nomeAntigo ? nomeNovo : c).sort();
@@ -2226,15 +2246,11 @@ async function salvarEditarColab() {
     save('gp_solicit', solicitacoes);
 
     // Move os dados de contato para a nova chave
-    colabsMeta[nomeNovo] = { whatsapp: whats, email: email };
+    colabsMeta[nomeNovo] = { whatsapp: whats, email: email, funcao: funcao };
     delete colabsMeta[nomeAntigo];
   } else {
-    await fetch(`${SB_URL}/rest/v1/colaboradores?nome=eq.${encodeURIComponent(nomeAntigo)}`, {
-      method: 'PATCH',
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ whatsapp: whats || null, email: email || null })
-    }).catch(()=>{});
-    colabsMeta[nomeNovo] = { whatsapp: whats, email: email };
+    await patchColab(nomeAntigo, {});
+    colabsMeta[nomeNovo] = { whatsapp: whats, email: email, funcao: funcao };
   }
   saveColabsMeta();
 
@@ -2613,6 +2629,7 @@ async function delSolicit(id) {
 
 // ── EVENT LISTENERS ───────────────────────────────────────────────────────────
 document.getElementById('reun-colab').addEventListener('change', checkReunBtn);
+document.getElementById('reun-colab').addEventListener('change', () => fxColabMudou());
 document.getElementById('rap-assunto').addEventListener('input', checkRapBtn);
 document.getElementById('sol-assunto').addEventListener('input', checkSolBtn);
 document.getElementById('fb-descricao').addEventListener('input', checkFbBtn);
@@ -3518,6 +3535,10 @@ if (!new URLSearchParams(window.location.search).get('tptoken')) syncFromSupabas
         <label style="font-size:12px;font-weight:700;color:#64748b">E-mail</label>
         <input class="inp" id="edit-colab-email" type="email" placeholder="nome@exemplo.com">
       </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:#64748b">Função</label>
+        <select class="inp" id="edit-colab-funcao"></select>
+      </div>
     </div>
     <button class="btn-primary" style="margin-top:18px" onclick="salvarEditarColab()">Salvar alteracoes</button>
   </div>
@@ -3617,6 +3638,136 @@ if ('serviceWorker' in navigator) {
 <div id="modal-tp-publico" style="display:none;position:fixed;inset:0;z-index:310;background:#f8fafc;overflow-y:auto"></div>
 
 <script>
+// ── FUNÇÕES E EXPECTATIVAS POR FUNÇÃO ────────────────────────────────────────
+// Cada função tem a lista de "o que espero de você". Os 3 itens comuns vêm primeiro.
+// FX-CORE-START
+const FX_FUNCOES = [
+  { key: 'musculacao', label: 'Professor de musculação' },
+  { key: 'coletivas', label: 'Professor de coletivas' },
+  { key: 'personal', label: 'Personal' },
+  { key: 'recepcao', label: 'Recepção' },
+  { key: 'manutencao', label: 'Manutenção' },
+  { key: 'limpeza', label: 'Limpeza' },
+  { key: 'administrativo', label: 'Administrativo' },
+  { key: 'outra', label: 'Outra' }
+];
+const FX_COMUNS = [
+  { t: 'Comunicação aberta e direta', d: 'Espero que me procure cedo quando algo travar, antes de virar problema.' },
+  { t: 'Postura com o time', d: 'Respeito e colaboração entre colegas, mesmo em desacordo. Divergência se resolve com conversa, não com ruído.' },
+  { t: 'Proatividade', d: 'Traga a solução junto com o problema. Eu apoio, mas não quero ser o único a enxergar o que precisa mudar.' }
+];
+const FX_ESPECIFICAS = {
+  musculacao: [
+    { t: 'Presença no salão', d: 'Espero que circule, aborde o aluno e esteja disponível, sem ficar no celular ou parado.' },
+    { t: 'Treino atualizado', d: 'Ficha com o objetivo do aluno claro e revisada no prazo.' },
+    { t: 'Execução e segurança', d: 'Corrigir a postura e colocar a segurança do aluno em primeiro lugar.' },
+    { t: 'Acompanhar quem chegou e quem sumiu', d: 'Cuidar dos alunos novos nas primeiras semanas e me avisar quando alguém parar de vir.' },
+    { t: 'Salão em ordem', d: 'Anilhas e halteres no lugar, e equipamento com defeito comunicado na hora.' }
+  ],
+  coletivas: [
+    { t: 'Recebimento na porta da sala', d: 'Espero que receba o aluno na porta da sala, com cordialidade, pelo nome sempre que possível.' },
+    { t: 'Despedida na porta da sala', d: 'Despedir-se do aluno na porta ao final da aula, com cordialidade e um agradecimento.' },
+    { t: 'Aula preparada', d: 'Plano, música e objetivo definidos antes de começar. Improviso é exceção, não rotina.' },
+    { t: 'Energia constante', d: 'A mesma entrega com 3 ou com 30 alunos.' },
+    { t: 'Olhar para a turma toda', d: 'Adaptar para quem é iniciante e para quem tem limitação, sem deixar ninguém de lado.' },
+    { t: 'Sala pronta', d: 'Sala montada antes da aula e devolvida em ordem ao final. O próximo colega merece encontrar tudo no lugar.' },
+    { t: 'Pontualidade e aviso antecipado', d: 'Começar e terminar no horário. Se não puder dar a aula, avise com antecedência para combinarmos a troca.' }
+  ],
+  personal: [
+    { t: 'Atendimento no padrão da casa', d: 'O aluno da academia e o seu cliente sentem o mesmo cuidado. Apresentação e linguagem à altura do padrão da casa.' },
+    { t: 'Pontualidade', d: 'Chegar e começar no horário combinado com o cliente, e avisar cedo se algo mudar.' },
+    { t: 'Convivência no salão', d: 'Não monopolizar equipamentos nem atrapalhar o fluxo, principalmente no horário de pico. Respeito aos demais alunos.' },
+    { t: 'Segurança do cliente', d: 'Avaliação e treino adequados ao cliente, com a segurança em primeiro lugar.' },
+    { t: 'Alinhamento com a academia', d: 'Seguir as regras, o cadastro e o acesso combinados, e me procurar quando houver dúvida.' }
+  ],
+  recepcao: [
+    { t: 'Primeiro contato', d: 'Receber o aluno com atenção, olhando nos olhos e pelo nome, com clareza no que ele precisa.' },
+    { t: 'Informação correta', d: 'Planos, horários e regras ditos com segurança. Se não souber, busque a resposta antes de responder.' },
+    { t: 'Atendimento comercial', d: 'Apresentar os planos com clareza, entender o objetivo de quem visita e conduzir até a matrícula, sem empurrar.' },
+    { t: 'Matrícula e cadastro corretos', d: 'Dados completos e contrato conferido. Acesso liberado só com autorização, sem exceção.' },
+    { t: 'Registro e retorno', d: 'Reclamação e solicitação registradas, com resposta ao aluno.' },
+    { t: 'Balcão e passagem de turno', d: 'Balcão organizado e pendências repassadas ao próximo turno.' },
+    { t: 'Pontualidade na abertura', d: 'Recepção pronta e aberta no horário.' }
+  ],
+  manutencao: [
+    { t: 'Segurança em primeiro lugar', d: 'Equipamento com risco fica sinalizado e fora de uso até ser resolvido.' },
+    { t: 'Checklist e preventiva em dia', d: 'Rotina de manutenção feita e registrada, sem atraso.' },
+    { t: 'Equipamentos prontos antes do pico', d: 'O que precisa de reparo é resolvido antes do horário de maior movimento.' },
+    { t: 'Prazo e retorno', d: 'Dizer quando resolve e avisar cedo se depender de peça.' },
+    { t: 'Trabalhar sem atrapalhar o aluno', d: 'Sinalizar a área e escolher o melhor horário para a intervenção.' }
+  ],
+  limpeza: [
+    { t: 'Checklist cumprido', d: 'Tarefas feitas nos horários combinados.' },
+    { t: 'Ambiente pronto antes do aluno', d: 'Vestiários e banheiros prontos antes de o aluno chegar.' },
+    { t: 'Ronda no horário de pico', d: 'Passar nos horários de maior movimento para manter o padrão.' },
+    { t: 'Aviso antecipado de material', d: 'Avisar antes de faltar papel, sabonete e produtos.' },
+    { t: 'Segurança e ocorrências', d: 'Piso molhado sinalizado e problemas como vazamento ou quebra avisados na hora.' }
+  ],
+  administrativo: [
+    { t: 'Prazo e precisão', d: 'Rotinas e demandas entregues no prazo, com dados corretos.' },
+    { t: 'Organização dos registros', d: 'Documentos e controles atualizados e fáceis de encontrar.' },
+    { t: 'Retorno às áreas', d: 'Responder as demandas da equipe e da liderança no prazo combinado.' },
+    { t: 'Sigilo', d: 'Informações de pessoas e financeiras tratadas com discrição.' },
+    { t: 'Apoio à operação', d: 'Conhecer a rotina do salão e da recepção para resolver o que trava o dia a dia.' },
+    { t: 'Aviso de pendências e vencimentos', d: 'Avisar com antecedência o que está para vencer ou atrasar.' }
+  ],
+  outra: []
+};
+function fxLabel(key) { const f = FX_FUNCOES.find(x => x.key === key); return f ? f.label : ''; }
+function fxValida(key) { return FX_FUNCOES.some(x => x.key === key); }
+// Lista de expectativas da função (comuns + específicas). Devolve null se a função for vazia ou desconhecida.
+function fxExpectativas(key) {
+  if (!fxValida(key)) return null;
+  return FX_COMUNS.concat(FX_ESPECIFICAS[key] || []).map(e => ({ t: e.t, d: e.d, nota: '' }));
+}
+// FX-CORE-END
+// ── FUNÇÃO DO COLABORADOR: interface ─────────────────────────────────────────
+let reunFuncao = '';
+function fxOptions(sel) { return '<option value="">Não informada</option>' + FX_FUNCOES.map(f => `<option value="${f.key}"${f.key === sel ? ' selected' : ''}>${f.label}</option>`).join(''); }
+function fxFuncaoDe(nome) { const m = (colabsMeta || {})[nome]; return m && fxValida(m.funcao) ? m.funcao : ''; }
+async function fxSalvarFuncaoColab(nome, key) {
+  colabsMeta[nome] = Object.assign({ whatsapp: '', email: '' }, colabsMeta[nome], { funcao: key || '' });
+  saveColabsMeta();
+  try {
+    await fetch(`${SB_URL}/rest/v1/colaboradores?nome=eq.${encodeURIComponent(nome)}`, {
+      method: 'PATCH', headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ funcao: key || null })
+    });
+  } catch (e) { }
+}
+// Chips de função dentro do bloco de expectativas da reunião
+function fxRenderChips() {
+  const el = document.getElementById('reun-funcao-chips'); if (!el) return;
+  el.innerHTML = FX_FUNCOES.map(f => `<button type="button" class="chip-btn${reunFuncao === f.key ? ' on' : ''}" data-f="${f.key}" onclick="fxEscolher(this.dataset.f)">${f.label}</button>`).join('');
+}
+function fxTemEdicao() { return reunExpect.some(e => (e.nota || '').trim()); }
+function fxEscolher(key) {
+  if (key === reunFuncao) return;
+  if (fxTemEdicao() && !confirm('Trocar a função substitui a lista e apaga as particularidades já escritas. Continuar?')) return;
+  reunFuncao = key; fxAplicar();
+}
+function fxAplicar() {
+  const roteiro = ROTEIROS.find(r => r.tipo === reunTipo);
+  const base = fxExpectativas(reunFuncao) || ((roteiro && roteiro.minhasExpectativas) ? roteiro.minhasExpectativas.map(e => ({ t: e.t, d: e.d, nota: '' })) : []);
+  reunExpect = base; fxRenderChips(); renderReunExpect();
+  document.getElementById('reun-expect-wrap').style.display = (reunTipo && ROTEIROS.find(r => r.tipo === reunTipo && r.minhasExpectativas)) ? '' : 'none';
+}
+// Ao escolher o colaborador, usa a função salva no cadastro dele
+function fxColabMudou() {
+  const nome = document.getElementById('reun-colab').value;
+  const roteiro = ROTEIROS.find(r => r.tipo === reunTipo);
+  if (!roteiro || !roteiro.minhasExpectativas) return;
+  const f = fxFuncaoDe(nome);
+  if (f !== reunFuncao && !(fxTemEdicao())) { reunFuncao = f; fxAplicar(); }
+}
+// Depois de salvar a reunião: grava a função no cadastro do colaborador
+async function fxPosSalvar(nome, key) {
+  if (!key) return;
+  const atual = fxFuncaoDe(nome);
+  if (atual === key) return;
+  if (atual && !confirm('Atualizar a função de ' + nome + ' no cadastro para ' + fxLabel(key) + '?')) return;
+  await fxSalvarFuncaoColab(nome, key);
+}
 // ═══════════════════════════════════════════════════════════════════════════════
 // TEM PESSOAS | Indicador de Experiência e Engajamento do Colaborador
 // Ferramenta interna de diagnóstico, sujeita a testes e aprimoramento.
