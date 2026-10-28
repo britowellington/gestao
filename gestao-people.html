@@ -468,6 +468,7 @@ textarea.inp{resize:vertical;min-height:80px}
     <div id="rap-success" class="success" style="display:none">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Registrado!
     </div>
+    <div class="field" id="rap-loja-box"></div>
     <div class="field">
       <label>Pilar *</label>
       <div class="origem-grid" id="rap-pilar-grid"></div>
@@ -533,6 +534,11 @@ textarea.inp{resize:vertical;min-height:80px}
       <select class="inp" id="reun-colab"><option value="">Selecione...</option></select>
       <div id="reun-colab-hint" style="display:none"><button class="btn-link-blue" onclick="nav('colaboradores')">Cadastre colaboradores primeiro →</button></div>
     </div>
+    <div class="field" id="reun-loja-box"></div>
+    <div class="field">
+      <label>Setor / função</label>
+      <div class="tags" id="reun-funcao-chips"></div>
+    </div>
     <div class="field">
       <label>Data *</label>
       <input type="date" class="inp" id="reun-data">
@@ -554,8 +560,6 @@ textarea.inp{resize:vertical;min-height:80px}
     </div>
     <div class="field" id="reun-expect-wrap" style="display:none">
       <label>Minhas expectativas com voce</label>
-      <div class="hint" style="margin:0 0 6px">Função</div>
-      <div class="tags" id="reun-funcao-chips" style="margin-bottom:12px"></div>
       <div id="reun-expect-list"></div>
       <button type="button" class="rq-add-btn" onclick="addReunExpect()">+ Adicionar expectativa</button>
     </div>
@@ -1233,6 +1237,7 @@ function nav(id) {
   if (id === 'tempessoas') tpInit();
   if (id === 'vozaluno') vaInit();
   if (id === 'nova') initReunForm();
+  fxRenderLojas();
   window.scrollTo(0,0);
 }
 
@@ -1418,6 +1423,7 @@ function initReunForm() {
   document.getElementById('reun-expect-wrap').style.display='none';
   document.getElementById('reun-abordado-label').textContent='O que foi abordado';
   cvReset();
+  fxRenderChips();
   checkReunBtn();
 }
 
@@ -1443,7 +1449,7 @@ function setReunTipo(btn, tipo) {
   renderReunPerguntas();
   document.getElementById('reun-perguntas-wrap').style.display = reunPerguntas.length ? '' : 'none';
 
-  reunFuncao = (roteiro && roteiro.minhasExpectativas) ? fxFuncaoDe(document.getElementById('reun-colab').value) : '';
+  if (!reunFuncao) reunFuncao = fxFuncaoDe(document.getElementById('reun-colab').value);
   reunExpect = (roteiro && roteiro.minhasExpectativas) ? (fxExpectativas(reunFuncao) || roteiro.minhasExpectativas.map(e => ({t: e.t, d: e.d, nota: ''}))) : [];
   fxRenderChips();
   renderReunExpect();
@@ -1692,10 +1698,10 @@ async function salvarReuniao() {
     cvExtra = { valor_check: {...cvChecks}, retomada: document.getElementById('cv-retomada').value || null };
   }
   const expectativas = reunExpect.filter(e => e.t && e.t.trim()).map(e => ({t: e.t.trim(), d: (e.d||'').trim(), nota: (e.nota||'').trim()}));
-  const registro = { colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, perguntas_respostas: perguntasRespostas, expectativas: expectativas, funcao: (expectativas.length && reunFuncao) ? reunFuncao : null, assinaturas: [], ...cvExtra };
+  const registro = { colaborador: colab, data, tipo: reunTipo, temas: [...reunTemas], clima: reunClima, abordado: document.getElementById('reun-abordado').value, acoes: document.getElementById('reun-acoes').value, proximos: document.getElementById('reun-proximos').value, perguntas_respostas: perguntasRespostas, expectativas: expectativas, funcao: reunFuncao || null, loja: fxLojaAtual() || null, assinaturas: [], ...cvExtra };
   let saved = await sbInsert('reunioes', registro);
   // fallback 0: coluna 'funcao' ainda nao existe em reunioes
-  if (!saved && registro.funcao !== undefined) { const { funcao: _f, ...semF } = registro; saved = await sbInsert('reunioes', semF); if (!saved && cvAtivo()) { const { valor_check: _v, retomada: _r, ...semFCV } = semF; saved = await sbInsert('reunioes', semFCV); } }
+  if (!saved && registro.funcao !== undefined) { const { funcao: _f, loja: _l, ...semF } = registro; saved = await sbInsert('reunioes', semF); if (!saved && cvAtivo()) { const { valor_check: _v, retomada: _r, ...semFCV } = semF; saved = await sbInsert('reunioes', semFCV); } }
   // fallback 1: sem as colunas da Conversa de Valor ('retomada'/'valor_check'), a data vai junto no texto de proximos
   if (!saved && cvAtivo()) {
     const { valor_check, retomada, ...semCV } = registro;
@@ -1718,8 +1724,9 @@ async function salvarRapido() {
   if (rapCtx==='individual') participantes = document.getElementById('rap-colab').value;
   else if (rapCtx==='grupo') participantes = document.getElementById('rap-grupo-nomes').value;
   else if (rapCtx==='setor') participantes = rapSetor;
-  const rapData = { data: today(), pilar: rapPilar, contexto: rapCtx, participantes, assunto, encaminhamento: document.getElementById('rap-enc').value, assinaturas: [] };
+  const rapData = { data: today(), loja: fxLojaAtual(), pilar: rapPilar, contexto: rapCtx, participantes, assunto, encaminhamento: document.getElementById('rap-enc').value, assinaturas: [] };
   let rapSaved = await sbInsert('rapidos', rapData);
+  if (!rapSaved) { const { loja: _lj, ...semLoja } = rapData; rapSaved = await sbInsert('rapidos', semLoja); } // coluna 'loja' ainda nao existe
   if (!rapSaved) rapSaved = await sbInsert('rapidos', { data: rapData.data, contexto: rapCtx, participantes, assunto, encaminhamento: rapData.encaminhamento, assinaturas: [] }); // fallback se a coluna 'pilar' ainda nao existir
   const regRap = rapSaved ? {...rapData, id: rapSaved.id} : {...rapData, id: 'local_'+Date.now()};
   rapidos.unshift(regRap);
@@ -1945,7 +1952,7 @@ function renderRapCard(r) {
         <div style="width:32px;height:32px;border-radius:8px;background:${cor}18;display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${cor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         </div>
-        <div><div style="font-weight:700;color:#0f172a;font-size:13px">${ctx[r.contexto]||''}${r.participantes?' · '+r.participantes:''}${pilarBadge}</div><div style="font-size:11px;color:#94a3b8">${fmtDate(r.data)}</div></div>
+        <div><div style="font-weight:700;color:#0f172a;font-size:13px">${ctx[r.contexto]||''}${r.participantes?' · '+r.participantes:''}${pilarBadge}</div><div style="font-size:11px;color:#94a3b8">${fmtDate(r.data)}${r.loja?' · '+r.loja:''}</div></div>
       </div>
       <button class="btn-delete" data-id="${r.id}" onclick="delRapido(this.dataset.id)">${SVG.trash}</button>
     </div>
@@ -1962,7 +1969,7 @@ function renderReuniaoCard(r, expanded=false) {
     <div class="card-hdr" data-id="${bodyId}" onclick="toggleCard(this.dataset.id,this)">
       <div class="card-left">
         ${avatar(r.colaborador,40)}
-        <div><div class="card-name">${r.colaborador}</div><div class="card-meta">${r.tipo}</div><div class="card-meta" style="font-size:11px">${fmtDate(r.data)}</div></div>
+        <div><div class="card-name">${r.colaborador}</div><div class="card-meta">${r.tipo}</div><div class="card-meta" style="font-size:11px">${fmtDate(r.data)}${r.loja?' · '+r.loja:''}${r.funcao&&fxLabel(r.funcao)?' · '+fxLabel(r.funcao):''}</div></div>
       </div>
       <div style="display:flex;align-items:center;gap:8px"><div style="color:${s.cor}">${s.icon}</div><span id="chev-${bodyId}">${SVG.chevD}</span></div>
     </div>
@@ -2066,7 +2073,7 @@ function renderSolCard(s) {
 // ── RENDER PAGES ──────────────────────────────────────────────────────────────
 function renderHistorico() {
   const q = document.getElementById('hist-busca').value.toLowerCase();
-  const filtered = reunioes.filter(r=>r.colaborador.toLowerCase().includes(q)||r.tipo.toLowerCase().includes(q));
+  const filtered = reunioes.filter(r=>r.colaborador.toLowerCase().includes(q)||r.tipo.toLowerCase().includes(q)||(r.loja||'').toLowerCase().includes(q)||fxLabel(r.funcao||'').toLowerCase().includes(q));
   document.getElementById('hist-sub').textContent = reunioes.length + ' reunioes registradas';
   document.getElementById('hist-list').innerHTML = filtered.map(r=>renderReuniaoCard(r,true)).join('');
   document.getElementById('hist-empty').style.display = filtered.length ? 'none' : '';
@@ -3741,24 +3748,25 @@ function fxRenderChips() {
   el.innerHTML = FX_FUNCOES.map(f => `<button type="button" class="chip-btn${reunFuncao === f.key ? ' on' : ''}" data-f="${f.key}" onclick="fxEscolher(this.dataset.f)">${f.label}</button>`).join('');
 }
 function fxTemEdicao() { return reunExpect.some(e => (e.nota || '').trim()); }
+function fxTemRoteiroExp() { return !!ROTEIROS.find(r => r.tipo === reunTipo && r.minhasExpectativas); }
 function fxEscolher(key) {
   if (key === reunFuncao) return;
-  if (fxTemEdicao() && !confirm('Trocar a função substitui a lista e apaga as particularidades já escritas. Continuar?')) return;
+  if (fxTemRoteiroExp() && fxTemEdicao() && !confirm('Trocar a função substitui a lista e apaga as particularidades já escritas. Continuar?')) return;
   reunFuncao = key; fxAplicar();
 }
 function fxAplicar() {
   const roteiro = ROTEIROS.find(r => r.tipo === reunTipo);
   const base = fxExpectativas(reunFuncao) || ((roteiro && roteiro.minhasExpectativas) ? roteiro.minhasExpectativas.map(e => ({ t: e.t, d: e.d, nota: '' })) : []);
-  reunExpect = base; fxRenderChips(); renderReunExpect();
-  document.getElementById('reun-expect-wrap').style.display = (reunTipo && ROTEIROS.find(r => r.tipo === reunTipo && r.minhasExpectativas)) ? '' : 'none';
+  fxRenderChips();
+  if (!fxTemRoteiroExp()) return;
+  reunExpect = base; renderReunExpect();
+  document.getElementById('reun-expect-wrap').style.display = '';
 }
 // Ao escolher o colaborador, usa a função salva no cadastro dele
 function fxColabMudou() {
   const nome = document.getElementById('reun-colab').value;
-  const roteiro = ROTEIROS.find(r => r.tipo === reunTipo);
-  if (!roteiro || !roteiro.minhasExpectativas) return;
   const f = fxFuncaoDe(nome);
-  if (f !== reunFuncao && !(fxTemEdicao())) { reunFuncao = f; fxAplicar(); }
+  if (f !== reunFuncao && !(fxTemRoteiroExp() && fxTemEdicao())) { reunFuncao = f; fxAplicar(); }
 }
 // Depois de salvar a reunião: grava a função no cadastro do colaborador
 async function fxPosSalvar(nome, key) {
@@ -3767,6 +3775,32 @@ async function fxPosSalvar(nome, key) {
   if (atual === key) return;
   if (atual && !confirm('Atualizar a função de ' + nome + ' no cadastro para ' + fxLabel(key) + '?')) return;
   await fxSalvarFuncaoColab(nome, key);
+}
+
+// ── LOJA (campo editável, lembrado no aparelho e compartilhado com a Voz do Aluno) ─────
+function fxLojaAtual() { try { return String(localStorage.getItem('gp_va_loja') || '').replace(/\s+/g, ' ').trim(); } catch (e) { return ''; } }
+function fxLojaKey(s) { return String(s || '').replace(/\s+/g, ' ').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); }
+function fxLojasConhecidas() {
+  const m = {}; const add = l => { l = String(l || '').replace(/\s+/g, ' ').trim(); if (l && !m[fxLojaKey(l)]) m[fxLojaKey(l)] = l; };
+  (reunioes || []).forEach(r => add(r.loja)); (rapidos || []).forEach(r => add(r.loja));
+  try { (typeof vaRows !== 'undefined' ? vaRows : []).forEach(r => add(r.loja)); } catch (e) { }
+  add(fxLojaAtual());
+  return Object.keys(m).map(k => m[k]).sort((a, b) => a.localeCompare(b, 'pt', { numeric: true }));
+}
+function fxSetLoja(v) {
+  v = String(v || '').replace(/\s+/g, ' ').trim().slice(0, 40);
+  try { localStorage.setItem('gp_va_loja', v); } catch (e) { }
+  fxRenderLojas();
+}
+function fxRenderLojas() {
+  const atual = fxLojaAtual(); const lista = fxLojasConhecidas();
+  ['reun', 'rap'].forEach(p => {
+    const box = document.getElementById(p + '-loja-box'); if (!box) return;
+    const foco = document.activeElement && document.activeElement.id === p + '-loja';
+    box.innerHTML = `<label>Loja</label><input class="inp" id="${p}-loja" type="text" maxlength="40" value="${escAttr(atual)}" placeholder="Ex.: Loja 1" autocomplete="off" onchange="fxSetLoja(this.value)">` +
+      `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">${lista.map(l => `<button type="button" class="chip-btn${fxLojaKey(l) === fxLojaKey(atual) ? ' on' : ''}" data-l="${escAttr(l)}" onclick="fxSetLoja(this.dataset.l)">${escAttr(l)}</button>`).join('')}</div>`;
+    if (foco) { const i = document.getElementById(p + '-loja'); if (i) i.focus(); }
+  });
 }
 // ═══════════════════════════════════════════════════════════════════════════════
 // TEM PESSOAS | Indicador de Experiência e Engajamento do Colaborador
